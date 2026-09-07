@@ -1,0 +1,169 @@
+import React, { useState } from "react";
+import UploadBox from "../components/UploadBox";
+import VerificationCard from "../components/VerificationCard";
+import { verifyDocumentApi, verifySampleApi } from "../services/api";
+import { Cpu, CheckCircle2, AlertCircle } from "lucide-react";
+
+export default function Verify() {
+  const [loading, setLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState("");
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const runPipelineWithSteps = async (taskFn) => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      setCurrentStep("Stage 1/5: Ingesting file & verifying payload structure...");
+      await new Promise((r) => setTimeout(r, 400));
+
+      setCurrentStep("Stage 2/5: Executing Tesseract.js OCR text & field extraction...");
+      await new Promise((r) => setTimeout(r, 500));
+
+      setCurrentStep("Stage 3/5: Scanning QR matrix code & running Tamper ELA Analysis...");
+      await new Promise((r) => setTimeout(r, 500));
+
+      setCurrentStep("Stage 4/5: Cross-referencing Authoritative Issuer Registry...");
+      await new Promise((r) => setTimeout(r, 400));
+
+      setCurrentStep("Stage 5/5: Computing Weighted Risk Score & saving Audit Record...");
+      const res = await taskFn();
+
+      setResult(res);
+    } catch (err) {
+      console.error("Verification error:", err);
+      setError(err.message || "Document verification pipeline failed.");
+    } finally {
+      setLoading(false);
+      setCurrentStep("");
+    }
+  };
+
+  const handleFileUpload = (file, forcedType, manualNumber) => {
+    runPipelineWithSteps(() => verifyDocumentApi(file, forcedType, manualNumber));
+  };
+
+  const handleSampleSelect = (sample) => {
+    runPipelineWithSteps(() =>
+      verifySampleApi(sample.samplePath, sample.documentType, sample.simulatedData)
+    );
+  };
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.grid}>
+        {/* Left Column: Upload Form */}
+        <div>
+          <UploadBox
+            onUpload={handleFileUpload}
+            onSelectSample={handleSampleSelect}
+            loading={loading}
+          />
+        </div>
+
+        {/* Right Column: Processing Pipeline Tracker or Result Card */}
+        <div>
+          {loading && (
+            <div className="glass-card" style={styles.loadingBox}>
+              <div style={styles.spinnerWrapper}>
+                <Cpu size={48} color="#818cf8" className="pulse-animation" />
+              </div>
+              <h3 style={{ fontSize: "1.2rem", marginTop: "16px" }}>
+                Document Verification Pipeline In Progress
+              </h3>
+              <p style={{ color: "#38bdf8", fontWeight: 600, marginTop: "8px", fontSize: "0.92rem" }}>
+                {currentStep}
+              </p>
+              <div style={styles.progressBar}>
+                <div className="pulse-animation" style={styles.progressFill} />
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="glass-card" style={styles.errorBox}>
+              <AlertCircle size={28} color="#ef4444" />
+              <div>
+                <h4 style={{ color: "#ef4444" }}>Verification Error</h4>
+                <p style={{ fontSize: "0.88rem", color: "#9ca3af", marginTop: "4px" }}>{error}</p>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && !result && (
+            <div className="glass-card" style={styles.emptyState}>
+              <Cpu size={40} color="#4b5563" />
+              <h3 style={{ marginTop: "16px", color: "#9ca3af" }}>No Active Verification</h3>
+              <p style={{ fontSize: "0.85rem", color: "#6b7280", marginTop: "4px", maxWidth: "340px" }}>
+                Upload a PAN Card or Driving Licence image on the left, or select a synthetic demo sample to view real-time verification analysis.
+              </p>
+            </div>
+          )}
+
+          {!loading && result && <VerificationCard result={result} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    maxWidth: "1280px",
+    margin: "0 auto",
+    padding: "40px 24px"
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1.1fr",
+    gap: "32px"
+  },
+  loadingBox: {
+    padding: "48px 32px",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  spinnerWrapper: {
+    width: "80px",
+    height: "80px",
+    borderRadius: "50%",
+    background: "rgba(99, 102, 241, 0.12)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  progressBar: {
+    width: "100%",
+    height: "6px",
+    background: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "9999px",
+    marginTop: "24px",
+    overflow: "hidden"
+  },
+  progressFill: {
+    height: "100%",
+    width: "100%",
+    background: "linear-gradient(90deg, #6366f1, #06b6d4)"
+  },
+  errorBox: {
+    padding: "24px",
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "16px",
+    border: "1px solid rgba(239, 68, 68, 0.3)"
+  },
+  emptyState: {
+    padding: "60px 32px",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "420px"
+  }
+};
