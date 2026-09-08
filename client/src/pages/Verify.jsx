@@ -68,12 +68,12 @@ export default function Verify() {
           {loading && (
             <div className="glass-card" style={styles.loadingBox}>
               <div style={styles.spinnerWrapper}>
-                <Cpu size={48} color="#818cf8" className="pulse-animation" />
+                <Cpu size={44} color="#2563eb" className="pulse-animation" />
               </div>
-              <h3 style={{ fontSize: "1.2rem", marginTop: "16px" }}>
+              <h3 style={{ fontSize: "1.2rem", marginTop: "16px", color: "#0f172a" }}>
                 Document Verification Pipeline In Progress
               </h3>
-              <p style={{ color: "#38bdf8", fontWeight: 600, marginTop: "8px", fontSize: "0.92rem" }}>
+              <p style={{ color: "#2563eb", fontWeight: 600, marginTop: "8px", fontSize: "0.92rem" }}>
                 {currentStep}
               </p>
               <div style={styles.progressBar}>
@@ -84,19 +84,21 @@ export default function Verify() {
 
           {error && (
             <div className="glass-card" style={styles.errorBox}>
-              <AlertCircle size={28} color="#ef4444" />
+              <AlertCircle size={28} color="#dc2626" />
               <div>
-                <h4 style={{ color: "#ef4444" }}>Verification Error</h4>
-                <p style={{ fontSize: "0.88rem", color: "#9ca3af", marginTop: "4px" }}>{error}</p>
+                <h4 style={{ color: "#dc2626" }}>Verification Error</h4>
+                <p style={{ fontSize: "0.88rem", color: "#64748b", marginTop: "4px" }}>{error}</p>
               </div>
             </div>
           )}
 
           {!loading && !error && !result && (
             <div className="glass-card" style={styles.emptyState}>
-              <Cpu size={40} color="#4b5563" />
-              <h3 style={{ marginTop: "16px", color: "#9ca3af" }}>No Active Verification</h3>
-              <p style={{ fontSize: "0.85rem", color: "#6b7280", marginTop: "4px", maxWidth: "340px" }}>
+              <div style={styles.emptyIconCircle}>
+                <Cpu size={36} color="#2563eb" />
+              </div>
+              <h3 style={{ marginTop: "16px", color: "#1e293b" }}>No Active Verification</h3>
+              <p style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "6px", maxWidth: "340px", lineHeight: 1.5 }}>
                 Upload a PAN Card or Driving Licence image on the left, or select a synthetic demo sample to view real-time verification analysis.
               </p>
             </div>
@@ -111,9 +113,9 @@ export default function Verify() {
 
 const styles = {
   container: {
-    maxWidth: "1280px",
+    maxWidth: "1320px",
     margin: "0 auto",
-    padding: "40px 24px"
+    padding: "36px 28px 60px 28px"
   },
   grid: {
     display: "grid",
@@ -129,10 +131,10 @@ const styles = {
     justifyContent: "center"
   },
   spinnerWrapper: {
-    width: "80px",
-    height: "80px",
+    width: "76px",
+    height: "76px",
     borderRadius: "50%",
-    background: "rgba(99, 102, 241, 0.12)",
+    background: "#eff6ff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
@@ -140,7 +142,7 @@ const styles = {
   progressBar: {
     width: "100%",
     height: "6px",
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "#e2e8f0",
     borderRadius: "9999px",
     marginTop: "24px",
     overflow: "hidden"
@@ -148,14 +150,15 @@ const styles = {
   progressFill: {
     height: "100%",
     width: "100%",
-    background: "linear-gradient(90deg, #6366f1, #06b6d4)"
+    background: "linear-gradient(90deg, #2563eb, #0284c7)"
   },
   errorBox: {
     padding: "24px",
     display: "flex",
     alignItems: "flex-start",
     gap: "16px",
-    border: "1px solid rgba(239, 68, 68, 0.3)"
+    background: "#fef2f2",
+    borderColor: "#fecaca"
   },
   emptyState: {
     padding: "60px 32px",
@@ -165,5 +168,14 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     minHeight: "420px"
+  },
+  emptyIconCircle: {
+    width: "70px",
+    height: "70px",
+    borderRadius: "50%",
+    background: "#eff6ff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
   }
 };

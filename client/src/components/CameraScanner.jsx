@@ -124,13 +124,13 @@ export default function CameraScanner({ onCapture, onClose }) {
         {/* Header */}
         <div style={styles.header}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Camera size={22} color="#818cf8" />
-            <span style={{ fontWeight: 800, fontSize: "1.1rem" }}>
+            <Camera size={22} color="#2563eb" />
+            <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#0f172a" }}>
               Live Document Camera Scanner
             </span>
           </div>
           <button style={styles.iconBtn} onClick={onClose}>
-            <X size={20} />
+            <X size={20} color="#64748b" />
           </button>
         </div>
 
@@ -138,8 +138,8 @@ export default function CameraScanner({ onCapture, onClose }) {
         <div style={styles.cameraBox}>
           {error ? (
             <div style={styles.errorBox}>
-              <AlertCircle size={32} color="#ef4444" />
-              <div style={{ color: "#ef4444", fontWeight: 600, marginTop: "8px" }}>{error}</div>
+              <AlertCircle size={32} color="#dc2626" />
+              <div style={{ color: "#dc2626", fontWeight: 600, marginTop: "8px" }}>{error}</div>
             </div>
           ) : (
             <>
@@ -150,10 +150,10 @@ export default function CameraScanner({ onCapture, onClose }) {
               <div
                 style={{
                   ...styles.targetFrame,
-                  borderColor: isClear ? "#10b981" : "rgba(255, 255, 255, 0.4)",
+                  borderColor: isClear ? "#10b981" : "rgba(255, 255, 255, 0.6)",
                   boxShadow: isClear
                     ? "0 0 30px rgba(16, 185, 129, 0.5)"
-                    : "0 0 0 9999px rgba(0, 0, 0, 0.5)"
+                    : "0 0 0 9999px rgba(15, 23, 42, 0.4)"
                 }}
               >
                 <div style={styles.frameCornerTL} />
@@ -165,7 +165,7 @@ export default function CameraScanner({ onCapture, onClose }) {
                 <div
                   style={{
                     ...styles.clarityPill,
-                    background: isClear ? "rgba(16, 185, 129, 0.9)" : "rgba(245, 158, 11, 0.9)"
+                    background: isClear ? "#059669" : "#d97706"
                   }}
                 >
                   {isClear ? (
@@ -188,7 +188,7 @@ export default function CameraScanner({ onCapture, onClose }) {
         {/* Meter & Controls */}
         <div style={styles.controlBar}>
           <div style={styles.meterBox}>
-            <span style={{ fontSize: "0.78rem", color: "#9ca3af", fontWeight: 600 }}>
+            <span style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600 }}>
               Clarity Index: {sharpness} / 20
             </span>
             <div style={styles.meterTrack}>
@@ -229,8 +229,8 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: "rgba(0, 0, 0, 0.85)",
-    backdropFilter: "blur(10px)",
+    background: "rgba(15, 23, 42, 0.45)",
+    backdropFilter: "blur(8px)",
     zIndex: 2000,
     display: "flex",
     alignItems: "center",
@@ -242,7 +242,9 @@ const styles = {
     width: "100%",
     borderRadius: "20px",
     padding: "24px",
-    background: "#0f172a"
+    background: "#ffffff",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
+    border: "1px solid #e2e8f0"
   },
   header: {
     display: "flex",
@@ -251,9 +253,8 @@ const styles = {
     marginBottom: "16px"
   },
   iconBtn: {
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "#f1f5f9",
     border: "none",
-    color: "#fff",
     borderRadius: "50%",
     width: "36px",
     height: "36px",
@@ -266,7 +267,7 @@ const styles = {
     position: "relative",
     width: "100%",
     height: "420px",
-    background: "#000",
+    background: "#0f172a",
     borderRadius: "14px",
     overflow: "hidden",
     display: "flex",
@@ -299,8 +300,8 @@ const styles = {
     left: "-3px",
     width: "24px",
     height: "24px",
-    borderTop: "4px solid #818cf8",
-    borderLeft: "4px solid #818cf8",
+    borderTop: "4px solid #2563eb",
+    borderLeft: "4px solid #2563eb",
     borderRadius: "4px 0 0 0"
   },
   frameCornerTR: {
@@ -309,8 +310,8 @@ const styles = {
     right: "-3px",
     width: "24px",
     height: "24px",
-    borderTop: "4px solid #818cf8",
-    borderRight: "4px solid #818cf8",
+    borderTop: "4px solid #2563eb",
+    borderRight: "4px solid #2563eb",
     borderRadius: "0 4px 0 0"
   },
   frameCornerBL: {
@@ -319,8 +320,8 @@ const styles = {
     left: "-3px",
     width: "24px",
     height: "24px",
-    borderBottom: "4px solid #818cf8",
-    borderLeft: "4px solid #818cf8",
+    borderBottom: "4px solid #2563eb",
+    borderLeft: "4px solid #2563eb",
     borderRadius: "0 0 0 4px"
   },
   frameCornerBR: {
@@ -329,8 +330,8 @@ const styles = {
     right: "-3px",
     width: "24px",
     height: "24px",
-    borderBottom: "4px solid #818cf8",
-    borderRight: "4px solid #818cf8",
+    borderBottom: "4px solid #2563eb",
+    borderRight: "4px solid #2563eb",
     borderRadius: "0 0 4px 0"
   },
   clarityPill: {
@@ -347,7 +348,7 @@ const styles = {
     alignItems: "center",
     gap: "8px",
     whiteSpace: "nowrap",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.5)"
+    boxShadow: "0 4px 14px rgba(0,0,0,0.25)"
   },
   controlBar: {
     display: "flex",
@@ -362,7 +363,7 @@ const styles = {
   },
   meterTrack: {
     height: "6px",
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "#e2e8f0",
     borderRadius: "9999px",
     marginTop: "4px",
     overflow: "hidden"
