@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CheckCircle2, XCircle, AlertCircle, Download, ShieldCheck, FileText, QrCode, Lock, Cpu, Eye } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, Download, ShieldCheck, FileText, Cpu, Eye } from "lucide-react";
 import ResultBadge from "./ResultBadge";
 
 export default function VerificationCard({ result }) {
@@ -15,7 +15,6 @@ export default function VerificationCard({ result }) {
     checks = {},
     extractedData = {},
     tamperDetails = {},
-    qrDetails = {},
     issuerDetails = {},
     penalties = []
   } = result.data ? result.data : result;
@@ -57,12 +56,12 @@ export default function VerificationCard({ result }) {
       <div style={styles.summaryGrid}>
         {/* Risk Score Gauge */}
         <div style={styles.scoreGaugeBox}>
-          <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#9ca3af" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
             COMPUTE RISK SCORE
           </div>
           <div style={styles.gaugeNumber}>
             {riskScore}
-            <span style={{ fontSize: "1rem", color: "#6b7280" }}>/100</span>
+            <span style={{ fontSize: "1rem", color: "#64748B" }}>/100</span>
           </div>
           <div style={styles.gaugeTrack}>
             <div
@@ -71,10 +70,10 @@ export default function VerificationCard({ result }) {
                 width: `${riskScore}%`,
                 background:
                   riskScore <= 15
-                    ? "#10b981"
+                    ? "#16A34A"
                     : riskScore <= 40
-                    ? "#f59e0b"
-                    : "#ef4444"
+                    ? "#F59E0B"
+                    : "#DC2626"
               }}
             />
           </div>
@@ -82,24 +81,24 @@ export default function VerificationCard({ result }) {
             {riskScore <= 15
               ? "Low Risk — Document Authenticated"
               : riskScore <= 40
-              ? "Moderate Risk — Unverified Details"
+              ? "Moderate Risk — Needs Manual Review"
               : "High Risk — Potential Anomaly or Tampering"}
           </div>
         </div>
 
         {/* Document Classification */}
         <div style={styles.infoBox}>
-          <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#9ca3af" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
             DOCUMENT TYPE
           </div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 800, marginTop: "4px" }}>
+          <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
             {documentType === "PAN"
               ? "Indian PAN Card"
               : documentType === "DRIVING_LICENSE"
               ? "Indian Driving Licence"
               : documentType}
           </div>
-          <div style={{ fontSize: "0.82rem", color: "#9ca3af", marginTop: "4px" }}>
+          <div style={{ fontSize: "0.82rem", color: "#64748B", marginTop: "4px" }}>
             Issuer: {issuerDetails?.issuer || "Govt. of India / Authoritative Portal"}
           </div>
         </div>
@@ -139,23 +138,23 @@ export default function VerificationCard({ result }) {
                 key={chk.key}
                 style={{
                   ...styles.checkItem,
-                  background: chk.pass ? "rgba(16, 185, 129, 0.06)" : "rgba(239, 68, 68, 0.06)",
-                  borderColor: chk.pass ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"
+                  background: chk.pass ? "#ECFDF5" : "#FEE2E2",
+                  borderColor: chk.pass ? "#A7F3D0" : "#FECACA"
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   {chk.pass ? (
-                    <CheckCircle2 size={20} color="#10b981" />
+                    <CheckCircle2 size={20} color="#16A34A" />
                   ) : (
-                    <XCircle size={20} color="#ef4444" />
+                    <XCircle size={20} color="#DC2626" />
                   )}
-                  <span style={{ fontWeight: 600, fontSize: "0.92rem" }}>{chk.label}</span>
+                  <span style={{ fontWeight: 600, fontSize: "0.92rem", color: "#0F172A" }}>{chk.label}</span>
                 </div>
                 <span
                   style={{
                     fontSize: "0.8rem",
                     fontWeight: 700,
-                    color: chk.pass ? "#10b981" : "#ef4444"
+                    color: chk.pass ? "#16A34A" : "#DC2626"
                   }}
                 >
                   {chk.pass ? "PASSED" : "FAILED / WARN"}
@@ -166,10 +165,10 @@ export default function VerificationCard({ result }) {
 
           {penalties && penalties.length > 0 && (
             <div style={styles.penaltyNotice}>
-              <div style={{ fontWeight: 700, color: "#f59e0b", marginBottom: "6px" }}>
+              <div style={{ fontWeight: 700, color: "#D97706", marginBottom: "6px" }}>
                 Risk Deduction Audit:
               </div>
-              <ul style={{ paddingLeft: "20px", fontSize: "0.85rem", color: "#d1d5db" }}>
+              <ul style={{ paddingLeft: "20px", fontSize: "0.85rem", color: "#B45309" }}>
                 {penalties.map((p, idx) => (
                   <li key={idx}>
                     <strong>{p.check}</strong> (+{p.points} risk): {p.reason}
@@ -207,25 +206,25 @@ export default function VerificationCard({ result }) {
           <div style={styles.tamperAuditGrid}>
             <div style={styles.auditBox}>
               <div style={styles.auditLabel}>Aspect Ratio Match</div>
-              <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.aspectRatioCheck ? "#10b981" : "#ef4444" }}>
+              <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.aspectRatioCheck ? "#16A34A" : "#DC2626" }}>
                 {tamperDetails?.indicators?.aspectRatioCheck ? "Standard Physical Card Ratio" : "Non-Standard Proportions"}
               </div>
             </div>
             <div style={styles.auditBox}>
               <div style={styles.auditLabel}>Compression Grid (ELA)</div>
-              <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.compressionConsistency ? "#10b981" : "#ef4444" }}>
+              <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.compressionConsistency ? "#16A34A" : "#DC2626" }}>
                 {tamperDetails?.indicators?.compressionConsistency ? "Uniform Noise Map" : "Potential Boundary Edit"}
               </div>
             </div>
             <div style={styles.auditBox}>
               <div style={styles.auditLabel}>Image Dimensions</div>
-              <div className="code-font" style={{ fontWeight: 700 }}>
+              <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
                 {tamperDetails?.details?.dimensions || "Standard Resolution"}
               </div>
             </div>
             <div style={styles.auditBox}>
               <div style={styles.auditLabel}>Edge Variance Score</div>
-              <div className="code-font" style={{ fontWeight: 700 }}>
+              <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
                 {tamperDetails?.details?.avgEdgeVariance || "12.4"}
               </div>
             </div>
@@ -238,14 +237,14 @@ export default function VerificationCard({ result }) {
         <div style={styles.tabContent}>
           <div style={styles.issuerBox}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontWeight: 700, color: "#818cf8" }}>
+              <span style={{ fontWeight: 700, color: "#2563EB" }}>
                 {issuerDetails?.issuer || "Authoritative Gateway"}
               </span>
               <span className="badge-verified" style={{ fontSize: "0.75rem" }}>
                 {issuerDetails?.status || "API ACTIVE"}
               </span>
             </div>
-            <div style={{ marginTop: "12px", fontSize: "0.88rem", color: "#d1d5db" }}>
+            <div style={{ marginTop: "12px", fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6 }}>
               <div><strong>Verification Reference:</strong> {issuerDetails?.apiRef || "N/A"}</div>
               <div><strong>Timestamp:</strong> {issuerDetails?.verificationTimestamp || new Date().toLocaleString()}</div>
               <div><strong>Record Match Status:</strong> {issuerDetails?.verified ? "Authoritative Match Confirmed" : "Record Unverified"}</div>
@@ -258,7 +257,7 @@ export default function VerificationCard({ result }) {
       <div style={styles.footer}>
         <button className="btn-secondary" onClick={downloadJsonReport}>
           <Download size={16} />
-          Export JSON Verification Certificate
+          Export JSON Certificate
         </button>
       </div>
     </div>
@@ -273,17 +272,18 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: "24px"
+    marginBottom: "20px"
   },
   verIdLabel: {
     fontSize: "0.75rem",
     fontWeight: 700,
-    color: "#818cf8",
+    color: "#2563EB",
     letterSpacing: "0.05em"
   },
   verIdValue: {
-    fontSize: "1.6rem",
+    fontSize: "1.55rem",
     fontWeight: 800,
+    color: "#0F172A",
     letterSpacing: "-0.02em"
   },
   summaryGrid: {
@@ -293,19 +293,20 @@ const styles = {
     marginBottom: "24px"
   },
   scoreGaugeBox: {
-    background: "rgba(17, 24, 39, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
     padding: "16px",
     borderRadius: "12px"
   },
   gaugeNumber: {
-    fontSize: "2.2rem",
+    fontSize: "2.1rem",
     fontWeight: 800,
+    color: "#0F172A",
     marginTop: "4px"
   },
   gaugeTrack: {
     height: "8px",
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "#E2E8F0",
     borderRadius: "9999px",
     margin: "10px 0",
     overflow: "hidden"
@@ -317,25 +318,25 @@ const styles = {
   },
   gaugeCaption: {
     fontSize: "0.78rem",
-    color: "#9ca3af"
+    color: "#64748B"
   },
   infoBox: {
-    background: "rgba(17, 24, 39, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
     padding: "16px",
     borderRadius: "12px"
   },
   tabBar: {
     display: "flex",
     gap: "8px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+    borderBottom: "1px solid #E2E8F0",
     paddingBottom: "12px",
     marginBottom: "20px"
   },
   tabBtn: {
     background: "transparent",
     border: "none",
-    color: "#9ca3af",
+    color: "#64748B",
     fontSize: "0.85rem",
     fontWeight: 600,
     padding: "8px 14px",
@@ -346,18 +347,19 @@ const styles = {
     gap: "6px"
   },
   tabBtnActive: {
-    background: "rgba(99, 102, 241, 0.18)",
-    color: "#818cf8"
+    background: "#EFF6FF",
+    color: "#2563EB",
+    border: "1px solid #DBEAFE"
   },
   checklistSection: {
     display: "flex",
     flexDirection: "column",
-    gap: "16px"
+    gap: "14px"
   },
   checkGrid: {
     display: "grid",
     gridTemplateColumns: "1fr",
-    gap: "10px"
+    gap: "8px"
   },
   checkItem: {
     display: "flex",
@@ -368,33 +370,34 @@ const styles = {
     border: "1px solid transparent"
   },
   penaltyNotice: {
-    background: "rgba(245, 158, 11, 0.08)",
-    border: "1px solid rgba(245, 158, 11, 0.2)",
+    background: "#FFFBEB",
+    border: "1px solid #FDE68A",
     padding: "14px 18px",
     borderRadius: "10px",
     marginTop: "8px"
   },
   tabContent: {
-    padding: "12px 0"
+    padding: "8px 0"
   },
   dataTable: {
     width: "100%",
     borderCollapse: "collapse"
   },
   tableRow: {
-    borderBottom: "1px solid rgba(255, 255, 255, 0.06)"
+    borderBottom: "1px solid #F1F5F9"
   },
   tableKey: {
     padding: "12px 0",
     fontSize: "0.85rem",
     fontWeight: 700,
-    color: "#9ca3af"
+    color: "#64748B"
   },
   tableVal: {
     padding: "12px 0",
     textAlign: "right",
     fontSize: "0.95rem",
-    fontWeight: 600
+    fontWeight: 600,
+    color: "#0F172A"
   },
   tamperAuditGrid: {
     display: "grid",
@@ -402,26 +405,26 @@ const styles = {
     gap: "12px"
   },
   auditBox: {
-    background: "rgba(17, 24, 39, 0.5)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
     padding: "14px",
     borderRadius: "10px"
   },
   auditLabel: {
     fontSize: "0.78rem",
-    color: "#9ca3af",
+    color: "#64748B",
     marginBottom: "4px"
   },
   issuerBox: {
-    background: "rgba(17, 24, 39, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
     padding: "20px",
     borderRadius: "12px"
   },
   footer: {
     marginTop: "24px",
     paddingTop: "16px",
-    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+    borderTop: "1px solid #E2E8F0",
     display: "flex",
     justifyContent: "flex-end"
   }

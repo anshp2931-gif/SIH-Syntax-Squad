@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { UploadCloud, FileText, Image as ImageIcon, Sparkles, CheckCircle, Camera } from "lucide-react";
+import { UploadCloud, FileText, Sparkles, Camera, ChevronDown } from "lucide-react";
 import { fetchSampleDocumentsApi } from "../services/api";
 import CameraScanner from "./CameraScanner";
 
@@ -59,7 +59,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
 
       {/* Target Document Selector */}
       <div style={styles.typeSelectorGroup}>
-        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#9ca3af" }}>
+        <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#64748B" }}>
           Target Document Type:
         </span>
         <div style={styles.typeButtons}>
@@ -108,8 +108,8 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
           <div style={styles.previewContainer}>
             <img src={previewUrl} alt="Document Preview" style={styles.previewImage} />
             <div style={styles.fileDetails}>
-              <div style={{ fontWeight: 600 }}>{selectedFile.name}</div>
-              <div style={{ fontSize: "0.78rem", color: "#9ca3af" }}>
+              <div style={{ fontWeight: 600, color: "#0F172A" }}>{selectedFile.name}</div>
+              <div style={{ fontSize: "0.78rem", color: "#64748B" }}>
                 {(selectedFile.size / 1024).toFixed(1)} KB
               </div>
             </div>
@@ -117,13 +117,13 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
         ) : (
           <label htmlFor="doc-upload-input" style={styles.dropZoneLabel}>
             <div style={styles.uploadIconCircle}>
-              <UploadCloud size={32} color="#818cf8" />
+              <UploadCloud size={30} color="#2563EB" />
             </div>
-            <div style={{ fontSize: "1rem", fontWeight: 600 }}>
+            <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#0F172A" }}>
               Drag & drop document image here, or{" "}
-              <span style={{ color: "#818cf8", textDecoration: "underline" }}>browse</span>
+              <span style={{ color: "#2563EB", textDecoration: "underline" }}>browse</span>
             </div>
-            <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "4px" }}>
+            <div style={{ fontSize: "0.8rem", color: "#64748B", marginTop: "4px" }}>
               JPG, PNG, WEBP, or PDF (Max 10MB)
             </div>
           </label>
@@ -132,45 +132,32 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
 
       {/* Optional Manual Document Number Override */}
       <div style={{ marginTop: "16px" }}>
-        <div style={{ fontSize: "0.8rem", color: "#9ca3af", marginBottom: "4px" }}>
+        <div style={{ fontSize: "0.82rem", color: "#64748B", marginBottom: "6px" }}>
           💡 Optional — Confirm / Enter PAN or DL Number (if OCR image has glare/blur):
         </div>
         <input
           type="text"
-          placeholder="e.g. ABCDE1234F or DL1420110012345"
+          placeholder="Enter document number (e.g. ABCDE1234F or DL1420110012345)"
           value={manualNumber}
           onChange={(e) => setManualNumber(e.target.value)}
-          className="code-font"
-          style={{
-            width: "100%",
-            background: "rgba(17, 24, 39, 0.6)",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            borderRadius: "8px",
-            padding: "10px 14px",
-            color: "#fff",
-            fontSize: "0.9rem",
-            outline: "none"
-          }}
+          className="code-font input-field"
         />
       </div>
 
-      {/* Live Camera Scanner Button */}
+      {/* Ghost button styled camera scanner action */}
       <div style={{ marginTop: "16px" }}>
         <button
-          className="btn-secondary"
+          className="btn-ghost"
           style={{
             width: "100%",
             justifyContent: "center",
-            padding: "12px",
-            background: "rgba(99, 102, 241, 0.12)",
-            borderColor: "rgba(99, 102, 241, 0.3)",
-            color: "#a5b4fc",
+            padding: "11px",
             fontWeight: 600
           }}
           onClick={() => setShowCamera(true)}
         >
-          <Camera size={18} />
-          📷 Open Live Camera Scanner (Auto-Capture When Clear)
+          <Camera size={18} color="#2563EB" />
+          <span>Open Live Camera Scanner (Auto-Capture When Clear)</span>
         </button>
       </div>
 
@@ -183,7 +170,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
       )}
 
       {/* Verify Button */}
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
         <button
           className="btn-primary"
           onClick={handleTriggerUpload}
@@ -201,8 +188,8 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
       {samples.length > 0 && (
         <div style={styles.sampleSection}>
           <div style={styles.sampleHeader}>
-            <Sparkles size={16} color="#06b6d4" />
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#38bdf8" }}>
+            <Sparkles size={16} color="#2563EB" />
+            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#2563EB" }}>
               Fast Test — Try Synthetic Demo Samples:
             </span>
           </div>
@@ -215,10 +202,10 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
                 onClick={() => onSelectSample(sample)}
               >
                 <div style={styles.sampleBadge}>{sample.documentType}</div>
-                <div style={{ fontWeight: 600, fontSize: "0.9rem", marginTop: "4px" }}>
+                <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "#0F172A", marginTop: "4px" }}>
                   {sample.title}
                 </div>
-                <div style={{ fontSize: "0.78rem", color: "#9ca3af", marginTop: "2px" }}>
+                <div style={{ fontSize: "0.78rem", color: "#64748B", marginTop: "2px" }}>
                   Click to verify sample instantly
                 </div>
               </div>
@@ -236,11 +223,12 @@ const styles = {
   },
   title: {
     fontSize: "1.35rem",
-    marginBottom: "6px"
+    marginBottom: "6px",
+    color: "#0F172A"
   },
   subtitle: {
     fontSize: "0.88rem",
-    color: "#9ca3af",
+    color: "#64748B",
     marginBottom: "20px"
   },
   typeSelectorGroup: {
@@ -255,9 +243,9 @@ const styles = {
     flexWrap: "wrap"
   },
   typeBtn: {
-    background: "rgba(255, 255, 255, 0.04)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    color: "#9ca3af",
+    background: "#F1F5F9",
+    border: "1px solid #E2E8F0",
+    color: "#64748B",
     fontSize: "0.85rem",
     fontWeight: 600,
     padding: "8px 14px",
@@ -266,26 +254,26 @@ const styles = {
     transition: "all 0.2s ease"
   },
   typeBtnActive: {
-    background: "rgba(99, 102, 241, 0.2)",
-    border: "1px solid rgba(99, 102, 241, 0.5)",
-    color: "#a5b4fc"
+    background: "#EFF6FF",
+    border: "1px solid #DBEAFE",
+    color: "#2563EB"
   },
   dropZone: {
-    border: "2px dashed rgba(255, 255, 255, 0.15)",
+    border: "2px dashed #E2E8F0",
     borderRadius: "14px",
     padding: "36px 20px",
     textAlign: "center",
     cursor: "pointer",
-    background: "rgba(17, 24, 39, 0.4)",
+    background: "#F8FAFC",
     transition: "all 0.2s ease"
   },
   dropZoneActive: {
-    borderColor: "#818cf8",
-    background: "rgba(99, 102, 241, 0.1)"
+    borderColor: "#2563EB",
+    background: "#EFF6FF"
   },
   dropZoneSelected: {
-    borderColor: "rgba(16, 185, 129, 0.4)",
-    background: "rgba(16, 185, 129, 0.04)"
+    borderColor: "#16A34A",
+    background: "#ECFDF5"
   },
   dropZoneLabel: {
     cursor: "pointer",
@@ -294,10 +282,10 @@ const styles = {
     alignItems: "center"
   },
   uploadIconCircle: {
-    width: "60px",
-    height: "60px",
+    width: "56px",
+    height: "56px",
     borderRadius: "50%",
-    background: "rgba(99, 102, 241, 0.12)",
+    background: "#EFF6FF",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -313,7 +301,7 @@ const styles = {
     maxHeight: "100px",
     maxWidth: "180px",
     borderRadius: "8px",
-    border: "1px solid rgba(255, 255, 255, 0.15)",
+    border: "1px solid #E2E8F0",
     objectFit: "contain"
   },
   fileDetails: {
@@ -322,7 +310,7 @@ const styles = {
   sampleSection: {
     marginTop: "24px",
     paddingTop: "20px",
-    borderTop: "1px solid rgba(255, 255, 255, 0.08)"
+    borderTop: "1px solid #E2E8F0"
   },
   sampleHeader: {
     display: "flex",
@@ -336,16 +324,16 @@ const styles = {
     gap: "12px"
   },
   sampleCard: {
-    background: "rgba(30, 41, 59, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
     borderRadius: "10px",
     padding: "12px 16px",
     cursor: "pointer",
     transition: "all 0.2s ease"
   },
   sampleBadge: {
-    background: "rgba(56, 189, 248, 0.15)",
-    color: "#38bdf8",
+    background: "#EFF6FF",
+    color: "#2563EB",
     fontSize: "0.72rem",
     fontWeight: 700,
     padding: "2px 8px",
