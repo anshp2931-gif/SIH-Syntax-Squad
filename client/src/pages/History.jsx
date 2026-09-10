@@ -36,8 +36,8 @@ export default function History() {
   });
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="container" style={styles.container}>
+      <div className="header" style={styles.header}>
         <div>
           <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>Verification Audit Log</h1>
           <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "4px" }}>
@@ -53,18 +53,18 @@ export default function History() {
 
       {/* Filter Controls */}
       <div className="glass-card" style={styles.filterBar}>
-        <div style={styles.searchBox}>
+        <div className="searchBox" style={styles.searchBox}>
           <Search size={18} color="#94a3b8" />
           <input
             type="text"
             placeholder="Search by Verification ID, Document, File..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={styles.searchInput}
+            className="searchInput" style={styles.searchInput}
           />
         </div>
 
-        <div style={styles.filterGroup}>
+        <div className="filterGroup" style={styles.filterGroup}>
           <Filter size={16} color="#64748b" />
           {["ALL", "VERIFIED", "UNVERIFIED", "SUSPICIOUS"].map((st) => (
             <button
@@ -92,40 +92,40 @@ export default function History() {
             No matching verification audit records found.
           </div>
         ) : (
-          <table style={styles.table}>
+          <table className="table" style={styles.table}>
             <thead>
-              <tr style={styles.thRow}>
-                <th style={styles.th}>VERIFICATION ID</th>
-                <th style={styles.th}>DOCUMENT</th>
-                <th style={styles.th}>STATUS</th>
-                <th style={styles.th}>RISK SCORE</th>
-                <th style={styles.th}>TIMESTAMP</th>
-                <th style={styles.th}>ACTION</th>
+              <tr className="thRow" style={styles.thRow}>
+                <th className="th" style={styles.th}>VERIFICATION ID</th>
+                <th className="th" style={styles.th}>DOCUMENT</th>
+                <th className="th" style={styles.th}>STATUS</th>
+                <th className="th" style={styles.th}>RISK SCORE</th>
+                <th className="th" style={styles.th}>TIMESTAMP</th>
+                <th className="th" style={styles.th}>ACTION</th>
               </tr>
             </thead>
             <tbody>
               {filteredRecords.map((rec) => (
-                <tr key={rec.verificationId} style={styles.tr}>
-                  <td style={styles.td} className="code-font">
+                <tr key={rec.verificationId} className="tr" style={styles.tr}>
+                  <td className="td code-font" style={styles.td}>
                     <strong style={{ color: "#2563eb" }}>{rec.verificationId}</strong>
                   </td>
-                  <td style={styles.td}>
+                  <td className="td" style={styles.td}>
                     {rec.documentType === "PAN"
                       ? "PAN Card"
                       : rec.documentType === "DRIVING_LICENSE"
                       ? "Driving Licence"
                       : rec.documentType}
                   </td>
-                  <td style={styles.td}>
+                  <td className="td" style={styles.td}>
                     <ResultBadge status={rec.status} />
                   </td>
-                  <td style={styles.td}>
+                  <td className="td" style={styles.td}>
                     <span style={{ fontWeight: 700, color: "#0f172a" }}>{rec.riskScore}</span> / 100
                   </td>
-                  <td style={styles.td}>
+                  <td className="td" style={styles.td}>
                     {new Date(rec.createdAt).toLocaleString()}
                   </td>
-                  <td style={styles.td}>
+                  <td className="td" style={styles.td}>
                     <button
                       className="btn-secondary"
                       style={{ padding: "4px 10px", fontSize: "0.78rem" }}
@@ -144,9 +144,9 @@ export default function History() {
 
       {/* Modal for detailed record viewing */}
       {selectedRecord && (
-        <div style={styles.modalOverlay} onClick={() => setSelectedRecord(null)}>
-          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <button style={styles.closeBtn} onClick={() => setSelectedRecord(null)}>
+        <div className="modalOverlay" style={styles.modalOverlay} onClick={() => setSelectedRecord(null)}>
+          <div className="modalCard" style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <button className="closeBtn" style={styles.closeBtn} onClick={() => setSelectedRecord(null)}>
               <X size={20} />
             </button>
             <VerificationCard result={{ data: selectedRecord }} />
