@@ -10,9 +10,10 @@ import {
   Menu,
   X
 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { checkHealthApi } from "../services/api";
 
-export default function Navbar({ activeTab, setActiveTab }) {
+export default function Navbar({ currentUser, onLogout }) {
   const [health, setHealth] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -25,6 +26,10 @@ export default function Navbar({ activeTab, setActiveTab }) {
   }, []);
 
   useEffect(() => setMobileMenuOpen(false), [activeTab]);
+
+  if (location.pathname === "/login") {
+    return null; // Login page renders its own custom brand header bar
+  }
 
   return (
     <header className="header">
