@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Shield,
   Zap,
@@ -21,6 +21,66 @@ import {
 
 export default function Home({ onNavigateVerify }) {
   const [showDemoModal, setShowDemoModal] = useState(false);
+  const [activeCard, setActiveCard] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveCard((prev) => (prev + 1) % 4);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Positions for smooth 4-card horizontal swapping carousel:
+  // Slot 0: Center front active card (focal point, straight, top z-index)
+  // Slot 1: Right card (tilted right, visible in right wing)
+  // Slot 2: Hidden back card (behind center, preparing to transition)
+  // Slot 3: Left card (tilted left, visible in left wing)
+  const cardSlotStyles = [
+    {
+      left: "50%",
+      transform: "translateX(-50%) translateY(0px) scale(1) rotate(0deg)",
+      zIndex: 5,
+      opacity: 1,
+      boxShadow: "0 22px 45px -10px rgba(15, 23, 42, 0.18), 0 8px 18px rgba(15, 23, 42, 0.06)",
+    },
+    {
+      left: "78%",
+      transform: "translateX(-50%) translateY(14px) scale(0.9) rotate(10deg)",
+      zIndex: 3,
+      opacity: 0.85,
+      boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.12)",
+    },
+    {
+      left: "50%",
+      transform: "translateX(-50%) translateY(-25px) scale(0.8) rotate(0deg)",
+      zIndex: 1,
+      opacity: 0,
+      boxShadow: "none",
+    },
+    {
+      left: "22%",
+      transform: "translateX(-50%) translateY(14px) scale(0.9) rotate(-10deg)",
+      zIndex: 3,
+      opacity: 0.85,
+      boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.12)",
+    },
+  ];
+
+  const getCardStyle = (cardIndex, baseStyle) => {
+    // Relative slot 0, 1, 2, or 3 based on activeCard rotation
+    const slot = (cardIndex - activeCard + 4) % 4;
+    const slotStyle = cardSlotStyles[slot];
+    return {
+      ...baseStyle,
+      position: "absolute",
+      top: "10px",
+      width: "205px",
+      height: "235px",
+      transition: "all 0.85s cubic-bezier(0.34, 1.25, 0.64, 1)",
+      cursor: "pointer",
+      ...slotStyle,
+    };
+  };
 
   return (
     <div style={styles.container}>
@@ -29,14 +89,7 @@ export default function Home({ onNavigateVerify }) {
         {/* Left Column: Headline & CTA */}
         <div style={styles.heroLeft}>
           {/* Government Initiative Badge */}
-          <div style={styles.govBadge}>
-            <span style={styles.flagIcon}>
-              <span style={{ color: "#FF9933" }}>●</span>
-              <span style={{ color: "#FFFFFF", textShadow: "0 0 1px #999" }}>●</span>
-              <span style={{ color: "#138808" }}>●</span>
-            </span>
-            <span style={styles.govBadgeText}>Government of India Initiative</span>
-          </div>
+
 
           <h1 style={styles.heroTitle}>
             Indian Document Authenticity &<br />
@@ -80,10 +133,14 @@ export default function Home({ onNavigateVerify }) {
 
             {/* Visual Container for Cards */}
             <div style={styles.cardsContainer} className="float-animation">
-              {/* Card 1: Left Background Card (PAN) */}
-              <div style={styles.cardPan}>
+              {/* Card 1: PAN Card */}
+              <div
+                style={getCardStyle(0, styles.cardPan)}
+                onClick={() => setActiveCard(0)}
+                title="PAN Card"
+              >
                 <div style={styles.panHeader}>
-                  <span style={styles.panTitle}>PAN</span>
+                  <span style={styles.panTitle}>PAN CARD</span>
                 </div>
                 <div style={styles.panBody}>
                   <div style={styles.panAvatar}>
@@ -101,22 +158,44 @@ export default function Home({ onNavigateVerify }) {
                 </div>
               </div>
 
-              {/* Card 2: Right Background Card (DRIVING LICENCE) */}
-              <div style={styles.cardDl}>
-                <div style={styles.dlHeader}>
-                  <span style={styles.dlTitle}>DRIVING LICENCE</span>
-                  <Car size={16} color="#2563EB" />
+              {/* Card 2: Aadhaar Card */}
+              <div
+                style={getCardStyle(1, styles.cardAadhaar)}
+                onClick={() => setActiveCard(1)}
+                title="Aadhaar Card"
+              >
+                <div style={styles.aadhaarHeader}>
+                  <span style={styles.aadhaarTitle}>आधार</span>
+                  <span style={styles.aadhaarSubtitle}>AADHAAR CARD</span>
                 </div>
-                <div style={styles.dlBody}>
-                  <div style={{ ...styles.cardLine, width: "90%", background: "#DBEAFE" }} />
-                  <div style={{ ...styles.cardLine, width: "75%", background: "#DBEAFE" }} />
-                  <div style={{ ...styles.cardLine, width: "80%", background: "#DBEAFE" }} />
-                  <div style={{ ...styles.cardLine, width: "60%", background: "#DBEAFE" }} />
+
+                {/* Aadhaar main blue accent bar like Satyameva Jayate */}
+                <div style={styles.aadhaarMainBar} />
+
+                <div style={styles.aadhaarBody}>
+                  <div style={styles.aadhaarAvatar}>
+                    <User size={22} color="#2563EB" />
+                  </div>
+
+                  <div style={styles.aadhaarLines}>
+                    <div style={{ ...styles.docLine, width: "95%" }} />
+                    <div style={{ ...styles.docLine, width: "75%" }} />
+                    <div style={{ ...styles.docLine, width: "85%" }} />
+                  </div>
+                </div>
+
+                <div style={styles.aadhaarFooter}>
+                  <div style={{ ...styles.docLine, width: "65%" }} />
+                  <div style={{ ...styles.docLine, width: "50%" }} />
                 </div>
               </div>
 
-              {/* Card 3: Center Foreground Official Document */}
-              <div style={styles.cardCenter}>
+              {/* Card 3: Satyameva Jayate Official Document */}
+              <div
+                style={getCardStyle(2, styles.cardCenter)}
+                onClick={() => setActiveCard(2)}
+                title="Satyameva Jayate Document"
+              >
                 {/* Emblem Seal */}
                 <div style={styles.emblemWrapper}>
                   <div style={styles.ashokaEmblem}>
@@ -140,6 +219,34 @@ export default function Home({ onNavigateVerify }) {
                 {/* Overlapping Verified Green Check Badge (#16A34A) */}
                 <div style={styles.verifiedBadge}>
                   <CheckCircle2 size={40} color="#16A34A" fill="#16A34A" stroke="#FFFFFF" strokeWidth={2.5} />
+                </div>
+              </div>
+
+              {/* Card 4: Driving Licence */}
+              <div
+                style={getCardStyle(3, styles.cardDl)}
+                onClick={() => setActiveCard(3)}
+                title="Driving Licence"
+              >
+                <div style={styles.dlHeader}>
+                  <span style={styles.dlTitle}>DRIVING LICENCE</span>
+                  <Car size={16} color="#2563EB" />
+                </div>
+                <div style={styles.panBody}>
+                  <div style={styles.panAvatar}>
+                    <User size={20} color="#60A5FA" />
+                  </div>
+                  <div style={styles.panLines}>
+                    <div style={{ ...styles.cardLine, width: "85%" }} />
+                    <div style={{ ...styles.cardLine, width: "65%" }} />
+                    <div style={{ ...styles.cardLine, width: "75%" }} />
+                  </div>
+                </div>
+                <div style={styles.dlBody}>
+                  <div style={{ ...styles.cardLine, width: "90%", background: "#b6c4d6" }} />
+                  <div style={{ ...styles.cardLine, width: "75%", background: "#b6c4d6" }} />
+                  <div style={{ ...styles.cardLine, width: "80%", background: "#b6c4d6" }} />
+                  <div style={{ ...styles.cardLine, width: "60%", background: "#b6c4d6" }} />
                 </div>
               </div>
             </div>
@@ -676,6 +783,75 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     boxShadow: "0 6px 16px rgba(22, 163, 74, 0.3)"
+  },
+
+  /* Aadhaar Card Container (Matching Satyameva Jayate Theme) */
+  cardAadhaar: {
+    borderRadius: "14px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    boxShadow: "0 16px 36px -8px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.04)",
+    padding: "16px 14px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+
+  /* Aadhaar Card Styles */
+  aadhaarHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingBottom: "8px",
+    borderBottom: "1px solid #E2E8F0",
+  },
+  aadhaarTitle: {
+    fontSize: "13px",
+    fontWeight: "800",
+    color: "#1E3A8A",
+    letterSpacing: "0.05em",
+  },
+  aadhaarSubtitle: {
+    fontSize: "9px",
+    fontWeight: "700",
+    color: "#2563EB",
+    letterSpacing: "0.05em",
+  },
+  aadhaarMainBar: {
+    width: "100%",
+    height: "5px",
+    borderRadius: "3px",
+    background: "#93C5FD",
+    marginTop: "8px",
+    marginBottom: "4px",
+  },
+  aadhaarBody: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "8px 0",
+  },
+  aadhaarAvatar: {
+    width: "42px",
+    height: "46px",
+    borderRadius: "6px",
+    background: "#EFF6FF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1.5px solid #DBEAFE",
+  },
+  aadhaarLines: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  aadhaarFooter: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    paddingTop: "6px",
   },
 
   /* 4-FEATURE PILL BANNER */
