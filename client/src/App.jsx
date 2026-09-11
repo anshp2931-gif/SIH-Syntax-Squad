@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { useUser, useClerk, AuthenticateWithRedirectCallback } from "@clerk/react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Verify from "./pages/Verify";
@@ -8,18 +9,38 @@ import Login from "./pages/Login";
 
 export default function App() {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState({
-    name: "Vishwa Patel",
-    email: "vishwa@docauth.in",
-    role: "Enterprise Admin"
-  });
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Sync session with Clerk Auth state
+  useEffect(() => {
+    if (isLoaded) {
+      if (isSignedIn && user) {
+        setCurrentUser({
+          uid: user.id,
+          name: user.fullName || user.firstName || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "Enterprise User",
+          email: user.primaryEmailAddress?.emailAddress || "",
+          photoURL: user.imageUrl || null,
+          role: "Enterprise Admin"
+        });
+      } else {
+        setCurrentUser(null);
+      }
+    }
+  }, [isLoaded, isSignedIn, user]);
 
   const handleLoginSuccess = (userData) => {
-    setCurrentUser(userData);
+    if (userData) setCurrentUser(userData);
     navigate("/");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (err) {
+      console.error("Clerk signOut error:", err);
+    }
     setCurrentUser(null);
     navigate("/login");
   };
@@ -39,11 +60,20 @@ export default function App() {
           <Route 
             path="/login" 
             element={
-              <Login 
-                onLoginSuccess={handleLoginSuccess}
-                onNavigateHome={() => navigate("/")}
-              />
+              isLoaded && isSignedIn ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Login 
+                  onLoginSuccess={handleLoginSuccess}
+                  onNavigateHome={() => navigate("/")}
+                />
+              )
             } 
+          />
+          {/* Clerk SSO Callback handler for Google & Apple redirect flows */}
+          <Route 
+            path="/sso-callback" 
+            element={<AuthenticateWithRedirectCallback />} 
           />
         </Routes>
       </main>

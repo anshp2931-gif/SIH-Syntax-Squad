@@ -41,9 +41,10 @@
 .userProfile { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px; border-radius: 9999px; }
 .userAvatar { width: 36px; height: 36px; border-radius: 50%; background: #2563EB; color: #FFFFFF; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2); }
 
-.hamburger-btn, .mobile-nav-header, .mobile-nav-backdrop { display: none; }
+.hamburger-btn, .mobile-nav-header, .mobile-nav-backdrop, .mobile-auth-section { display: none; }
 
 @media screen and (max-width: 900px) {
+  .mobile-auth-section { display: block; }
   .nav {
     position: fixed;
     top: 0;
