@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { UploadCloud, FileText, Sparkles, Camera, ChevronDown } from "lucide-react";
 import { fetchSampleDocumentsApi } from "../services/api";
 import CameraScanner from "./CameraScanner";
@@ -12,12 +12,27 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
   const [showCamera, setShowCamera] = useState(false);
   const [manualNumber, setManualNumber] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   
   const documentTypes = [
     { id: "AUTO", label: "✨ Auto-Detect" },
     { id: "PAN", label: "💳 PAN Card" },
     { id: "DRIVING_LICENSE", label: "🪪 Driving Licence" }
   ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     fetchSampleDocumentsApi()
@@ -70,9 +85,9 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
           Target Document Type:
         </span>
         <div 
+          ref={dropdownRef}
           className="customDropdownContainer"
           style={{ position: "relative", marginTop: "4px" }}
-          onMouseLeave={() => setIsDropdownOpen(false)}
         >
           <div 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
