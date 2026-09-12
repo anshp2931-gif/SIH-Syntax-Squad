@@ -222,18 +222,22 @@ export async function verifyDocument(req, res) {
     const detection = detectDocument(rawText);
     let documentType = detection.documentType;
 
+    // Image Blur / Low Quality Pre-check
+    const isBlurry = !ocrResult.success || (ocrResult.confidence < 25 && rawText.length < 20 && !req.body.overrideData && !req.body.samplePath);
+
     // Use the primary document detection logic exclusively
-    if (detection.isLowConfidence || (documentType === "UNKNOWN" && detection.confidence < 40)) {
+    if (isBlurry || detection.isLowConfidence || (documentType === "UNKNOWN" && detection.confidence < 40)) {
       return res.status(200).json({
         success: true,
         status: "LOW_CONFIDENCE",
+        isBlurry: true,
         isLowConfidence: true,
         confidence: detection.confidence,
         detectedType: "UNKNOWN",
-        detectedName: "Unknown Document",
+        detectedName: "Unreadable / Blurry Image",
         selectedType: forcedType,
         selectedName: forcedType ? getDocumentName(forcedType) : null,
-        message: "Document type could not be identified confidently."
+        message: "The uploaded image is too blurry or out of focus to read document text and security features. Please re-upload a clear, well-lit photograph."
       });
     }
 

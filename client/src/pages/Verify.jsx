@@ -316,17 +316,30 @@ export default function Verify() {
             <div className="glass-card" style={styles.lowConfCard}>
               <div style={styles.lowConfHeader}>
                 <div style={styles.infoIconCircle}>
-                  <AlertCircle size={32} color="#2563EB" />
+                  <AlertCircle size={32} color="#D97706" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "1.24rem", fontWeight: 800, color: "#1E3A8A", margin: 0 }}>
-                    Confidence Check
+                  <h3 style={{ fontSize: "1.24rem", fontWeight: 800, color: "#92400E", margin: 0 }}>
+                    {lowConfidenceState.isBlurry ? "📷 Image Too Blurry / Unreadable" : "Confidence Check — Manual Selection Required"}
                   </h3>
                   <p style={{ fontSize: "0.88rem", color: "#475569", marginTop: "4px" }}>
-                    {lowConfidenceState.message || "Document type could not be identified confidently."}
+                    {lowConfidenceState.message || "The uploaded image is blurry or out of focus. Please re-upload a clear, well-lit photograph."}
                   </p>
                 </div>
               </div>
+
+              {lowConfidenceState.isBlurry && (
+                <div style={{ background: "#FEF3C7", border: "1px solid #FDE68A", borderRadius: "10px", padding: "14px 18px", margin: "14px 0" }}>
+                  <div style={{ fontWeight: 700, color: "#92400E", fontSize: "0.88rem", marginBottom: "6px" }}>
+                    💡 Tips for a Clear Document Photo:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "0.83rem", color: "#B45309", lineHeight: "1.5" }}>
+                    <li>Hold your camera steady under bright ambient light (avoid harsh reflections and flash glare).</li>
+                    <li>Ensure all 4 corners of the document are inside the frame and in sharp focus.</li>
+                    <li>If text or QR code is blurry, hold phone slightly further away and let camera auto-focus.</li>
+                  </ul>
+                </div>
+              )}
 
               <div style={{ margin: "18px 0" }}>
                 <div style={{ fontSize: "0.84rem", fontWeight: 700, color: "#334155", marginBottom: "10px" }}>

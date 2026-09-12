@@ -62,14 +62,15 @@ export default function VerificationCard({ result }) {
     { 
       key: "documentType", 
       label: `${t('verCard.chk1', '1. Document Type Detection')} (${formatDocName(effectiveDetected)}${detectionConfidence ? ` • ${detectionConfidence}%` : ""})`, 
+      priority: "STANDARD",
       pass: checks.documentType !== false 
     },
-    { key: "ocr", label: t('verCard.chk2', '2. OCR / Data Extraction'), pass: checks.ocr },
-    { key: "format", label: t('verCard.chk3', '3. Format & Algorithmic Checksum'), pass: checks.format },
-    { key: "qr", label: t('verCard.chk4', '4. QR Code Security Match'), pass: checks.qr },
-    { key: "template", label: t('verCard.chk5', '5. Template & Proportions Check'), pass: checks.template },
-    { key: "tampering", label: t('verCard.chk6', '6. Tampering Analysis (ELA)'), pass: checks.tampering },
-    { key: "issuer", label: t('verCard.chk7', '7. Official Issuer Verification'), pass: checks.issuer }
+    { key: "ocr", label: t('verCard.chk2', '2. OCR / Data Extraction'), priority: "STANDARD", pass: checks.ocr },
+    { key: "format", label: t('verCard.chk3', '3. Format & Algorithmic Checksum'), priority: "HIGH SECURITY", pass: checks.format },
+    { key: "qr", label: t('verCard.chk4', '4. QR Code Security Match'), priority: "CRITICAL SECURITY", pass: checks.qr },
+    { key: "template", label: t('verCard.chk5', '5. Template & Proportions Check'), priority: "STANDARD", pass: checks.template },
+    { key: "tampering", label: t('verCard.chk6', '6. Tampering Analysis (ELA)'), priority: "HIGH SECURITY", pass: checks.tampering },
+    { key: "issuer", label: t('verCard.chk7', '7. Official Issuer Verification'), priority: "AUTHORITATIVE", pass: checks.issuer }
   ];
 
   const downloadJsonReport = () => {
@@ -121,8 +122,8 @@ export default function VerificationCard({ result }) {
             {displayOriginalityScore >= 85
               ? "High Originality — Document Authenticated"
               : displayOriginalityScore >= 60
-              ? "Moderate Originality — Needs Manual Review"
-              : "Low Originality — Potential Anomaly or Tampering"}
+              ? "Moderate Originality — Priority Security Warning"
+              : "Low Originality — Critical Security Anomaly"}
           </div>
         </div>
 
@@ -139,14 +140,14 @@ export default function VerificationCard({ result }) {
                 color: "#16A34A",
                 background: "#ECFDF5",
                 padding: "2px 8px",
-                borderRadius: "9999px",
+                borderRadius: "12px",
                 border: "1px solid #A7F3D0"
               }}>
                 {detectionConfidence}% Match
               </span>
             ) : null}
           </div>
-          <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
+          <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
             {formatDocName(documentType)}
           </div>
           <div style={{ fontSize: "0.82rem", color: "#64748B", marginTop: "4px" }}>
@@ -192,13 +193,23 @@ export default function VerificationCard({ result }) {
                   borderColor: chk.pass ? "#A7F3D0" : "#FECACA"
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {chk.pass ? (
                     <CheckCircle2 size={20} color="#16A34A" />
                   ) : (
                     <XCircle size={20} color="#DC2626" />
                   )}
                   <span style={{ fontWeight: 600, fontSize: "0.92rem", color: "#0F172A" }}>{chk.label}</span>
+                  <span style={{
+                    fontSize: "0.68rem",
+                    fontWeight: 700,
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    background: chk.priority === "CRITICAL SECURITY" ? "#FEE2E2" : chk.priority === "HIGH SECURITY" ? "#FEF3C7" : chk.priority === "AUTHORITATIVE" ? "#E0E7FF" : "#F1F5F9",
+                    color: chk.priority === "CRITICAL SECURITY" ? "#991B1B" : chk.priority === "HIGH SECURITY" ? "#92400E" : chk.priority === "AUTHORITATIVE" ? "#3730A3" : "#475569"
+                  }}>
+                    {chk.priority}
+                  </span>
                 </div>
                 <span
                   style={{
@@ -220,7 +231,20 @@ export default function VerificationCard({ result }) {
               </div>
               <ul style={{ paddingLeft: "20px", fontSize: "0.85rem", color: "#B45309" }}>
                 {penalties.map((p, idx) => (
-                  <li key={idx}>
+                  <li key={idx} style={{ marginBottom: "4px" }}>
+                    {p.priority && (
+                      <span style={{
+                        fontSize: "0.68rem",
+                        fontWeight: 700,
+                        padding: "1px 5px",
+                        borderRadius: "3px",
+                        background: p.priority === "CRITICAL SECURITY" ? "#FEE2E2" : "#FEF3C7",
+                        color: p.priority === "CRITICAL SECURITY" ? "#991B1B" : "#92400E",
+                        marginRight: "6px"
+                      }}>
+                        [{p.priority}]
+                      </span>
+                    )}
                     <strong>{p.check}</strong> (+{p.points} risk): {p.reason}
                   </li>
                 ))}
