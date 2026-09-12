@@ -27,29 +27,24 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Show Android SDK info
+      - name: Check available Android SDKs
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ls $ANDROID_HOME/platforms/ || true
-          ls $ANDROID_HOME/build-tools/ || true
+          echo "=== ANDROID_HOME: $ANDROID_HOME ==="
+          echo "=== ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT ==="
+          echo "=== Available platforms ==="
+          ls $ANDROID_HOME/platforms/ 2>/dev/null || echo "No platforms folder"
+          echo "=== Available build-tools ==="
+          ls $ANDROID_HOME/build-tools/ 2>/dev/null || echo "No build-tools folder"
 
-      - name: Accept Android SDK licenses
+      - name: Accept SDK licenses
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>&1 || \
-          yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses 2>&1 || true
+          mkdir -p $ANDROID_HOME/licenses
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_HOME/licenses/android-sdk-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
 
-      - name: Install Android SDK 36
-        run: |
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -f "$SDKMANAGER" ]; then
-            SDKMANAGER="$ANDROID_HOME/tools/bin/sdkmanager"
-          fi
-          echo "Using sdkmanager at: $SDKMANAGER"
-          yes | $SDKMANAGER "platforms;android-36" "build-tools;36.0.0" "platform-tools" 2>&1 || true
-          yes | $SDKMANAGER --licenses 2>&1 || true
-
-      - name: Install client npm dependencies
+      - name: Install client dependencies
         working-directory: client
         run: npm install
 
@@ -66,55 +61,70 @@ jobs:
           rm -rf android
           npx cap add android
 
-      - name: Patch AndroidManifest with camera and cleartext permissions
+      - name: Patch variables.gradle to use SDK 34 (pre-installed on CI)
+        working-directory: client/android
+        run: |
+          python3 - << 'PYEOF'
+          with open("variables.gradle", "r") as f:
+              content = f.read()
+          content = content.replace("compileSdkVersion = 36", "compileSdkVersion = 34")
+          content = content.replace("targetSdkVersion = 36", "targetSdkVersion = 34")
+          content = content.replace("compileSdkVersion = 35", "compileSdkVersion = 34")
+          content = content.replace("targetSdkVersion = 35", "targetSdkVersion = 34")
+          with open("variables.gradle", "w") as f:
+              f.write(content)
+          print("variables.gradle patched:")
+          print(content)
+          PYEOF
+
+      - name: Patch AndroidManifest with permissions
         working-directory: client/android/app/src/main
         run: |
           python3 - << 'PYEOF'
-          content = """<?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <application
-                  android:allowBackup="true"
-                  android:icon="@mipmap/ic_launcher"
-                  android:label="@string/app_name"
-                  android:roundIcon="@mipmap/ic_launcher_round"
-                  android:supportsRtl="true"
-                  android:usesCleartextTraffic="true"
-                  android:theme="@style/AppTheme">
-                  <activity
-                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
-                      android:name=".MainActivity"
-                      android:label="@string/title_activity_main"
-                      android:theme="@style/AppTheme.NoActionBarLaunch"
-                      android:launchMode="singleTask"
-                      android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-                  <provider
-                      android:name="androidx.core.content.FileProvider"
-                      android:authorities="${applicationId}.fileprovider"
-                      android:exported="false"
-                      android:grantUriPermissions="true">
-                      <meta-data
-                          android:name="android.support.FILE_PROVIDER_PATHS"
-                          android:resource="@xml/file_paths"></meta-data>
-                  </provider>
-              </application>
-              <uses-permission android:name="android.permission.INTERNET" />
-              <uses-permission android:name="android.permission.CAMERA" />
-              <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-              <uses-feature android:name="android.hardware.camera" android:required="false" />
-          </manifest>
-          """
+          content = '''<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+</manifest>'''
           with open("AndroidManifest.xml", "w") as f:
               f.write(content)
-          print("AndroidManifest.xml written successfully")
+          print("AndroidManifest.xml written")
           PYEOF
 
-      - name: Create local.properties with SDK path
+      - name: Create local.properties
         working-directory: client/android
         run: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
@@ -123,9 +133,9 @@ jobs:
 
       - name: Build Debug APK
         working-directory: client/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1
+        run: ./gradlew assembleDebug --no-daemon --info 2>&1 | tail -100
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: DocAuth-India.apk
