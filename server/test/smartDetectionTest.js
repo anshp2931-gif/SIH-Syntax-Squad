@@ -3,7 +3,7 @@ import { detectDocument, DOCUMENT_NAMES, getDocumentName } from "../services/doc
 import { validateDocument } from "../utils/validators.js";
 
 console.log("===============================================================");
-console.log("🧪 RUNNING DOCAUTH INDIA SMART DOCUMENT-TYPE DETECTION TEST SUITE");
+console.log("🧪 RUNNING DocAuth INDIA SMART DOCUMENT-TYPE DETECTION TEST SUITE");
 console.log("===============================================================\n");
 
 let passed = 0;

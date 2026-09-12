@@ -1,4 +1,4 @@
-package com.docauth.india;
+package com.DocAuth.india;
 
 import com.getcapacitor.BridgeActivity;
 

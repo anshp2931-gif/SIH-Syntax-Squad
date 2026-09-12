@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CheckCircle2, XCircle, Download, ShieldCheck, FileText, Cpu, Eye } from "lucide-react";
 import ResultBadge from "./ResultBadge";
 import { useLanguage } from "../hooks/useLanguage";
+import { generateAuditCertificatePDF } from "../utils/pdfGenerator";
 
 function formatDocName(type) {
   const map = {
@@ -157,7 +158,6 @@ export default function VerificationCard({ result }) {
       <div className="tabBar" style={styles.tabBar}>
         {[
           { id: "overview", label: t('verCard.tabs.checks'), icon: ShieldCheck },
-          { id: "extracted", label: t('verCard.tabs.extracted'), icon: FileText },
           { id: "tampering", label: t('verCard.tabs.tampering'), icon: Eye },
           { id: "issuer", label: t('verCard.tabs.issuer'), icon: Cpu }
         ].map((t_tab) => {
@@ -229,34 +229,6 @@ export default function VerificationCard({ result }) {
         </div>
       )}
 
-      {/* TAB CONTENT: Extracted Data */}
-      {activeTab === "extracted" && (
-        <div className="tabContent" style={styles.tabContent}>
-          {Object.entries(extractedData).filter(([_, val]) => val && val !== "NOT_DETECTED" && val !== "NOT_SPECIFIED" && val !== "UNKNOWN").length > 0 ? (
-            <table className="dataTable" style={styles.dataTable}>
-              <tbody>
-                {Object.entries(extractedData)
-                  .filter(([_, val]) => val && val !== "NOT_DETECTED" && val !== "NOT_SPECIFIED" && val !== "UNKNOWN")
-                  .map(([key, val]) => (
-                    <tr key={key} className="tableRow" style={styles.tableRow}>
-                      <td className="tableKey" style={styles.tableKey}>
-                        {key.replace(/([A-Z])/g, " $1").toUpperCase()}
-                      </td>
-                      <td className="tableVal code-font" style={styles.tableVal}>
-                        {typeof val === "object" ? JSON.stringify(val) : String(val)}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          ) : (
-            <div style={{ padding: "24px", textAlign: "center", color: "#64748B", fontSize: "0.9rem" }}>
-              Only high-confidence verified fields are displayed. No uncertain fields were extracted from this document.
-            </div>
-          )}
-        </div>
-      )}
-
       {/* TAB CONTENT: Tamper Details */}
       {activeTab === "tampering" && (
         <div className="tabContent" style={styles.tabContent}>
@@ -312,6 +284,27 @@ export default function VerificationCard({ result }) {
 
       {/* Footer Action */}
       <div className="footer" style={styles.footer}>
+        <button 
+          className="btn-primary" 
+          onClick={() => generateAuditCertificatePDF(result)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)",
+            color: "#FFFFFF",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            fontWeight: 700,
+            fontSize: "0.88rem",
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
+          }}
+        >
+          <FileText size={17} color="#FFFFFF" />
+          <span>Download Official Audit Report (PDF)</span>
+        </button>
         <button className="btn-secondary" onClick={downloadJsonReport}>
           <Download size={16} />
           {t('verCard.exportBtn')}
@@ -483,6 +476,9 @@ const styles = {
     paddingTop: "16px",
     borderTop: "1px solid #E2E8F0",
     display: "flex",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: "12px",
+    flexWrap: "wrap"
   }
 };

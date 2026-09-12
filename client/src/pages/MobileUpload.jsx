@@ -74,7 +74,7 @@ export default function MobileUpload() {
           <div style={{ width: "34px", height: "34px", borderRadius: "8px", background: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <ShieldCheck size={20} color="#FFFFFF" />
           </div>
-          <span style={{ fontWeight: 800, color: "#0F172A", fontSize: "1.1rem" }}>PramaanSetu Mobile Scanner</span>
+          <span style={{ fontWeight: 800, color: "#0F172A", fontSize: "1.1rem" }}>DocAuth Mobile Scanner</span>
         </div>
 
         <p style={{ color: "#64748B", fontSize: "0.88rem", marginBottom: "20px" }}>
