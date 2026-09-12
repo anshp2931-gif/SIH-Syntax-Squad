@@ -13,70 +13,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle'
 
-      - name: Accept Android SDK licenses
-        run: |
-          mkdir -p "$ANDROID_HOME/licenses"
-          printf "24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"
-          printf "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
-
-      - name: Install client dependencies
+      - name: Install dependencies
         working-directory: client
         run: npm install
 
-      - name: Build Vite web app
+      - name: Build web application
         working-directory: client
         env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_YWR2YW5jZWQtYWtpdGEtNzQwMi5jbGVyay5hY2NvdW50cy5kZXYk' }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || '' }}
         run: npm run build
 
-      - name: Add Capacitor Android platform
+      - name: Sync Capacitor Android
         working-directory: client
-        run: |
-          rm -rf android
-          npx cap add android
-
-      - name: Patch compileSdkVersion to 34
-        working-directory: client/android
-        run: |
-          sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 34/g' variables.gradle
-          sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 34/g' variables.gradle
-          cat variables.gradle
-
-      - name: Add permissions to AndroidManifest
-        working-directory: client/android/app/src/main
-        run: |
-          sed -i 's/android:theme="@style\/AppTheme">/android:theme="@style\/AppTheme" android:usesCleartextTraffic="true">/' AndroidManifest.xml
-          sed -i 's|<uses-permission android:name="android.permission.INTERNET" />|<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />|' AndroidManifest.xml
-          cat AndroidManifest.xml
-
-      - name: Create local.properties
-        working-directory: client/android
-        run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          chmod +x gradlew
+        run: npx cap sync android
 
       - name: Build Debug APK
         working-directory: client/android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DocAuth-India.apk
+          name: DocAuth-India-APK
           path: client/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
