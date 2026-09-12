@@ -16,14 +16,17 @@ import {
 } from "lucide-react";
 import "./Login.css";
 import { useClerk, useSignIn, useSignUp, useUser } from "@clerk/react";
+import { useLocation } from "react-router-dom";
 
 export default function Login({ onLoginSuccess, onNavigateHome }) {
   const clerk = useClerk();
   const { signIn } = useSignIn();
   const { signUp } = useSignUp();
   const { isLoaded: isUserLoaded, isSignedIn, user } = useUser();
+  const location = useLocation();
+  const fromProtected = location.state?.from?.pathname;
 
-  // If user is already authenticated, redirect to home immediately
+  // If user is already authenticated, redirect to destination or home immediately
   useEffect(() => {
     if (isUserLoaded && isSignedIn) {
       if (onLoginSuccess) onLoginSuccess();
@@ -31,7 +34,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
     }
   }, [isUserLoaded, isSignedIn]);
 
-  const [authMode, setAuthMode] = useState("signin"); // "signin", "signup"
+  const [authMode, setAuthMode] = useState(location.state?.mode === "signup" ? "signup" : "signin"); // "signin", "signup"
   const [showPassword, setShowPassword] = useState(false);
   
   // Form States
@@ -617,6 +620,26 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
               </div>
 
               {/* Notifications */}
+              {fromProtected && !errorMsg && !successMsg && (
+                <div style={{
+                  background: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  color: "#1E40AF",
+                  padding: "10px 14px",
+                  borderRadius: "10px",
+                  fontSize: "0.84rem",
+                  fontWeight: 600,
+                  marginBottom: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px"
+                }}>
+                  <Lock size={18} color="#2563EB" style={{ flexShrink: 0 }} />
+                  <span>
+                    Please log in or sign up to access {fromProtected === "/verify" ? "Document Verification" : fromProtected === "/history" ? "the Audit Log" : "this page"}.
+                  </span>
+                </div>
+              )}
               {errorMsg && (
                 <div style={{
                   background: "#FEE2E2",
