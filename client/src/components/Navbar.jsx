@@ -7,10 +7,21 @@ import {
   LayoutGrid, 
   ChevronDown 
 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { checkHealthApi } from "../services/api";
 
-export default function Navbar({ activeTab, setActiveTab }) {
+export default function Navbar() {
   const [health, setHealth] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const getActiveTab = () => {
+    if (location.pathname === "/verify") return "verify";
+    if (location.pathname === "/history") return "history";
+    return "home";
+  };
+  
+  const activeTab = getActiveTab();
 
   useEffect(() => {
     checkHealthApi().then(setHealth);
@@ -26,7 +37,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
     <header style={styles.header}>
       <div style={styles.container}>
         {/* Brand */}
-        <div style={styles.brand} onClick={() => setActiveTab("home")}>
+        <div style={styles.brand} onClick={() => navigate("/")}>
           <div style={styles.logoWrapper}>
             <div style={styles.logoShield}>
               <ShieldCheck size={26} color="#FFFFFF" strokeWidth={2.5} />
@@ -47,7 +58,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               ...styles.navBtn,
               ...(activeTab === "home" ? styles.navBtnActive : {})
             }}
-            onClick={() => setActiveTab("home")}
+            onClick={() => navigate("/")}
           >
             <HomeIcon size={17} color={activeTab === "home" ? "#2563EB" : "#64748B"} />
             <span>Home</span>
@@ -59,7 +70,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               ...styles.navBtn,
               ...(activeTab === "verify" ? styles.navBtnActive : {})
             }}
-            onClick={() => setActiveTab("verify")}
+            onClick={() => navigate("/verify")}
           >
             <FileText size={17} color={activeTab === "verify" ? "#2563EB" : "#64748B"} />
             <span>Verify Document</span>
@@ -71,7 +82,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               ...styles.navBtn,
               ...(activeTab === "history" ? styles.navBtnActive : {})
             }}
-            onClick={() => setActiveTab("history")}
+            onClick={() => navigate("/history")}
           >
             <HistoryIcon size={17} color={activeTab === "history" ? "#2563EB" : "#64748B"} />
             <span>Audit Log</span>
@@ -83,7 +94,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               ...styles.navBtn,
               ...(activeTab === "overview" ? styles.navBtnActive : {})
             }}
-            onClick={() => setActiveTab("overview")}
+            onClick={() => navigate("/")}
           >
             <LayoutGrid size={17} color={activeTab === "overview" ? "#2563EB" : "#64748B"} />
             <span>Overview</span>
