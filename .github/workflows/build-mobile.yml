@@ -42,6 +42,10 @@ jobs:
         working-directory: client
         run: npx cap sync android
 
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Build Debug APK
         working-directory: client/android
         run: |
