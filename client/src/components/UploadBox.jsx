@@ -21,6 +21,7 @@ import {
 import { fetchSampleDocumentsApi } from "../services/api";
 import CameraScanner from "./CameraScanner";
 import { useLanguage } from "../hooks/useLanguage";
+import ScannerOptionModal from "./ScannerOptionModal";
 
 export default function UploadBox({ onUpload, onSelectSample, loading }) {
   const { t } = useLanguage();
@@ -30,6 +31,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
   const [samples, setSamples] = useState([]);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [showOptionModal, setShowOptionModal] = useState(false);
   const [manualNumber, setManualNumber] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -334,12 +336,27 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
             padding: "11px",
             fontWeight: 600
           }}
-          onClick={() => setShowCamera(true)}
+          onClick={() => setShowOptionModal(true)}
         >
           <Camera size={18} color="#2563EB" />
           <span>{t('uploadBox.cameraBtn')}</span>
         </button>
       </div>
+
+      {/* Scanner Option Modal (QR scan on mobile or current device camera) */}
+      {showOptionModal && (
+        <ScannerOptionModal
+          onClose={() => setShowOptionModal(false)}
+          onSelectDeviceCamera={() => {
+            setShowOptionModal(false);
+            setShowCamera(true);
+          }}
+          onMobileCaptured={(capturedFile) => {
+            setShowOptionModal(false);
+            handleCameraCapture(capturedFile);
+          }}
+        />
+      )}
 
       {/* Camera Modal */}
       {showCamera && (

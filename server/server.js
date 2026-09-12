@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 import verificationRoutes from "./routes/verificationRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js";
 import { upload, purgeUploadsDirectory } from "./middleware/uploadMiddleware.js";
 import { ensureSampleImagesExist } from "./utils/sampleGenerator.js";
 
@@ -131,6 +132,7 @@ app.get("/api/samples", (req, res) => {
   });
 });
 
+app.use("/api/session", sessionRoutes);
 app.use("/api/verification", verificationRoutes);
 
 app.use((req, res) => {

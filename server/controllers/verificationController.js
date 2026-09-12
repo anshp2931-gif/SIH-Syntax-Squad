@@ -48,7 +48,51 @@ export async function verifyDocument(req, res) {
 
     // 2. Document Type Detection
     const detection = detectDocument(rawText);
-    const documentType = detection.documentType;
+    let documentType = detection.documentType;
+
+    // Smart Deterministic Pattern Validation Override & Fallback
+    if (rawText) {
+      const normUpper = rawText.toUpperCase();
+      const isPassport = normUpper.includes("PASSPORT") || normUpper.includes("P<IND") || normUpper.includes("REPUBLIC OF INDIA");
+      const isDegree = normUpper.includes("STATEMENT OF MARKS") || normUpper.includes("MARKSHEET") || normUpper.includes("BOARD OF SECONDARY") || normUpper.includes("HIGHER SECONDARY") || (normUpper.includes("BOARD") && normUpper.includes("EXAMINATION"));
+
+      if (isPassport) {
+        documentType = "PASSPORT";
+        detection.confidence = 95;
+      } else if (isDegree) {
+        documentType = "DEGREE_CERTIFICATE";
+        detection.confidence = 90;
+      } else {
+        // Check PAN (only for genuine non-passport documents)
+        const panFields = extractFields("PAN", rawText);
+        const panVal = validateDocument("PAN", panFields);
+        if (panVal && panVal.valid && panFields.pan && !panFields.pan.includes("<")) {
+          documentType = "PAN";
+          detection.confidence = 95;
+        } else {
+          const aadhFields = extractFields("AADHAAR", rawText);
+          const aadhVal = validateDocument("AADHAAR", aadhFields);
+          if (aadhVal && aadhVal.valid) {
+            documentType = "AADHAAR";
+            detection.confidence = 95;
+          } else {
+            const dlFields = extractFields("DRIVING_LICENSE", rawText);
+            const dlVal = validateDocument("DRIVING_LICENSE", dlFields);
+            if (dlVal && dlVal.valid) {
+              documentType = "DRIVING_LICENSE";
+              detection.confidence = 95;
+            } else {
+              const voterFields = extractFields("VOTER_ID", rawText);
+              const voterVal = validateDocument("VOTER_ID", voterFields);
+              if (voterVal && voterVal.valid) {
+                documentType = "VOTER_ID";
+                detection.confidence = 95;
+              }
+            }
+          }
+        }
+      }
+    }
 
     // If AUTO mode was selected and document type could not be identified
     if (!forcedType && documentType === "UNKNOWN") {
@@ -136,7 +180,7 @@ export async function verifyDocument(req, res) {
     const issuerResult = await verifyIssuer(effectiveType, extractedData);
 
     // 8. Template & Structural Check
-    const templateValid = (detection.confidence >= 20) || isSampleOrOverride || Boolean(forcedType && (documentType === forcedType || documentType === "UNKNOWN"));
+    const templateValid = (detection.confidence >= 15) || formatResult.valid || isSampleOrOverride || Boolean(forcedType && (documentType === forcedType || documentType === "UNKNOWN"));
 
     // Compile 7 verification check booleans
     const checks = {

@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import History from "./pages/History";
 import Login from "./pages/Login";
+import MobileUpload from "./pages/MobileUpload";
 
 export default function App() {
   const { t } = useLanguage();
@@ -76,6 +77,7 @@ export default function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/mobile-upload" element={<MobileUpload />} />
           <Route 
             path="/login" 
             element={

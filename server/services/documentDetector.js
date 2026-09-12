@@ -7,6 +7,14 @@ export function fixPanOcrErrors(token = "") {
   const clean = token.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   if (clean.length !== 10) return clean;
 
+  // A genuine PAN number should already have at least 3 letters in the first 5 and at least 2 digits in middle 4
+  const alphaInFirst5 = (clean.substring(0, 5).match(/[A-Z]/g) || []).length;
+  const digitsInMiddle4 = (clean.substring(5, 9).match(/[0-9]/g) || []).length;
+
+  if (alphaInFirst5 < 3 || digitsInMiddle4 < 2) {
+    return clean; // Protect Passport MRZ tokens from being turned into fake PANs
+  }
+
   const charToAlpha = { "0": "O", "1": "I", "5": "S", "8": "B", "2": "Z", "6": "G" };
   const charToNum = { "I": "1", "L": "1", "|": "1", "O": "0", "Q": "0", "S": "5", "B": "8", "Z": "2", "G": "6", "T": "7" };
 
@@ -32,13 +40,45 @@ export function detectDocument(text = "") {
 
   const normalized = text.toUpperCase();
 
-  const panKeywords = ["INCOME TAX DEPARTMENT", "PERMANENT ACCOUNT NUMBER", "GOVT OF INDIA", "GOVERNMENT OF INDIA", "INCOMETAX", "FATHER'S NAME"];
-  const dlKeywords = ["DRIVING LICENCE", "DRIVING LICENSE", "TRANSPORT DEPARTMENT", "MOTOR VEHICLES", "LICENCE NO", "DL NO", "AUTHORISATION TO DRIVE"];
-  const aadhaarKeywords = ["UNIQUE IDENTIFICATION AUTHORITY OF INDIA", "AADHAAR", "MERA AADHAAR", "ENROLMENT NO", "VID :"];
-  const voterKeywords = ["ELECTION COMMISSION OF INDIA", "ELECTORAL PHOTO IDENTITY CARD", "EPIC", "ELECTOR'S NAME"];
-  const passportKeywords = ["REPUBLIC OF INDIA", "PASSPORT", "PASSPORT NO", "P<IND", "GIVEN NAME(S)"];
-  const rcKeywords = ["REGISTRATION CERTIFICATE", "MOTOR VEHICLES DEPARTMENT", "CHASSIS NO", "ENGINE NO", "UNLADEN WT", "VEHICLE CLASS"];
-  const gstinKeywords = ["GOODS AND SERVICES TAX", "GSTIN", "REGISTRATION CERTIFICATE", "TAX PERIOD", "TRADE NAME"];
+  // 1. Passport Priority Check
+  const isPassportText = normalized.includes("PASSPORT") || normalized.includes("P<IND") || normalized.includes("REPUBLIC OF INDIA") || normalized.includes("PASSPORT NO");
+  if (isPassportText) {
+    return { documentType: "PASSPORT", confidence: 95, keywordsFound: ["PASSPORT", "REPUBLIC OF INDIA"] };
+  }
+
+  // 2. Marksheet / Academic Certificate Priority Check
+  const degreeKeywords = [
+    "BOARD OF SECONDARY EDUCATION", "CENTRAL BOARD", "SECONDARY SCHOOL", "HIGHER SECONDARY",
+    "STATEMENT OF MARKS", "MARKSHEET", "DEGREE CERTIFICATE", "UNIVERSITY", "MATRICULATION",
+    "EXAMINATION", "ROLL NO", "CLASS X", "CLASS 10", "CLASS XII", "CLASS 12",
+    "PROVISIONAL CERTIFICATE", "PASS CERTIFICATE", "MIGRATION CERTIFICATE", "SCHOOL CODE",
+    "SUBJECT CODE", "CGPA", "MARKS STATEMENT", "SECONDARY CERTIFICATE", "COUNCIL FOR THE INDIAN SCHOOL",
+    "EXAMINATION RESULTS", "GRADE", "RESULT", "BOARD", "SECONDARY", "MAX MARKS", "TOTAL MARKS", "THEORY", "PRACTICAL", "PASSED"
+  ];
+  const academicMatches = degreeKeywords.filter((kw) => normalized.includes(kw));
+  if (academicMatches.length >= 2 || normalized.includes("STATEMENT OF MARKS") || normalized.includes("MARKSHEET")) {
+    return { documentType: "DEGREE_CERTIFICATE", confidence: 90, keywordsFound: academicMatches };
+  }
+
+  const panKeywords = [
+    "INCOME TAX DEPARTMENT", "PERMANENT ACCOUNT NUMBER", "GOVT OF INDIA", "GOVERNMENT OF INDIA", "INCOMETAX", "FATHER'S NAME",
+    "INCOME", "TAX", "PERMANENT", "ACCOUNT", "NUMBER", "DEPARTMENT", "GOVT", "INDIA", "FATHER", "PAN"
+  ];
+  const dlKeywords = [
+    "DRIVING LICENCE", "DRIVING LICENSE", "TRANSPORT DEPARTMENT", "MOTOR VEHICLES", "LICENCE NO", "DL NO", "AUTHORISATION TO DRIVE",
+    "DRIVING", "LICENCE", "LICENSE", "TRANSPORT", "MOTOR", "VEHICLES", "AUTHORISATION", "DL", "SARATHI"
+  ];
+  const aadhaarKeywords = [
+    "UNIQUE IDENTIFICATION AUTHORITY OF INDIA", "AADHAAR", "MERA AADHAAR", "ENROLMENT NO", "VID :",
+    "UNIQUE", "IDENTIFICATION", "AUTHORITY", "ADHAR", "UIDAI", "BHARAT"
+  ];
+  const voterKeywords = [
+    "ELECTION COMMISSION OF INDIA", "ELECTORAL PHOTO IDENTITY CARD", "EPIC", "ELECTOR'S NAME",
+    "ELECTION", "COMMISSION", "ELECTORAL", "IDENTITY", "ELECTOR", "NVSP"
+  ];
+  const passportKeywords = ["REPUBLIC OF INDIA", "PASSPORT", "PASSPORT NO", "P<IND", "GIVEN NAME(S)", "REPUBLIC", "GIVEN", "MRZ"];
+  const rcKeywords = ["REGISTRATION CERTIFICATE", "MOTOR VEHICLES DEPARTMENT", "CHASSIS NO", "ENGINE NO", "UNLADEN WT", "VEHICLE CLASS", "REGISTRATION", "CHASSIS", "ENGINE", "UNLADEN", "VEHICLE", "VAHAN"];
+  const gstinKeywords = ["GOODS AND SERVICES TAX", "GSTIN", "REGISTRATION CERTIFICATE", "TAX PERIOD", "TRADE NAME", "GOODS", "SERVICES", "GST"];
   const rationKeywords = [
     "RATION CARD", "RATION", "RASAN", "FOOD & CIVIL SUPPLIES", "CIVIL SUPPLIES",
     "DEPARTMENT OF FOOD", "NATIONAL FOOD SECURITY", "NFSA", "FAMILY HEAD",
@@ -46,49 +86,57 @@ export function detectDocument(text = "") {
     "PUBLIC DISTRIBUTION", "FAIR PRICE", "KHADYA", "PATRIKA", "CONSUMER AFFAIRS",
     "FOOD SUPPLIES", "RATION PATRIKA", "KUTUMB", "CARD NO"
   ];
-  const degreeKeywords = [
-    "BOARD OF SECONDARY EDUCATION", "CENTRAL BOARD", "SECONDARY SCHOOL", "HIGHER SECONDARY",
-    "STATEMENT OF MARKS", "MARKSHEET", "DEGREE CERTIFICATE", "UNIVERSITY", "MATRICULATION",
-    "EXAMINATION", "ROLL NO", "CLASS X", "CLASS 10", "CLASS XII", "CLASS 12",
-    "PROVISIONAL CERTIFICATE", "PASS CERTIFICATE", "MIGRATION CERTIFICATE", "SCHOOL CODE",
-    "SUBJECT CODE", "CGPA", "MARKS STATEMENT", "SECONDARY CERTIFICATE", "COUNCIL FOR THE INDIAN SCHOOL",
-    "EXAMINATION RESULTS", "GRADE", "RESULT"
-  ];
-  const birthKeywords = ["BIRTH CERTIFICATE", "CIVIL REGISTRATION SYSTEM", "DEPARTMENT OF HEALTH", "MUNICIPAL CORPORATION", "DATE OF BIRTH CERTIFICATE"];
+  const birthKeywords = ["BIRTH CERTIFICATE", "CIVIL REGISTRATION SYSTEM", "DEPARTMENT OF HEALTH", "MUNICIPAL CORPORATION", "DATE OF BIRTH CERTIFICATE", "BIRTH", "MUNICIPAL", "CRS"];
 
-  const panPattern = /[A-Z]{5}[0-9]{4}[A-Z]/;
-  const dlPattern = /[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7}/;
-  const aadhaarPattern = /\b\d{4}\s?\d{4}\s?\d{4}\b/;
-  const voterPattern = /[A-Z]{3}[0-9]{7}/;
-  const passportPattern = /[A-Z]{1}[0-9]{7}/;
-  const rcPattern = /[A-Z]{2}[0-9]{2}[A-Z]{1,3}[0-9]{4}/;
-  const gstinPattern = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
-  const rationPattern = /\b(RC|NFSA|PDS|CARD)?[\s:-]*[A-Z0-9]{8,16}\b/i;
-  const degreePattern = /\b(ROLL\s*NO|REG\s*NO|MARKSHEET|CLASS\s*(X|10|XII|12)|MATRIC|STATEMENT\s*OF\s*MARKS)\b/i;
-  const birthPattern = /\bBIRTH\s*REG|REGISTRATION\s*NO\b/i;
+  let hasPanPattern = /[A-Z]{5}[0-9]{4}[A-Z]/.test(normalized);
+  if (!hasPanPattern && !normalized.includes("<")) {
+    const rawTokens = normalized.split(/[^A-Z0-9]/).filter((t) => t.length >= 10);
+    for (const tok of rawTokens) {
+      for (let i = 0; i <= tok.length - 10; i++) {
+        const candidate = fixPanOcrErrors(tok.substring(i, i + 10));
+        if (/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(candidate)) {
+          hasPanPattern = true;
+          break;
+        }
+      }
+      if (hasPanPattern) break;
+    }
+  }
+
+  let hasDlPattern = /[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7}/.test(normalized);
+  if (!hasDlPattern) {
+    const cleanDigits = normalized.replace(/[^A-Z0-9]/g, "");
+    if (/[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}/.test(cleanDigits)) hasDlPattern = true;
+  }
+
+  const hasAadhaarPattern = /\b\d{4}[ -]?\d{4}[ -]?\d{4}\b/.test(normalized) || /[X*•x]{4}[ -]?[X*•x]{4}[ -]?\d{4}/i.test(normalized) || /\bVID\s*[:.-]?\s*\d{16}\b/i.test(normalized);
+  const hasVoterPattern = /[A-Z]{3}[0-9]{7}/.test(normalized);
+  const hasPassportPattern = isPassportText || /[A-Z]{1}[0-9]{7}/.test(normalized);
+  const hasRcPattern = /[A-Z]{2}[0-9]{2}[A-Z]{1,3}[0-9]{4}/.test(normalized);
+  const hasGstinPattern = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/.test(normalized);
 
   const countMatches = (list) => list.filter((kw) => normalized.includes(kw));
 
   const rationMatches = countMatches(rationKeywords);
-  const rationScore = rationMatches.length > 0 ? (rationMatches.length * 20 + 30) : 0;
+  const rationScore = rationMatches.length > 0 ? (rationMatches.length * 15 + 20) : 0;
 
   const scores = [
-    { type: "PAN", score: countMatches(panKeywords).length * 20 + (panPattern.test(normalized) ? 40 : 0), matches: countMatches(panKeywords) },
-    { type: "DRIVING_LICENSE", score: countMatches(dlKeywords).length * 20 + (dlPattern.test(normalized) ? 40 : 0), matches: countMatches(dlKeywords) },
-    { type: "AADHAAR", score: countMatches(aadhaarKeywords).length * 25 + (aadhaarPattern.test(normalized) ? 40 : 0), matches: countMatches(aadhaarKeywords) },
-    { type: "VOTER_ID", score: countMatches(voterKeywords).length * 25 + (voterPattern.test(normalized) ? 40 : 0), matches: countMatches(voterKeywords) },
-    { type: "PASSPORT", score: countMatches(passportKeywords).length * 25 + (passportPattern.test(normalized) ? 40 : 0), matches: countMatches(passportKeywords) },
-    { type: "VEHICLE_RC", score: countMatches(rcKeywords).length * 25 + (rcPattern.test(normalized) ? 40 : 0), matches: countMatches(rcKeywords) },
-    { type: "GSTIN", score: countMatches(gstinKeywords).length * 25 + (gstinPattern.test(normalized) ? 40 : 0), matches: countMatches(gstinKeywords) },
+    { type: "PAN", score: countMatches(panKeywords).length * 15 + (hasPanPattern ? 50 : 0), matches: countMatches(panKeywords) },
+    { type: "DRIVING_LICENSE", score: countMatches(dlKeywords).length * 15 + (hasDlPattern ? 50 : 0), matches: countMatches(dlKeywords) },
+    { type: "AADHAAR", score: countMatches(aadhaarKeywords).length * 15 + (hasAadhaarPattern ? 50 : 0), matches: countMatches(aadhaarKeywords) },
+    { type: "VOTER_ID", score: countMatches(voterKeywords).length * 15 + (hasVoterPattern ? 50 : 0), matches: countMatches(voterKeywords) },
+    { type: "PASSPORT", score: countMatches(passportKeywords).length * 15 + (hasPassportPattern ? 60 : 0), matches: countMatches(passportKeywords) },
+    { type: "VEHICLE_RC", score: countMatches(rcKeywords).length * 15 + (hasRcPattern ? 50 : 0), matches: countMatches(rcKeywords) },
+    { type: "GSTIN", score: countMatches(gstinKeywords).length * 15 + (hasGstinPattern ? 50 : 0), matches: countMatches(gstinKeywords) },
     { type: "RATION_CARD", score: rationScore, matches: rationMatches },
-    { type: "DEGREE_CERTIFICATE", score: countMatches(degreeKeywords).length * 25 + (degreePattern.test(normalized) ? 30 : 0), matches: countMatches(degreeKeywords) },
-    { type: "BIRTH_CERTIFICATE", score: countMatches(birthKeywords).length * 25 + (birthPattern.test(normalized) ? 30 : 0), matches: countMatches(birthKeywords) }
+    { type: "DEGREE_CERTIFICATE", score: countMatches(degreeKeywords).length * 15 + (academicMatches.length > 0 ? 30 : 0), matches: academicMatches },
+    { type: "BIRTH_CERTIFICATE", score: countMatches(birthKeywords).length * 15 + (birthKeywords.some((k) => normalized.includes(k)) ? 25 : 0), matches: countMatches(birthKeywords) }
   ];
 
   scores.sort((a, b) => b.score - a.score);
   const best = scores[0];
 
-  if (best && best.score >= 20) {
+  if (best && best.score >= 15) {
     return { documentType: best.type, confidence: Math.min(100, best.score), keywordsFound: best.matches };
   }
 
