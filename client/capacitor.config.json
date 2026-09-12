@@ -1,0 +1,9 @@
+{
+  "appId": "com.docauth.india",
+  "appName": "DocAuth India",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
