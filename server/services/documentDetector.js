@@ -46,6 +46,7 @@ export const DOCUMENT_NAMES = {
   RATION_CARD: "Ration Card",
   DEGREE_CERTIFICATE: "Degree Certificate / Marksheet",
   BIRTH_CERTIFICATE: "Birth Certificate",
+  STUDENT_ID: "Student / Institutional ID Card",
   UNSUPPORTED: "Unsupported Document",
   UNKNOWN: "Unknown Document"
 };
@@ -167,8 +168,8 @@ export function detectDocument(text = "") {
     {
       type: "DEGREE_CERTIFICATE",
       name: "Degree Certificate / Marksheet",
-      primaryKeywords: ["BOARD OF SECONDARY EDUCATION", "CENTRAL BOARD", "STATEMENT OF MARKS", "MARKSHEET", "DEGREE CERTIFICATE", "UNIVERSITY", "PASS CERTIFICATE"],
-      secondaryKeywords: ["MATRICULATION", "EXAMINATION", "ROLL NO", "CLASS X", "CLASS 10", "CLASS XII", "CLASS 12", "CGPA"],
+      primaryKeywords: ["BOARD OF SECONDARY EDUCATION", "CENTRAL BOARD", "STATEMENT OF MARKS", "MARKSHEET", "DEGREE CERTIFICATE", "PASS CERTIFICATE", "BACHELOR OF", "MASTER OF", "DIPLOMA IN", "PROVISIONAL CERTIFICATE"],
+      secondaryKeywords: ["UNIVERSITY", "MATRICULATION", "EXAMINATION", "ROLL NO", "CLASS X", "CLASS 10", "CLASS XII", "CLASS 12", "CGPA", "GRADE POINT", "ACADEMIC YEAR"],
       pattern: /\b(ROLL\s*NO|REG\s*NO|MARKSHEET|CLASS\s*(X|10|XII|12)|MATRIC|STATEMENT\s*OF\s*MARKS)\b/i
     },
     {
@@ -177,6 +178,13 @@ export function detectDocument(text = "") {
       primaryKeywords: ["BIRTH CERTIFICATE", "CIVIL REGISTRATION SYSTEM", "FORM NO. 5", "BIRTH REPORT", "DATE OF BIRTH CERTIFICATE"],
       secondaryKeywords: ["DEPARTMENT OF HEALTH", "MUNICIPAL CORPORATION", "REGISTRATION NO", "REGISTRAR"],
       pattern: /\bBIRTH\s*REG|REGISTRATION\s*NO\b/i
+    },
+    {
+      type: "STUDENT_ID",
+      name: "Student / Institutional ID Card",
+      primaryKeywords: ["STUDENT ID", "IDENTITY CARD", "STUDENT IDENTITY CARD", "COLLEGE ID", "INSTITUTIONAL ID", "EMPLOYEE ID", "STUDENT CARD", "CAMPUS CARD", "ID CARD NO", "IDENTITY PASS", "STAFF ID", "FACULTY ID", "LIBRARY CARD", "ID CARD", "IDCARD"],
+      secondaryKeywords: ["STUDENT", "COLLEGE", "INSTITUTE", "UNIVERSITY", "ENROLMENT NO", "ROLL NO", "VALID UPTO", "BLOOD GROUP", "BRANCH", "DEPARTMENT", "COURSE", "BATCH", "VALIDITY", "ACADEMIC YEAR", "SEMESTER", "CARD NO", "ID NO", "REGISTRATION NO"],
+      pattern: /\b(ID|NO|REG|ENROLL?MENT)[\s:-]*[A-Z0-9/-]{4,20}\b/i
     }
   ];
 
@@ -194,6 +202,11 @@ export function detectDocument(text = "") {
     }
     if (secondaryMatches.length > 0) {
       score += Math.min(15, secondaryMatches.length * 8);
+    }
+
+    // Special booster for clear Student ID signature
+    if (doc.type === "STUDENT_ID" && (primaryMatches.length > 0 || hasPattern)) {
+      score = Math.max(score, 94);
     }
 
     // Special booster for clear Aadhaar signature (12 digits + Aadhaar / UIDAI)
@@ -948,6 +961,68 @@ function rawExtractFields(documentType, text = "") {
         permitType,
         validUpto: parseDateFromText(text) || "NOT_SPECIFIED",
         stateCode: permitNumber ? permitNumber.substring(0, 2) : "NOT_DETECTED"
+      };
+    }
+
+    case "STUDENT_ID": {
+      let idNumber = null;
+      const idMatch = normalizedText.match(/(?:STUDENT\s*ID|ID\s*NO|CARD\s*NO|ENROLMENT\s*NO|ROLL\s*NO|REG\s*NO|MEMBER\s*NO|ID)[\s:.-]*([A-Z0-9/-]{4,20})/i);
+      if (idMatch) idNumber = idMatch[1];
+
+      if (!idNumber) {
+        const altMatch = normalizedText.match(/\b[A-Z0-9]{3,6}[-/]?[0-9]{4,10}\b/);
+        if (altMatch) idNumber = altMatch[0];
+      }
+
+      let studentName = null;
+      for (let i = 0; i < rawLines.length; i++) {
+        const line = rawLines[i];
+        const u = line.toUpperCase();
+        if (u.includes("NAME") && !u.includes("COLLEGE") && !u.includes("UNIVERSITY") && !u.includes("INSTITUTE")) {
+          const nameMatch = line.match(/(?:STUDENT\s*NAME|NAME|HOLDER)[\s:.-]+([A-Za-z\s]{3,40})/i);
+          if (nameMatch && !studentName) {
+            studentName = sanitizeName(nameMatch[1]);
+          } else if (!studentName && i + 1 < rawLines.length) {
+            studentName = sanitizeName(rawLines[i + 1]);
+          }
+        }
+      }
+
+      if (!studentName) {
+        for (const line of rawLines) {
+          const u = line.toUpperCase();
+          if (!u.includes("STUDENT") && !u.includes("ID") && !u.includes("CARD") && !u.includes("COLLEGE") && !u.includes("UNIVERSITY") && !u.includes("INSTITUTE") && !u.includes("DEPARTMENT") && !u.includes("BRANCH") && !/\d/.test(line)) {
+            const cand = sanitizeName(line);
+            if (cand && cand.length >= 3 && cand.length <= 35) {
+              studentName = cand;
+              break;
+            }
+          }
+        }
+      }
+
+      let institution = null;
+      for (const line of rawLines) {
+        const u = line.toUpperCase();
+        if ((u.includes("UNIVERSITY") || u.includes("COLLEGE") || u.includes("INSTITUTE") || u.includes("ACADEMY") || u.includes("SCHOOL")) && !u.includes("STUDENT") && !u.includes("CARD")) {
+          const cleanInst = line.replace(/[^A-Za-z0-9\s,&.-]/g, "").trim();
+          if (cleanInst.length >= 5) {
+            institution = cleanInst;
+            break;
+          }
+        }
+      }
+
+      let department = null;
+      const deptMatch = normalizedText.match(/(?:DEPT|DEPARTMENT|BRANCH|COURSE|STREAM)[\s:.-]*([A-Z\s&]{2,30})/i);
+      if (deptMatch) department = deptMatch[1].trim();
+
+      return {
+        idNumber: idNumber || "NOT_DETECTED",
+        studentName: studentName || "NOT_DETECTED",
+        institution: institution || "NOT_DETECTED",
+        department: department || "GENERAL / ACADEMIC",
+        category: "Student / Institutional Identity Card"
       };
     }
 

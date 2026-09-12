@@ -31,7 +31,7 @@ app.get("/api/health", (req, res) => {
     status: "HEALTHY",
     service: "Indian Document Authenticity & Verification Platform API",
     version: "2.0.0",
-    supportedDocumentTypes: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VISA", "PERMIT", "VEHICLE_RC", "GSTIN", "RATION_CARD", "DEGREE_CERTIFICATE", "BIRTH_CERTIFICATE"],
+    supportedDocumentTypes: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VISA", "PERMIT", "VEHICLE_RC", "GSTIN", "RATION_CARD", "DEGREE_CERTIFICATE", "BIRTH_CERTIFICATE", "STUDENT_ID"],
     mongoConnected: mongoose.connection.readyState === 1,
     timestamp: new Date().toISOString()
   });

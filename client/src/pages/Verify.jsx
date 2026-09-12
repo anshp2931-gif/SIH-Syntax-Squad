@@ -345,7 +345,8 @@ export default function Verify() {
                     { id: "GSTIN", label: "GSTIN" },
                     { id: "RATION_CARD", label: "Ration Card" },
                     { id: "DEGREE_CERTIFICATE", label: "Degree Cert" },
-                    { id: "BIRTH_CERTIFICATE", label: "Birth Cert" }
+                    { id: "BIRTH_CERTIFICATE", label: "Birth Cert" },
+                    { id: "STUDENT_ID", label: "Student / College ID" }
                   ].map((cat) => (
                     <button
                       key={cat.id}

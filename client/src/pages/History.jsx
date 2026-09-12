@@ -120,7 +120,8 @@ export default function History() {
                   GSTIN: "GSTIN",
                   RATION_CARD: "Ration Card",
                   DEGREE_CERTIFICATE: "Degree Cert",
-                  BIRTH_CERTIFICATE: "Birth Cert"
+                  BIRTH_CERTIFICATE: "Birth Cert",
+                  STUDENT_ID: "Student / Inst. ID"
                 };
                 const displayType = docNames[rec.documentType] || rec.documentType;
                 const displayDetected = docNames[rec.detectedType || rec.documentType] || rec.detectedType || rec.documentType;

@@ -56,7 +56,8 @@ export default function UploadBox({
     { id: "GSTIN", label: "GSTIN Certificate", icon: Building },
     { id: "RATION_CARD", label: "Ration Card (NFSA / PDS)", icon: Wheat },
     { id: "DEGREE_CERTIFICATE", label: "Degree Certificate (UGC / NAD)", icon: GraduationCap },
-    { id: "BIRTH_CERTIFICATE", label: "Birth Certificate (CRS)", icon: FileBadge }
+    { id: "BIRTH_CERTIFICATE", label: "Birth Certificate (CRS)", icon: FileBadge },
+    { id: "STUDENT_ID", label: "Student / Institutional ID Card", icon: CreditCard }
   ];
 
   // Sync forcedType with parent state if provided

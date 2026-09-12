@@ -59,6 +59,8 @@ export async function verifyDocumentApi(file, forcedType = null, manualNumber = 
       overrideObj = { rollNumber: cleanNum };
     } else if (forcedType === "BIRTH_CERTIFICATE") {
       overrideObj = { registrationNumber: cleanNum };
+    } else if (forcedType === "STUDENT_ID") {
+      overrideObj = { idNumber: cleanNum };
     } else {
       overrideObj = { aadhaarNumber: cleanNum, pan: cleanNum, dlNumber: cleanNum, epicNumber: cleanNum };
     }

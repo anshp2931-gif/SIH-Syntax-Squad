@@ -18,6 +18,7 @@ function formatDocName(type) {
     RATION_CARD: "Ration Card (NFSA / PDS)",
     DEGREE_CERTIFICATE: "Degree Certificate / Marksheet",
     BIRTH_CERTIFICATE: "Birth Certificate (CRS)",
+    STUDENT_ID: "Student / Institutional ID Card",
     UNSUPPORTED: "Unsupported Document",
     UNKNOWN: "Unknown Document"
   };
