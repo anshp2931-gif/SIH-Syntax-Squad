@@ -259,6 +259,8 @@ p, .body-text {
   gap: 6px;
 }
 
+
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 7px;
@@ -293,3 +295,29 @@ p, .body-text {
 .pulse-animation {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
+
+/* Slide-in scroll animations for Use Cases */
+.use-case-visual {
+  transition: opacity 1.3s cubic-bezier(0.22, 1, 0.36, 1), transform 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.18s;
+  will-change: transform, opacity;
+}
+
+.use-case-visual.slide-hidden-right {
+  opacity: 0 !important;
+  transform: translateX(160px) scale(0.94) !important;
+  transition-delay: 0s !important;
+}
+
+.use-case-visual.slide-hidden-left {
+  opacity: 0 !important;
+  transform: translateX(-160px) scale(0.94) !important;
+  transition-delay: 0s !important;
+}
+
+.use-case-visual.slide-visible {
+  opacity: 1 !important;
+  transform: translateX(0) scale(1) !important;
+}
+
+
