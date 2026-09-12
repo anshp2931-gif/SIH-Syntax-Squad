@@ -509,55 +509,79 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                 <div className="login-doc-card-3d login-pan-card">
                   <div className="login-card-header">
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <div style={{ fontSize: "0.8rem" }}>🇮🇳</div>
-                      <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#1E293B" }}>INCOME TAX DEPARTMENT</div>
+                      <div className="login-card-badge-icon">🇮🇳</div>
+                      <div className="login-card-header-title" style={{ color: "#1E293B" }}>INCOME TAX </div>
                     </div>
                   </div>
+
+
+
+
+
+
+
+
                   <div className="login-card-body">
                     <div className="login-photo-box">
                       <User size={22} color="#1E293B" />
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="login-card-title-text" style={{ color: "#1E293B" }}>PAN CARD</div>
                       <div className="login-card-sub-text" style={{ color: "rgba(30, 41, 59, 0.8)" }}>GOVT. OF INDIA</div>
                       <div className="login-simulated-line" />
                       <div className="login-simulated-line" style={{ width: "60%" }} />
                     </div>
                   </div>
-                  <div className="login-chip-graphic" />
                 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                
                 {/* Card 2: Aadhaar (Pure White #FFFFFF - Written in Navy Blue #1E3A8A) */}
                 <div className="login-doc-card-3d login-aadhaar-card">
                   <div className="login-card-header">
-                    <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "#1E3A8A" }}>AADHAAR</div>
-                    <div style={{ fontSize: "0.75rem" }}>🔵</div>
+                    <div className="login-card-header-title aadhaar-title" style={{ color: "#1E3A8A" }}>AADHAAR</div>
+                    <div className="login-card-badge-icon">🔵</div>
                   </div>
                   <div className="login-card-body">
                     <div className="login-photo-box" style={{ borderColor: "#BFDBFE" }}>
                       <Fingerprint color="#1E3A8A" />
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="login-card-title-text" style={{ color: "#1E3A8A" }}>IDENTITY CARD</div>
                       <div className="login-simulated-line" />
                       <div className="login-simulated-line" style={{ width: "70%" }} />
                       <div className="login-aadhaar-num-text" style={{ color: "#1E3A8A" }}>xxxx xxxx 4892</div>
                     </div>
                   </div>
-                  <div className="login-qr-graphic" />
                 </div>
 
                 {/* Card 3: Driving Licence (Indian Green #138808 - Blended white text) */}
                 <div className="login-doc-card-3d login-dl-card">
                   <div className="login-card-header">
-                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#FFFFFF" }}>DRIVING LICENCE</div>
-                    <div style={{ fontSize: "0.75rem" }}>🚗</div>
+                    <div className="login-card-header-title" style={{ color: "#FFFFFF" }}>DRIVING LICENCE</div>
+                    <div className="login-card-badge-icon">🚗</div>
                   </div>
                   <div className="login-card-body">
                     <div className="login-photo-box">
                       <User size={22} color="#FFFFFF" />
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="login-card-sub-text" style={{ color: "#FFFFFF" }}>UNION OF INDIA</div>
                       <div className="login-simulated-line" />
                       <div className="login-simulated-line" style={{ width: "80%" }} />
