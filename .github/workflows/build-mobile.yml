@@ -44,28 +44,70 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
-      - name: 📱 Sync Capacitor Android
+      - name: 📱 Add Android platform (fresh in CI)
         working-directory: client
-        run: npx cap sync android
+        run: |
+          # Remove existing android folder to ensure clean state
+          rm -rf android
+          npx cap add android
 
-      - name: 🔧 Make Gradlew executable
-        working-directory: client/android
-        run: chmod +x gradlew
+      - name: 🔐 Patch AndroidManifest.xml with permissions
+        working-directory: client/android/app/src/main
+        run: |
+          cat > AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:allowBackup="true"
+                  android:icon="@mipmap/ic_launcher"
+                  android:label="@string/app_name"
+                  android:roundIcon="@mipmap/ic_launcher_round"
+                  android:supportsRtl="true"
+                  android:usesCleartextTraffic="true"
+                  android:theme="@style/AppTheme">
+                  <activity
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+                      android:name=".MainActivity"
+                      android:label="@string/title_activity_main"
+                      android:theme="@style/AppTheme.NoActionBarLaunch"
+                      android:launchMode="singleTask"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+                  <provider
+                      android:name="androidx.core.content.FileProvider"
+                      android:authorities="${applicationId}.fileprovider"
+                      android:exported="false"
+                      android:grantUriPermissions="true">
+                      <meta-data
+                          android:name="android.support.FILE_PROVIDER_PATHS"
+                          android:resource="@xml/file_paths"></meta-data>
+                  </provider>
+              </application>
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.CAMERA" />
+              <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+              <uses-feature android:name="android.hardware.camera" android:required="false" />
+          </manifest>
+          EOF
 
-      - name: 📋 Show Android SDK info
+      - name: 🔧 Setup Android SDK path and accept licenses
         working-directory: client/android
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ./gradlew --version
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          chmod +x gradlew
 
       - name: 🏗️ Build Android Debug APK
         working-directory: client/android
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: 📤 Upload APK artifact
+      - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: DocAuth-India-debug.apk
@@ -73,7 +115,7 @@ jobs:
           retention-days: 30
 
   # ─────────────────────────────────────────────────────────
-  # IOS JOB — Uses Swift Package Manager (NOT CocoaPods)
+  # IOS JOB
   # ─────────────────────────────────────────────────────────
   build-ios:
     name: 🍎 Build iOS IPA
@@ -88,6 +130,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: 🍎 Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
       - name: 📦 Install client dependencies
         working-directory: client
         run: npm install
@@ -99,16 +144,31 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
-      - name: 📱 Sync Capacitor iOS
+      - name: 📱 Add iOS platform (fresh in CI)
         working-directory: client
-        run: npx cap sync ios
+        run: |
+          rm -rf ios
+          npx cap add ios
 
-      - name: 🔍 Show Xcode version and schemes
+      - name: 🔐 Patch Info.plist with permissions
+        working-directory: client/ios/App/App
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'DocAuth India requires camera access to scan identity documents.'" Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'DocAuth India requires camera access to scan identity documents.'" Info.plist
+
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'DocAuth India requires photo library access to upload documents.'" Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'DocAuth India requires photo library access to upload documents.'" Info.plist
+
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :NSAppTransportSecurity:NSAllowsArbitraryLoads true" Info.plist
+
+      - name: 🔍 Show Xcode info and project structure
         working-directory: client/ios/App
         run: |
-          xcode-select -p
           xcodebuild -version
-          xcodebuild -list -project App.xcodeproj || true
+          ls -la
+          xcodebuild -list -project App.xcodeproj
 
       - name: 📦 Resolve Swift Package Manager dependencies
         working-directory: client/ios/App
@@ -116,9 +176,10 @@ jobs:
           xcodebuild \
             -project App.xcodeproj \
             -scheme App \
-            -resolvePackageDependencies
+            -resolvePackageDependencies \
+            -derivedDataPath DerivedData
 
-      - name: 🏗️ Build iOS app (unsigned simulator build)
+      - name: 🏗️ Build iOS app (simulator, unsigned)
         working-directory: client/ios/App
         run: |
           xcodebuild \
@@ -134,17 +195,17 @@ jobs:
             ONLY_ACTIVE_ARCH=NO \
             build
 
-      - name: 📦 Package into IPA
+      - name: 📦 Package IPA
         run: |
           APP_PATH=$(find client/ios/App/DerivedData -name "App.app" -type d | grep -v dSYM | head -1)
-          echo "Found app at: $APP_PATH"
+          echo "App found at: $APP_PATH"
           mkdir -p Payload
           cp -r "$APP_PATH" Payload/
           zip -r DocAuth-India.ipa Payload
           rm -rf Payload
           ls -lh DocAuth-India.ipa
 
-      - name: 📤 Upload IPA artifact
+      - name: 📤 Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: DocAuth-India.ipa
