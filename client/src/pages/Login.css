@@ -168,6 +168,7 @@
 .login-gradient-text {
   background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -344,6 +345,23 @@
   justify-content: space-between;
 }
 
+.login-card-header-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-card-header-title.aadhaar-title {
+  font-weight: 800;
+}
+
+.login-card-badge-icon {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
 .login-card-body {
   display: flex;
   align-items: center;
@@ -367,12 +385,18 @@
   font-size: 0.72rem;
   font-weight: 800;
   color: #1E293B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .login-card-sub-text {
   font-size: 0.62rem;
   color: #64748B;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .login-simulated-line {
@@ -387,28 +411,11 @@
   font-weight: 700;
   color: #991B1B;
   margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.login-chip-graphic {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  width: 16px;
-  height: 12px;
-  background: #FCD34D;
-  border-radius: 3px;
-  border: 1px solid #F59E0B;
-}
-
-.login-qr-graphic {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  width: 16px;
-  height: 16px;
-  background: #1E293B;
-  border-radius: 2px;
-}
 
 .login-pedestal-platform {
   position: absolute;
@@ -825,10 +832,18 @@
   }
 
   .login-card-title-text {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
   }
 
   .login-card-sub-text {
+    font-size: 0.55rem;
+  }
+
+  .login-card-header-title {
+    font-size: 0.60rem;
+  }
+
+  .login-aadhaar-num-text {
     font-size: 0.55rem;
   }
 }
@@ -909,5 +924,25 @@
     left: 50%;
     margin-left: 0px;
     bottom: 25px;
+  }
+
+  .login-card-title-text {
+    font-size: 0.55rem;
+  }
+
+  .login-card-sub-text {
+    font-size: 0.5rem;
+  }
+
+  .login-card-header-title {
+    font-size: 0.52rem;
+  }
+
+  .login-aadhaar-num-text {
+    font-size: 0.48rem;
+  }
+
+  .login-card-badge-icon {
+    font-size: 0.65rem;
   }
 }
