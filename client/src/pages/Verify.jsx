@@ -261,7 +261,7 @@ export default function Verify() {
                     Unsupported Document Type
                   </h3>
                   <p style={{ fontSize: "0.86rem", color: "#64748B", marginTop: "4px" }}>
-                    {unsupportedState.message || "This document is currently not supported by DocAuth India."}
+                    {unsupportedState.message || "This document is currently not supported by PramaanSetu."}
                   </p>
                 </div>
               </div>

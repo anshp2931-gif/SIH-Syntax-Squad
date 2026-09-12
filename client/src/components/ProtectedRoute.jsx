@@ -33,7 +33,7 @@ export default function ProtectedRoute({ children }) {
 
   const [timedOut, setTimedOut] = useState(false);
   const [demoSession, setDemoSession] = useState(() => {
-    return localStorage.getItem("docauth_demo_session") === "true";
+    return localStorage.getItem("pramaansetu_demo_session") === "true";
   });
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function ProtectedRoute({ children }) {
               Verifying Security Credentials
             </h3>
             <p style={{ fontSize: "0.85rem", color: "#64748B", marginTop: "4px" }}>
-              Connecting to DocAuth India authentication service...
+              Connecting to PramaanSetu authentication service...
             </p>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function ProtectedRoute({ children }) {
 
             <button 
               onClick={() => {
-                localStorage.setItem("docauth_demo_session", "true");
+                localStorage.setItem("pramaansetu_demo_session", "true");
                 setDemoSession(true);
               }} 
               style={{
@@ -248,7 +248,7 @@ export default function ProtectedRoute({ children }) {
               style={styles.backHomeBtn}
             >
               <ArrowLeft size={15} color="#64748B" />
-              <span>Return to DocAuth India Homepage</span>
+              <span>Return to PramaanSetu Homepage</span>
             </button>
           </div>
 

@@ -98,7 +98,7 @@ export default function Navbar({ currentUser, onLogout }) {
           </div>
           <div>
             <div className="brandName">
-              DocAuth <span style={{ color: "#2563EB" }}>India</span>
+              Pramaan<span style={{ color: "#2563EB" }}>Setu</span>
             </div>
             <div className="brandSub">{t('navbar.secure')}</div>
           </div>

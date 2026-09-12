@@ -141,7 +141,7 @@ export async function detectDocumentType(req, res) {
         detectedName: "Unsupported Document Type",
         selectedType,
         selectedName: selectedType ? getDocumentName(selectedType) : null,
-        message: "This document is currently not supported by DocAuth India."
+        message: "This document is currently not supported by PramaanSetu."
       });
     }
 
@@ -248,7 +248,7 @@ export async function verifyDocument(req, res) {
         detectedName: "Unsupported Document Type",
         selectedType: forcedType,
         selectedName: forcedType ? getDocumentName(forcedType) : null,
-        message: "This document is currently not supported by DocAuth India."
+        message: "This document is currently not supported by PramaanSetu."
       });
     }
 

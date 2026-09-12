@@ -1,6 +1,6 @@
 {
   "appId": "com.docauth.india",
-  "appName": "DocAuth India",
+  "appName": "PramaanSetu",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

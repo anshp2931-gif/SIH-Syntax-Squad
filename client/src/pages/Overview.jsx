@@ -365,11 +365,11 @@ export default function Overview({ onNavigateVerify, onNavigateHistory }) {
         {/* ==================================================================
             1 — INTELLIGENCE HERO
             ================================================================== */}
-        <section className="hero-container" aria-label="DocAuth Intelligence Overview">
+        <section className="hero-container" aria-label="PramaanSetu Intelligence Overview">
           <div className="hero-left">
             <div className="hero-badge">
               <Layers size={14} />
-              <span>DOCAUTH / INTELLIGENCE OVERVIEW</span>
+              <span>PRAMAANSETU / INTELLIGENCE OVERVIEW</span>
             </div>
 
             <h1 className="hero-title">
@@ -377,7 +377,7 @@ export default function Overview({ onNavigateVerify, onNavigateHistory }) {
             </h1>
 
             <p className="hero-desc">
-              DocAuth combines document extraction, structural validation,
+              PramaanSetu combines document extraction, structural validation,
               tamper analysis and identity checks to produce fast, explainable verification decisions.
             </p>
 
@@ -819,7 +819,7 @@ export default function Overview({ onNavigateVerify, onNavigateHistory }) {
             <span>Forensic Capabilities</span>
           </div>
           <h2 id="heading-ai-detection" className="ov-title">
-            What DocAuth Looks For
+            What PramaanSetu Looks For
           </h2>
           <p className="ov-desc">
             Explore the four core inspection domains designed to detect tampering, forgery, and invalid formats.
@@ -924,7 +924,7 @@ export default function Overview({ onNavigateVerify, onNavigateHistory }) {
                     <Cpu size={28} />
                   </div>
                   <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#0F172A" }}>
-                    DOCAUTH RISK ENGINE
+                    PRAMAANSETU RISK ENGINE
                   </div>
                   <div style={{ fontSize: "0.78rem", color: "#64748B" }}>
                     Multi-vector penalty accumulator
@@ -981,7 +981,7 @@ export default function Overview({ onNavigateVerify, onNavigateHistory }) {
             Verification Engine Status
           </h2>
           <p className="ov-desc">
-            Direct telemetry reporting on active verification modules within this DocAuth instance.
+            Direct telemetry reporting on active verification modules within this PramaanSetu instance.
           </p>
 
           <div className="module-strip-grid">

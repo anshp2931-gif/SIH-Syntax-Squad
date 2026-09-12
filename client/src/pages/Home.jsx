@@ -909,7 +909,7 @@ export default function Home({ onNavigateVerify }) {
                 <div style={styles.mockAadhaarTop}>
                   <div style={styles.mockAadhaarEmblem}>🇮🇳</div>
                   <div style={styles.mockAadhaarGov}>
-                    <span style={{ fontWeight: 800, color: "#93C5FD", fontSize: "14px" }}>DocAuth FORENSICS</span>
+                    <span style={{ fontWeight: 800, color: "#93C5FD", fontSize: "14px" }}>PramaanSetu FORENSICS</span>
                     <span style={{ fontSize: "11px", color: "#94A3B8" }}>Multi-Layer Neural Analysis</span>
                   </div>
                   <div style={styles.mockDocPillAi}>

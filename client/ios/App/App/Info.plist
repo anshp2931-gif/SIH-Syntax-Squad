@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>DocAuth India</string>
+        <string>PramaanSetu</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -68,10 +68,10 @@
 	<true/>
 	<!-- Camera permission - required for document scanning -->
 	<key>NSCameraUsageDescription</key>
-	<string>DocAuth India requires camera access to capture and scan identity documents for authenticity verification.</string>
+	<string>PramaanSetu requires camera access to capture and scan identity documents for authenticity verification.</string>
 	<!-- Photo library permission - required for uploading document images -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>DocAuth India requires photo library access to select and upload identity document images for verification.</string>
+	<string>PramaanSetu requires photo library access to select and upload identity document images for verification.</string>
 	<!-- Allow HTTP traffic for local development / backend server connectivity -->
 	<key>NSAppTransportSecurity</key>
 	<dict>

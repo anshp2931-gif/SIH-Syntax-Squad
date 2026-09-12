@@ -29,7 +29,7 @@ export default function App() {
           photoURL: user.imageUrl || null,
           role: "Enterprise Admin"
         });
-      } else if (localStorage.getItem("docauth_demo_session") === "true") {
+      } else if (localStorage.getItem("pramaansetu_demo_session") === "true") {
         setCurrentUser({
           uid: "demo-evaluator",
           name: "SIH Evaluator",
@@ -40,7 +40,7 @@ export default function App() {
       } else {
         setCurrentUser(null);
       }
-    } else if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || localStorage.getItem("docauth_demo_session") === "true") {
+    } else if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || localStorage.getItem("pramaansetu_demo_session") === "true") {
       setCurrentUser({
         uid: "demo-evaluator",
         name: "SIH Evaluator",
@@ -59,7 +59,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem("docauth_demo_session");
+      localStorage.removeItem("pramaansetu_demo_session");
       if (signOut) await signOut();
     } catch (err) {
       console.error("Clerk signOut error:", err);
@@ -119,7 +119,7 @@ export default function App() {
       <footer className="footer" style={styles.footer}>
         <div className="footerContainer" style={styles.footerContainer}>
           <div style={{ color: "#334155", fontWeight: 600 }}>
-            <strong>DocAuth India</strong> — {t("footer.title")}
+            <strong>PramaanSetu</strong> — {t("footer.title")}
           </div>
           <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "6px" }}>
             {t("footer.subtitle")}

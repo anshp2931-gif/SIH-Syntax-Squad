@@ -68,30 +68,32 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
 
   // OAuth Sign In (Google & Apple)
   const handleOAuth = async (strategy) => {
-    console.log("[DocAuth] handleOAuth triggered:", strategy);
+    console.log("[PramaanSetu] handleOAuth triggered:", strategy);
     setErrorMsg("");
     setSuccessMsg("");
     setLoading(true);
 
+    const origin = window.location.origin;
+
     try {
       // 1. Try clerk.client.signIn.authenticateWithRedirect
       if (clerk?.client?.signIn?.authenticateWithRedirect) {
-        console.log("[DocAuth] Using clerk.client.signIn.authenticateWithRedirect");
+        console.log("[PramaanSetu] Using clerk.client.signIn.authenticateWithRedirect");
         await clerk.client.signIn.authenticateWithRedirect({
           strategy,
-          redirectUrl: "/sso-callback",
-          redirectUrlComplete: "/"
+          redirectUrl: `${origin}/sso-callback`,
+          redirectUrlComplete: `${origin}/`
         });
         return;
       }
 
       // 2. Try signIn.sso
       if (signIn?.sso) {
-        console.log("[DocAuth] Using signIn.sso");
+        console.log("[PramaanSetu] Using signIn.sso");
         const { error } = await signIn.sso({
           strategy,
-          redirectUrl: "/",
-          redirectCallbackUrl: "/sso-callback"
+          redirectUrl: `${origin}/`,
+          redirectCallbackUrl: `${origin}/sso-callback`
         });
         if (error) throw error;
         return;
@@ -99,25 +101,27 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
 
       // 3. Try signIn.authenticateWithRedirect
       if (signIn?.authenticateWithRedirect) {
-        console.log("[DocAuth] Using signIn.authenticateWithRedirect");
+        console.log("[PramaanSetu] Using signIn.authenticateWithRedirect");
         await signIn.authenticateWithRedirect({
           strategy,
-          redirectUrl: "/sso-callback",
-          redirectUrlComplete: "/"
+          redirectUrl: `${origin}/sso-callback`,
+          redirectUrlComplete: `${origin}/`
         });
         return;
       }
 
       // 4. Try clerk.redirectToSignIn
       if (clerk?.redirectToSignIn) {
-        console.log("[DocAuth] Fallback clerk.redirectToSignIn");
-        await clerk.redirectToSignIn();
+        console.log("[PramaanSetu] Fallback clerk.redirectToSignIn");
+        await clerk.redirectToSignIn({
+          signInRedirectUrl: `${origin}/sso-callback`
+        });
         return;
       }
 
       throw new Error("Clerk authentication is initializing. Please wait a moment and try again.");
     } catch (err) {
-      console.error("[DocAuth] OAuth error:", err);
+      console.error("[PramaanSetu] OAuth error:", err);
       setLoading(false);
       setErrorMsg(getErrorMessage(err));
     }
@@ -126,7 +130,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
   // Email/Password Form Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("[DocAuth] handleSubmit triggered mode:", authMode);
+    console.log("[PramaanSetu] handleSubmit triggered mode:", authMode);
     setErrorMsg("");
     setSuccessMsg("");
 
@@ -145,7 +149,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
       try {
         const signInHandler = clerk?.client?.signIn || signIn;
         if (typeof signInHandler?.create === "function") {
-          console.log("[DocAuth] Signing in via signIn.create");
+          console.log("[PramaanSetu] Signing in via signIn.create");
           const result = await signInHandler.create({
             identifier: email.trim(),
             password: password
@@ -164,7 +168,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
             setErrorMsg("Additional verification required. Please check your email.");
           }
         } else if (typeof signIn?.password === "function") {
-          console.log("[DocAuth] Signing in via signIn.password");
+          console.log("[PramaanSetu] Signing in via signIn.password");
           const { error } = await signIn.password({
             identifier: email.trim(),
             password: password
@@ -182,7 +186,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
           throw new Error("Sign-in service is initializing. Please try again.");
         }
       } catch (err) {
-        console.error("[DocAuth] Sign-in error:", err);
+        console.error("[PramaanSetu] Sign-in error:", err);
         const rawMsg = (err?.errors?.[0]?.message || err?.message || "").toLowerCase();
         const code = err?.errors?.[0]?.code || "";
         const isAlreadySignedIn = 
@@ -227,7 +231,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
         const lastName = nameParts.slice(1).join(" ") || "";
 
         if (typeof signUpHandler?.create === "function") {
-          console.log("[DocAuth] Signing up via signUp.create");
+          console.log("[PramaanSetu] Signing up via signUp.create");
           await signUpHandler.create({
             emailAddress: email.trim(),
             password: password,
@@ -241,7 +245,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
           setLoading(false);
           setSuccessMsg(`Verification code sent to ${email.trim()}. Please enter it below to activate your account.`);
         } else if (typeof signUp?.password === "function") {
-          console.log("[DocAuth] Signing up via signUp.password");
+          console.log("[PramaanSetu] Signing up via signUp.password");
           const { error } = await signUp.password({
             emailAddress: email.trim(),
             password: password,
@@ -259,7 +263,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
           throw new Error("Sign-up service is initializing. Please try again.");
         }
       } catch (err) {
-        console.error("[DocAuth] Sign-up error:", err);
+        console.error("[PramaanSetu] Sign-up error:", err);
         setLoading(false);
         setErrorMsg(getErrorMessage(err));
       }
@@ -310,7 +314,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
         }
       }
     } catch (err) {
-      console.error("[DocAuth] Verification error:", err);
+      console.error("[PramaanSetu] Verification error:", err);
       setLoading(false);
       setErrorMsg(getErrorMessage(err));
     }
@@ -342,7 +346,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
         throw new Error("Reset password service is initializing. Please try again.");
       }
     } catch (err) {
-      console.error("[DocAuth] Forgot password error:", err);
+      console.error("[PramaanSetu] Forgot password error:", err);
       setLoading(false);
       setErrorMsg(getErrorMessage(err));
     }
@@ -387,7 +391,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
         throw new Error("Password reset service is unavailable.");
       }
     } catch (err) {
-      console.error("[DocAuth] Password reset error:", err);
+      console.error("[PramaanSetu] Password reset error:", err);
       setLoading(false);
       setErrorMsg(getErrorMessage(err));
     }
@@ -404,7 +408,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
             </div>
             <div>
               <div className="login-brand-title">
-                DocAuth <span style={{ color: "#2563EB" }}>India</span>
+                Pramaan<span style={{ color: "#2563EB" }}>Setu</span>
               </div>
               <div className="login-brand-subtitle">Secure Documents. Trusted India.</div>
             </div>
@@ -641,7 +645,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                     ? "Enter the 6-digit activation code sent to your email"
                     : authMode === "signup"
                     ? "Register for instant identity document verification"
-                    : "Your secure access to DocAuth India"}
+                    : "Your secure access to PramaanSetu"}
                 </p>
               </div>
 
@@ -1033,7 +1037,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                   <div className="login-bottom-link-container">
                     {authMode === "signup" ? (
                       <span>
-                        Already have a DocAuth account?{" "}
+                        Already have a PramaanSetu account?{" "}
                         <button
                           type="button"
                           className="login-bottom-link-btn"
@@ -1048,7 +1052,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                       </span>
                     ) : (
                       <span>
-                        New to DocAuth India?{" "}
+                        New to PramaanSetu?{" "}
                         <button
                           type="button"
                           className="login-bottom-link-btn"
