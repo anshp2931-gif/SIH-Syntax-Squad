@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/react";
 import { 
@@ -26,8 +26,33 @@ export default function ProtectedRoute({ children }) {
   const isVerifyPage = location.pathname === "/verify";
   const isHistoryPage = location.pathname === "/history";
 
-  // While Clerk initializes, render a clean, branded loading skeleton
-  if (!isLoaded) {
+  const hasClerkKey = Boolean(
+    import.meta.env.VITE_CLERK_PUBLISHABLE_KEY && 
+    import.meta.env.VITE_CLERK_PUBLISHABLE_KEY.trim() !== ""
+  );
+
+  const [timedOut, setTimedOut] = useState(false);
+  const [demoSession, setDemoSession] = useState(() => {
+    return localStorage.getItem("docauth_demo_session") === "true";
+  });
+
+  useEffect(() => {
+    if (!isLoaded) {
+      const timer = setTimeout(() => {
+        setTimedOut(true);
+      }, 1000); // 1 second maximum wait before falling back
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded]);
+
+  // If Clerk is not configured in the environment, or user activated demo evaluation mode,
+  // allow instant access to prevent blocking document verification & evaluation.
+  if (!hasClerkKey || demoSession) {
+    return children;
+  }
+
+  // While Clerk initializes, render a clean, branded loading skeleton for at most 1 second
+  if (!isLoaded && !timedOut) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingCard}>
@@ -50,7 +75,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  // If user is authenticated, render the protected component directly
+  // If user is authenticated via Clerk, render the protected component directly
   if (isSignedIn) {
     return children;
   }
@@ -188,6 +213,31 @@ export default function ProtectedRoute({ children }) {
             >
               <UserPlus size={17} color="#2563EB" />
               <span>Sign Up for an Account</span>
+            </button>
+
+            <button 
+              onClick={() => {
+                localStorage.setItem("docauth_demo_session", "true");
+                setDemoSession(true);
+              }} 
+              style={{
+                ...styles.secondaryBtn,
+                background: "#F8FAFC",
+                borderColor: "#E2E8F0",
+                color: "#1E293B",
+                fontWeight: 600
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#EFF6FF";
+                e.currentTarget.style.borderColor = "#BFDBFE";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#F8FAFC";
+                e.currentTarget.style.borderColor = "#E2E8F0";
+              }}
+            >
+              <Sparkles size={16} color="#2563EB" />
+              <span>Continue in Demo / Evaluator Mode (Instant Access)</span>
             </button>
           </div>
 

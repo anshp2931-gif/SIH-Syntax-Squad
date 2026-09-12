@@ -30,9 +30,25 @@ export default function App() {
           photoURL: user.imageUrl || null,
           role: "Enterprise Admin"
         });
+      } else if (localStorage.getItem("docauth_demo_session") === "true") {
+        setCurrentUser({
+          uid: "demo-evaluator",
+          name: "SIH Evaluator",
+          email: "evaluator@sih.gov.in",
+          photoURL: null,
+          role: "Demo Access"
+        });
       } else {
         setCurrentUser(null);
       }
+    } else if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || localStorage.getItem("docauth_demo_session") === "true") {
+      setCurrentUser({
+        uid: "demo-evaluator",
+        name: "SIH Evaluator",
+        email: "evaluator@sih.gov.in",
+        photoURL: null,
+        role: "Demo Access"
+      });
     }
   }, [isLoaded, isSignedIn, user]);
 
@@ -44,7 +60,8 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      localStorage.removeItem("docauth_demo_session");
+      if (signOut) await signOut();
     } catch (err) {
       console.error("Clerk signOut error:", err);
     }
