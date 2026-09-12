@@ -29,6 +29,7 @@ export default function Verify() {
 
   // Active files & parameters to enable one-click switch
   const [currentFile, setCurrentFile] = useState(null);
+  const [documentImageUrl, setDocumentImageUrl] = useState(null);
 
   const [manualNumber, setManualNumber] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("AUTO");
@@ -62,7 +63,7 @@ export default function Verify() {
         return;
       }
 
-      if (res.status === "UNSUPPORTED") {
+      if (res.status === "UNSUPPORTED" && !res.tamperDetails) {
         setUnsupportedState(res);
         return;
       }
@@ -93,6 +94,16 @@ export default function Verify() {
 
   const handleFileUpload = (file, forcedType, manualNum) => {
     setCurrentFile(file);
+    if (file instanceof Blob) {
+      try {
+        const url = URL.createObjectURL(file);
+        setDocumentImageUrl(url);
+      } catch (e) {
+        console.warn("Could not create object URL:", e);
+      }
+    } else if (typeof file === "string") {
+      setDocumentImageUrl(file);
+    }
     setManualNumber(manualNum || "");
     runPipelineWithSteps(() => verifyDocumentApi(file, forcedType, manualNum));
   };
@@ -113,6 +124,10 @@ export default function Verify() {
 
   // Upload Another Document handler
   const handleUploadAnother = () => {
+    if (documentImageUrl && documentImageUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(documentImageUrl);
+    }
+    setDocumentImageUrl(null);
     clearDetectionStates();
     setResult(null);
     setError(null);
@@ -124,6 +139,13 @@ export default function Verify() {
   const handleChooseSupported = () => {
     setUnsupportedState(null);
     setSelectedCategory("AUTO");
+  };
+
+  // Run Forensic Audit anyway on unsupported or unrecognized document
+  const handleForceForensicAudit = () => {
+    if (!currentFile) return;
+    clearDetectionStates();
+    runPipelineWithSteps(() => verifyDocumentApi(currentFile, "AUTO", manualNumber));
   };
 
   // Manual Category Selection on Low Confidence
@@ -293,6 +315,14 @@ export default function Verify() {
               <div style={styles.mismatchActions}>
                 <button
                   className="btn-primary"
+                  onClick={handleForceForensicAudit}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#DC2626", borderColor: "#B91C1C", color: "#FFFFFF" }}
+                >
+                  <Flame size={16} />
+                  Run Forensic ELA Heatmap Audit
+                </button>
+                <button
+                  className="btn-secondary"
                   onClick={handleChooseSupported}
                   style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
                 >
@@ -316,17 +346,30 @@ export default function Verify() {
             <div className="glass-card" style={styles.lowConfCard}>
               <div style={styles.lowConfHeader}>
                 <div style={styles.infoIconCircle}>
-                  <AlertCircle size={32} color="#2563EB" />
+                  <AlertCircle size={32} color="#D97706" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "1.24rem", fontWeight: 800, color: "#1E3A8A", margin: 0 }}>
-                    Confidence Check
+                  <h3 style={{ fontSize: "1.24rem", fontWeight: 800, color: "#92400E", margin: 0 }}>
+                    {lowConfidenceState.isBlurry ? "📷 Image Too Blurry / Unreadable" : "Confidence Check — Manual Selection Required"}
                   </h3>
                   <p style={{ fontSize: "0.88rem", color: "#475569", marginTop: "4px" }}>
-                    {lowConfidenceState.message || "Document type could not be identified confidently."}
+                    {lowConfidenceState.message || "The uploaded image is blurry or out of focus. Please re-upload a clear, well-lit photograph."}
                   </p>
                 </div>
               </div>
+
+              {lowConfidenceState.isBlurry && (
+                <div style={{ background: "#FEF3C7", border: "1px solid #FDE68A", borderRadius: "10px", padding: "14px 18px", margin: "14px 0" }}>
+                  <div style={{ fontWeight: 700, color: "#92400E", fontSize: "0.88rem", marginBottom: "6px" }}>
+                    💡 Tips for a Clear Document Photo:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "0.83rem", color: "#B45309", lineHeight: "1.5" }}>
+                    <li>Hold your camera steady under bright ambient light (avoid harsh reflections and flash glare).</li>
+                    <li>Ensure all 4 corners of the document are inside the frame and in sharp focus.</li>
+                    <li>If text or QR code is blurry, hold phone slightly further away and let camera auto-focus.</li>
+                  </ul>
+                </div>
+              )}
 
               <div style={{ margin: "18px 0" }}>
                 <div style={{ fontSize: "0.84rem", fontWeight: 700, color: "#334155", marginBottom: "10px" }}>
@@ -394,7 +437,7 @@ export default function Verify() {
             </div>
           )}
 
-          {!loading && result && <VerificationCard result={result} />}
+          {!loading && result && <VerificationCard result={result} documentImage={documentImageUrl} />}
         </div>
       </div>
     </div>

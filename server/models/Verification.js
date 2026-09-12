@@ -9,7 +9,7 @@ const verificationSchema = new mongoose.Schema(
     },
     documentType: {
       type: String,
-      enum: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VISA", "PERMIT", "VEHICLE_RC", "GSTIN", "RATION_CARD", "DEGREE_CERTIFICATE", "BIRTH_CERTIFICATE", "STUDENT_ID", "UNSUPPORTED", "UNKNOWN"],
+      enum: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VISA", "PERMIT", "VEHICLE_RC", "GSTIN", "RATION_CARD", "DEGREE_CERTIFICATE", "BIRTH_CERTIFICATE", "STUDENT_ID", "FOREIGN_DOCUMENT", "SPECIMEN_DOCUMENT", "UNSUPPORTED", "UNKNOWN"],
       required: true
     },
     detectedType: {

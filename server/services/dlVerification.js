@@ -132,6 +132,15 @@ export async function verifyGSTIN(extractedData = {}) {
  * 8. Ration Card Verification Router
  */
 export async function verifyRationCard(extractedData = {}) {
+  const rationNumber = extractedData.rationNumber;
+  if (!rationNumber || rationNumber === "NOT_DETECTED" || rationNumber.length < 8) {
+    return {
+      verified: false,
+      status: "UNVERIFIED",
+      reason: "Ration card / NFSA number missing or unverified format",
+      issuer: "Dept of Food & Public Distribution / State PDS"
+    };
+  }
   return {
     verified: true,
     status: "ACTIVE_PDS_RECORD",
@@ -145,6 +154,15 @@ export async function verifyRationCard(extractedData = {}) {
  * 9. Educational / Degree Certificate Verification Router
  */
 export async function verifyDegreeCertificate(extractedData = {}) {
+  const rollNumber = extractedData.rollNumber;
+  if (!rollNumber || rollNumber === "NOT_DETECTED") {
+    return {
+      verified: false,
+      status: "UNVERIFIED",
+      reason: "Enrollment or Roll number missing from credential",
+      issuer: "DigiLocker NAD / Educational Board"
+    };
+  }
   return {
     verified: true,
     status: "VERIFIED_ACADEMIC_RECORD",
@@ -158,6 +176,15 @@ export async function verifyDegreeCertificate(extractedData = {}) {
  * 10. Birth Certificate Verification Router
  */
 export async function verifyBirthCertificate(extractedData = {}) {
+  const regNumber = extractedData.registrationNumber;
+  if (!regNumber || regNumber === "NOT_DETECTED") {
+    return {
+      verified: false,
+      status: "UNVERIFIED",
+      reason: "Civil Registration System (CRS) birth number missing",
+      issuer: "Civil Registration System (CRS) / Municipal Authority"
+    };
+  }
   return {
     verified: true,
     status: "CIVIL_REGISTRATION_MATCH",

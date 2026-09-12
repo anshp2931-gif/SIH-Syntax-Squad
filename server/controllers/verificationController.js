@@ -131,6 +131,23 @@ export async function detectDocumentType(req, res) {
       });
     }
 
+    // If Foreign Document or Specimen Document detected:
+    if (detection.isForeign || detection.isSpecimen || detection.documentType === "FOREIGN_DOCUMENT" || detection.documentType === "SPECIMEN_DOCUMENT") {
+      return res.status(200).json({
+        success: true,
+        status: "MATCH",
+        mismatch: false,
+        selectedType: detection.documentType,
+        selectedName: detection.documentName,
+        detectedType: detection.documentType,
+        detectedName: detection.documentName,
+        confidence: detection.confidence,
+        isForeign: detection.isForeign,
+        isSpecimen: detection.isSpecimen,
+        message: detection.message
+      });
+    }
+
     if (detection.documentType === "UNSUPPORTED" || !detection.isSupported) {
       return res.status(200).json({
         success: true,
@@ -222,33 +239,154 @@ export async function verifyDocument(req, res) {
     const detection = detectDocument(rawText);
     let documentType = detection.documentType;
 
+    // Image Blur / Low Quality Pre-check
+    const isBlurry = !ocrResult.success || (ocrResult.confidence < 25 && rawText.length < 20 && !req.body.overrideData && !req.body.samplePath);
+
     // Use the primary document detection logic exclusively
-    if (detection.isLowConfidence || (documentType === "UNKNOWN" && detection.confidence < 40)) {
+    if (isBlurry || detection.isLowConfidence || (documentType === "UNKNOWN" && detection.confidence < 40)) {
       return res.status(200).json({
         success: true,
         status: "LOW_CONFIDENCE",
+        isBlurry: true,
         isLowConfidence: true,
         confidence: detection.confidence,
         detectedType: "UNKNOWN",
-        detectedName: "Unknown Document",
+        detectedName: "Unreadable / Blurry Image",
         selectedType: forcedType,
         selectedName: forcedType ? getDocumentName(forcedType) : null,
-        message: "Document type could not be identified confidently."
+        message: "The uploaded image is too blurry or out of focus to read document text and security features. Please re-upload a clear, well-lit photograph."
       });
     }
 
-    // RULE 4: If document type is unsupported
-    if (documentType === "UNSUPPORTED" || !detection.isSupported) {
+    // Security Gate: Check for Foreign Documents or Specimen / Mockup Watermarks
+    if (detection.isForeign || detection.isSpecimen) {
+      const tamperResult = await detectTampering(filePath);
+      const verificationId = generateVerificationId();
+      const isSpecimen = Boolean(detection.isSpecimen);
+
+      const penalties = isSpecimen ? [
+        { check: "Tampering & Forgery Analysis", points: 45, priority: "CRITICAL SECURITY", reason: "CRITICAL ALERT: Specimen / Sample watermark detected. Document is a test sample or voided copy, not an authentic legal credential." },
+        { check: "Document Type Detection", points: 25, priority: "HIGH SECURITY", reason: "Document marked as 'SAMPLE' / 'VOID' / 'SPECIMEN'." },
+        { check: "Official Issuer Verification", points: 25, priority: "AUTHORITATIVE", reason: "Specimen / test copies are rejected by all authoritative government databases." }
+      ] : [
+        { check: "Document Type Detection", points: 40, priority: "CRITICAL SECURITY", reason: `CRITICAL SECURITY ALERT: Foreign identity credential detected (${detection.keywordsFound?.[0] || "Non-Indian"}). Only authentic Indian national credentials are authenticated by PramaanSetu.` },
+        { check: "Format & Algorithmic Checksum", points: 25, priority: "HIGH SECURITY", reason: "Credential format does not comply with Indian statutory standards (UIDAI / ITD / MoRTH / ECI)." },
+        { check: "Official Issuer Verification", points: 27, priority: "AUTHORITATIVE", reason: "Foreign documents cannot be verified through Indian National Sovereign Registries." }
+      ];
+
+      const docTypeKey = isSpecimen ? "SPECIMEN_DOCUMENT" : "FOREIGN_DOCUMENT";
+
+      const verificationRecord = await Verification.create({
+        verificationId,
+        documentType: docTypeKey,
+        detectedType: docTypeKey,
+        detectionConfidence: detection.confidence,
+        status: "SUSPICIOUS",
+        checks: {
+          documentType: false,
+          ocr: ocrResult.success,
+          format: false,
+          qr: false,
+          template: false,
+          tampering: !tamperResult.suspicious,
+          issuer: false
+        },
+        extractedData: {},
+        riskScore: 92,
+        originalityScore: 8,
+        tamperDetails: tamperResult,
+        qrDetails: { detected: false, valid: false, reason: "Document does not possess an authentic Indian government signed QR cryptogram." },
+        issuerDetails: { verified: false, status: isSpecimen ? "SPECIMEN_REJECTED" : "FOREIGN_CREDENTIAL_REJECTED", issuer: isSpecimen ? "Invalid Specimen / Sample" : "Foreign Authority (Non-Indian)" },
+        fileName: originalName
+      });
+
       return res.status(200).json({
         success: true,
-        status: "UNSUPPORTED",
-        isSupported: false,
-        confidence: detection.confidence,
+        verificationId,
+        documentType: docTypeKey,
+        detectedType: docTypeKey,
+        detectionConfidence: detection.confidence,
+        status: "SUSPICIOUS",
+        riskScore: 92,
+        originalityScore: 8,
+        checks: {
+          documentType: false,
+          ocr: ocrResult.success,
+          format: false,
+          qr: false,
+          template: false,
+          tampering: !tamperResult.suspicious,
+          issuer: false
+        },
+        extractedData: {},
+        tamperDetails: tamperResult,
+        qrDetails: { detected: false, valid: false, reason: "Document does not possess an authentic Indian government signed QR cryptogram." },
+        issuerDetails: { verified: false, status: isSpecimen ? "SPECIMEN_REJECTED" : "FOREIGN_CREDENTIAL_REJECTED", issuer: isSpecimen ? "Invalid Specimen / Sample" : "Foreign Authority (Non-Indian)" },
+        penalties,
+        data: verificationRecord
+      });
+    }
+
+    // RULE 4: If document type is unsupported / unrecognized non-Indian document:
+    // Run full forensic ELA audit and flag as SUSPICIOUS non-compliant instead of dead-ending
+    if (documentType === "UNSUPPORTED" || !detection.isSupported) {
+      const tamperResult = await detectTampering(filePath);
+      const verificationId = generateVerificationId();
+      const penalties = [
+        { check: "Document Type Detection", points: 40, priority: "CRITICAL SECURITY", reason: "Document does not match any recognized Indian statutory credential layout (UIDAI / ITD / MoRTH / ECI)." },
+        { check: "Format & Algorithmic Checksum", points: 25, priority: "HIGH SECURITY", reason: "Layout and typography fail Indian sovereign document formatting standards." },
+        { check: "Official Issuer Verification", points: 25, priority: "AUTHORITATIVE", reason: "Cannot query sovereign issuer registry for unsupported or unrecognized document." }
+      ];
+
+      const verificationRecord = await Verification.create({
+        verificationId,
+        documentType: "UNSUPPORTED",
         detectedType: "UNSUPPORTED",
-        detectedName: "Unsupported Document Type",
-        selectedType: forcedType,
-        selectedName: forcedType ? getDocumentName(forcedType) : null,
-        message: "This document is currently not supported by PramaanSetu."
+        detectionConfidence: detection.confidence || 40,
+        status: "SUSPICIOUS",
+        checks: {
+          documentType: false,
+          ocr: ocrResult.success,
+          format: false,
+          qr: false,
+          template: false,
+          tampering: !tamperResult.suspicious,
+          issuer: false
+        },
+        extractedData: {},
+        riskScore: 90,
+        originalityScore: 10,
+        tamperDetails: tamperResult,
+        qrDetails: { detected: false, valid: false, reason: "No government signed QR cryptogram found." },
+        issuerDetails: { verified: false, status: "UNSUPPORTED_REJECTED", issuer: "Unrecognized Non-Government Source" },
+        fileName: originalName
+      });
+
+      return res.status(200).json({
+        success: true,
+        verificationId,
+        documentType: "UNSUPPORTED",
+        detectedType: "UNSUPPORTED",
+        detectedName: "Unsupported / Non-Indian Credential",
+        detectionConfidence: detection.confidence || 40,
+        status: "SUSPICIOUS",
+        riskScore: 90,
+        originalityScore: 10,
+        checks: {
+          documentType: false,
+          ocr: ocrResult.success,
+          format: false,
+          qr: false,
+          template: false,
+          tampering: !tamperResult.suspicious,
+          issuer: false
+        },
+        extractedData: {},
+        tamperDetails: tamperResult,
+        qrDetails: { detected: false, valid: false, reason: "No government signed QR cryptogram found." },
+        issuerDetails: { verified: false, status: "UNSUPPORTED_REJECTED", issuer: "Unrecognized Non-Government Source" },
+        penalties,
+        data: verificationRecord
       });
     }
 

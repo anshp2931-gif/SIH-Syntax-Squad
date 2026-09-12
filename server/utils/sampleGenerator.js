@@ -92,6 +92,97 @@ async function createSyntheticCard(filename, bgColor, textHeader, textSub, qrPay
   return filePath;
 }
 
+async function createTamperedSyntheticCard(filename) {
+  const width = 600;
+  const height = 380;
+  const png = new PNG({ width, height });
+
+  // Base authentic card styling
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (width * y + x) << 2;
+
+      // Card outer border
+      if (x < 6 || x > width - 7 || y < 6 || y > height - 7) {
+        png.data[idx] = 40;
+        png.data[idx + 1] = 60;
+        png.data[idx + 2] = 90;
+        png.data[idx + 3] = 255;
+        continue;
+      }
+
+      // Top banner
+      if (y >= 10 && y <= 65) {
+        png.data[idx] = 255;
+        png.data[idx + 1] = 240;
+        png.data[idx + 2] = 230;
+        png.data[idx + 3] = 255;
+        continue;
+      }
+
+      // TAMPERED ZONE 1: Artificial Spliced Photo with high-frequency noise mismatch
+      if (x >= 440 && x <= 565 && y >= 100 && y <= 255) {
+        // High-contrast alternating pixel noise to trigger ELA variance
+        const noise = ((x * 17) ^ (y * 31)) % 180;
+        png.data[idx] = Math.min(255, 60 + noise);
+        png.data[idx + 1] = Math.max(0, 180 - noise);
+        png.data[idx + 2] = (x + y) % 255;
+        png.data[idx + 3] = 255;
+        continue;
+      }
+
+      // TAMPERED ZONE 2: Digital text overlay cut-and-paste box over citizen name
+      if (x >= 150 && x <= 380 && y >= 140 && y <= 200) {
+        // Stark unnatural rectangular patch typical of MS Paint / Photoshop edit
+        const patchNoise = (x % 4 === 0 || y % 4 === 0) ? 255 : 30;
+        png.data[idx] = patchNoise;
+        png.data[idx + 1] = 255 - patchNoise;
+        png.data[idx + 2] = 240;
+        png.data[idx + 3] = 255;
+        continue;
+      }
+
+      // Regular background
+      png.data[idx] = 235;
+      png.data[idx + 1] = 245;
+      png.data[idx + 2] = 255;
+      png.data[idx + 3] = 255;
+    }
+  }
+
+  // QR Code payload
+  try {
+    const qrBuffer = await QRCode.toBuffer("https://incometax.gov.in/verify/PAN:FORGED9999X", {
+      width: 110,
+      margin: 1
+    });
+    const qrPng = PNG.sync.read(qrBuffer);
+    const startX = 30;
+    const startY = 240;
+    for (let qy = 0; qy < qrPng.height; qy++) {
+      for (let qx = 0; qx < qrPng.width; qx++) {
+        const targetX = startX + qx;
+        const targetY = startY + qy;
+        if (targetX < width && targetY < height) {
+          const srcIdx = (qrPng.width * qy + qx) << 2;
+          const targetIdx = (width * targetY + targetX) << 2;
+          png.data[targetIdx] = qrPng.data[srcIdx];
+          png.data[targetIdx + 1] = qrPng.data[srcIdx + 1];
+          png.data[targetIdx + 2] = qrPng.data[srcIdx + 2];
+          png.data[targetIdx + 3] = 255;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to overlay QR on tampered sample:", err.message);
+  }
+
+  const filePath = path.join(samplesDir, filename);
+  const buffer = PNG.sync.write(png);
+  fs.writeFileSync(filePath, buffer);
+  return filePath;
+}
+
 export async function ensureSampleImagesExist() {
   if (!fs.existsSync(samplesDir)) {
     fs.mkdirSync(samplesDir, { recursive: true });
@@ -99,6 +190,7 @@ export async function ensureSampleImagesExist() {
 
   const sampleList = [
     { name: "sample_pan_card.png", color: [235, 245, 255], title: "INCOME TAX DEPARTMENT", sub: "PERMANENT ACCOUNT NUMBER", payload: "https://incometax.gov.in/verify/PAN:ABCDE1234F" },
+    { name: "sample_tampered_pan.png", isTampered: true, title: "FORGED PAN CARD (TAMPERED)", sub: "DIGITAL SPLICING DETECTED", payload: "https://incometax.gov.in/verify/PAN:FORGED9999X" },
     { name: "sample_driving_license.png", color: [255, 250, 240], title: "UNION OF INDIA", sub: "DRIVING LICENCE", payload: "https://parivahan.gov.in/verify/DL:DL1420110012345" },
     { name: "sample_aadhaar_card.png", color: [240, 255, 245], title: "UNIQUE IDENTIFICATION AUTHORITY OF INDIA", sub: "AADHAAR - MERA AADHAAR", payload: "https://digilocker.gov.in/verify/AADHAAR:999988887777" },
     { name: "sample_voter_id.png", color: [255, 240, 245], title: "ELECTION COMMISSION OF INDIA", sub: "ELECTORAL PHOTO IDENTITY CARD", payload: "https://nvsp.in/verify/EPIC:ABC1234567" },
@@ -113,7 +205,11 @@ export async function ensureSampleImagesExist() {
   for (const s of sampleList) {
     const fullPath = path.join(samplesDir, s.name);
     if (!fs.existsSync(fullPath)) {
-      await createSyntheticCard(s.name, s.color, s.title, s.sub, s.payload);
+      if (s.isTampered) {
+        await createTamperedSyntheticCard(s.name);
+      } else {
+        await createSyntheticCard(s.name, s.color, s.title, s.sub, s.payload);
+      }
     }
   }
 

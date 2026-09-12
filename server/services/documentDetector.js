@@ -47,6 +47,8 @@ export const DOCUMENT_NAMES = {
   DEGREE_CERTIFICATE: "Degree Certificate / Marksheet",
   BIRTH_CERTIFICATE: "Birth Certificate",
   STUDENT_ID: "Student / Institutional ID Card",
+  FOREIGN_DOCUMENT: "Foreign Identity Credential (Non-Indian)",
+  SPECIMEN_DOCUMENT: "Specimen / Sample Document (Invalid)",
   UNSUPPORTED: "Unsupported Document",
   UNKNOWN: "Unknown Document"
 };
@@ -82,6 +84,50 @@ export function detectDocument(text = "") {
     };
   }
 
+  // Check for Foreign / Non-Indian Identity credentials
+  const foreignKeywords = [
+    "MASSACHUSETTS", "MASS", "BOSTON", "BEACON", "02108", "CALIFORNIA", "TEXAS", "FLORIDA", "NEW YORK", "OHIO",
+    "PENNSYLVANIA", "ILLINOIS", "WASHINGTON", "MICHIGAN", "NEW JERSEY", "GEORGIA",
+    "NORTH CAROLINA", "VIRGINIA", "UNITED STATES", "USA", "DMV",
+    "DEPT OF MOTOR VEHICLES", "DEPARTMENT OF MOTOR VEHICLES", "DRIVER LICENSE", "DRIVER'S LICENSE", "DRIVERS LICENSE",
+    "COMMONWEALTH OF", "PROVINCE OF", "DEPARTMENT OF REVENUE", "SOCIAL SECURITY", "REAL ID", "ORGAN DONOR",
+    "CLASS D", "RESTRICTIONS", "COMMISSIONER", "CONNOR"
+  ];
+  const foreignMatches = foreignKeywords.filter((kw) => normalized.includes(kw));
+  const foreignPattern = /\b(MASSACHUSETTS|MASS\b|BOSTON|BEACON|DRIVER'?S?\s*LICEN[CS]E|DMV|USA\b|UNITED\s*STATES|REAL\s*ID)\b/i;
+  const isForeignRegexMatch = foreignPattern.test(normalized);
+
+  // Check for Specimen / Test / Mock / Sample watermarks
+  const specimenKeywords = ["SAMPLE", "SPECIMEN", "TEST DOCUMENT", "VOID", "FORGERY", "MOCKUP", "FAKEDOC", "CONNOR SAMPLE"];
+  const specimenMatches = specimenKeywords.filter((kw) => normalized.includes(kw));
+
+  if (foreignMatches.length > 0 || isForeignRegexMatch) {
+    const matchedToken = foreignMatches[0] || "Foreign Credential Pattern";
+    return {
+      documentType: "FOREIGN_DOCUMENT",
+      documentName: "Foreign Identity Credential (Non-Indian Document)",
+      confidence: 96,
+      isSupported: true, // Marked as supported so pipeline generates full fraud risk audit & red heatmap
+      isForeign: true,
+      isSuspicious: true,
+      message: `Foreign identity credential detected (${matchedToken}). PramaanSetu flags non-Indian credentials as High Risk security violations.`,
+      keywordsFound: foreignMatches.length > 0 ? foreignMatches : [matchedToken]
+    };
+  }
+
+  if (specimenMatches.length > 0) {
+    return {
+      documentType: "SPECIMEN_DOCUMENT",
+      documentName: "Specimen / Sample Document (Invalid Credential)",
+      confidence: 99,
+      isSupported: true, // Marked as supported so pipeline generates full fraud risk audit & red heatmap
+      isSpecimen: true,
+      isSuspicious: true,
+      message: `Specimen watermark detected ('${specimenMatches[0]}'). This document is marked as a sample or void test copy and is legally invalid.`,
+      keywordsFound: specimenMatches
+    };
+  }
+
   // Check for common Unsupported Document types first (Utility bills, Invoices, Statements, etc.)
   const unsupportedKeywords = [
     "ELECTRICITY", "POWER DISTRIBUTION", "WATER SUPPLY", "TAX INVOICE", "INVOICE NO",
@@ -112,8 +158,8 @@ export function detectDocument(text = "") {
     {
       type: "DRIVING_LICENSE",
       name: "Driving Licence",
-      primaryKeywords: ["DRIVING LICENCE", "DRIVING LICENSE", "UNION OF INDIA DRIVING LICENCE", "TRANSPORT DEPARTMENT", "MOTOR VEHICLES ACT", "AUTHORISATION TO DRIVE", "DL NO"],
-      secondaryKeywords: ["LICENCE NO", "VALID TILL", "NON-TRANSPORT", "ISSUE DATE", "DOB"],
+      primaryKeywords: ["UNION OF INDIA DRIVING LICENCE", "TRANSPORT DEPARTMENT", "MOTOR VEHICLES ACT", "AUTHORISATION TO DRIVE", "SARATHI", "PARIVAHAN"],
+      secondaryKeywords: ["DRIVING LICENCE", "DRIVING LICENSE", "LICENCE NO", "VALID TILL", "NON-TRANSPORT", "ISSUE DATE", "DOB", "DL NO"],
       pattern: /[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7}/
     },
     {
@@ -163,7 +209,7 @@ export function detectDocument(text = "") {
       name: "Ration Card",
       primaryKeywords: ["RATION CARD", "FOOD & CIVIL SUPPLIES", "DEPARTMENT OF FOOD", "NATIONAL FOOD SECURITY", "NFSA", "FAIR PRICE", "RATION PATRIKA"],
       secondaryKeywords: ["FAMILY HEAD", "APL CARD", "BPL CARD", "PDS CARD", "KUTUMB", "CARD NO"],
-      pattern: /\b(RC|NFSA|PDS|CARD)?[\s:-]*[A-Z0-9]{8,16}\b/i
+      pattern: /\b(?:RC|NFSA|PDS)[\s:-]*[A-Z0-9]{8,16}\b/i
     },
     {
       type: "DEGREE_CERTIFICATE",

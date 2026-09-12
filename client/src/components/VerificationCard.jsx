@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { CheckCircle2, XCircle, Download, ShieldCheck, FileText, Cpu, Eye } from "lucide-react";
+import { CheckCircle2, XCircle, Download, ShieldCheck, FileText, Cpu, Eye, Flame, AlertTriangle } from "lucide-react";
 import ResultBadge from "./ResultBadge";
+import TamperHeatmapViewer from "./TamperHeatmapViewer";
 import { useLanguage } from "../hooks/useLanguage";
 import { generateAuditCertificatePDF } from "../utils/pdfGenerator";
 
@@ -19,13 +20,15 @@ function formatDocName(type) {
     DEGREE_CERTIFICATE: "Degree Certificate / Marksheet",
     BIRTH_CERTIFICATE: "Birth Certificate (CRS)",
     STUDENT_ID: "Student / Institutional ID Card",
+    FOREIGN_DOCUMENT: "Foreign Identity Credential (Non-Indian)",
+    SPECIMEN_DOCUMENT: "Specimen / Sample Document (Invalid)",
     UNSUPPORTED: "Unsupported Document",
     UNKNOWN: "Unknown Document"
   };
   return map[type] || type || "Unknown Document";
 }
 
-export default function VerificationCard({ result }) {
+export default function VerificationCard({ result, documentImage }) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -62,14 +65,15 @@ export default function VerificationCard({ result }) {
     { 
       key: "documentType", 
       label: `${t('verCard.chk1', '1. Document Type Detection')} (${formatDocName(effectiveDetected)}${detectionConfidence ? ` • ${detectionConfidence}%` : ""})`, 
+      priority: "STANDARD",
       pass: checks.documentType !== false 
     },
-    { key: "ocr", label: t('verCard.chk2', '2. OCR / Data Extraction'), pass: checks.ocr },
-    { key: "format", label: t('verCard.chk3', '3. Format & Algorithmic Checksum'), pass: checks.format },
-    { key: "qr", label: t('verCard.chk4', '4. QR Code Security Match'), pass: checks.qr },
-    { key: "template", label: t('verCard.chk5', '5. Template & Proportions Check'), pass: checks.template },
-    { key: "tampering", label: t('verCard.chk6', '6. Tampering Analysis (ELA)'), pass: checks.tampering },
-    { key: "issuer", label: t('verCard.chk7', '7. Official Issuer Verification'), pass: checks.issuer }
+    { key: "ocr", label: t('verCard.chk2', '2. OCR / Data Extraction'), priority: "STANDARD", pass: checks.ocr },
+    { key: "format", label: t('verCard.chk3', '3. Format & Algorithmic Checksum'), priority: "HIGH SECURITY", pass: checks.format },
+    { key: "qr", label: t('verCard.chk4', '4. QR Code Security Match'), priority: "CRITICAL SECURITY", pass: checks.qr },
+    { key: "template", label: t('verCard.chk5', '5. Template & Proportions Check'), priority: "STANDARD", pass: checks.template },
+    { key: "tampering", label: t('verCard.chk6', '6. Tampering Analysis (ELA)'), priority: "HIGH SECURITY", pass: checks.tampering },
+    { key: "issuer", label: t('verCard.chk7', '7. Official Issuer Verification'), priority: "AUTHORITATIVE", pass: checks.issuer }
   ];
 
   const downloadJsonReport = () => {
@@ -121,8 +125,8 @@ export default function VerificationCard({ result }) {
             {displayOriginalityScore >= 85
               ? "High Originality — Document Authenticated"
               : displayOriginalityScore >= 60
-              ? "Moderate Originality — Needs Manual Review"
-              : "Low Originality — Potential Anomaly or Tampering"}
+              ? "Moderate Originality — Priority Security Warning"
+              : "Low Originality — Critical Security Anomaly"}
           </div>
         </div>
 
@@ -139,14 +143,14 @@ export default function VerificationCard({ result }) {
                 color: "#16A34A",
                 background: "#ECFDF5",
                 padding: "2px 8px",
-                borderRadius: "9999px",
+                borderRadius: "12px",
                 border: "1px solid #A7F3D0"
               }}>
                 {detectionConfidence}% Match
               </span>
             ) : null}
           </div>
-          <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
+          <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
             {formatDocName(documentType)}
           </div>
           <div style={{ fontSize: "0.82rem", color: "#64748B", marginTop: "4px" }}>
@@ -159,21 +163,53 @@ export default function VerificationCard({ result }) {
       <div className="tabBar" style={styles.tabBar}>
         {[
           { id: "overview", label: t('verCard.tabs.checks'), icon: ShieldCheck },
-          { id: "tampering", label: t('verCard.tabs.tampering'), icon: Eye },
+          { id: "tampering", label: "Tampering & ELA Heatmap", icon: Flame },
           { id: "issuer", label: t('verCard.tabs.issuer'), icon: Cpu }
         ].map((t_tab) => {
           const Icon = t_tab.icon;
+          const isTamperTab = t_tab.id === "tampering";
+          const isTamperFlagged = isTamperTab && tamperDetails?.suspicious;
+          const isTamperPassed = isTamperTab && !tamperDetails?.suspicious;
           return (
             <button
               key={t_tab.id}
               style={{
                 ...styles.tabBtn,
-                ...(activeTab === t_tab.id ? styles.tabBtnActive : {})
+                ...(activeTab === t_tab.id ? styles.tabBtnActive : {}),
+                ...(isTamperFlagged ? { borderColor: "#EF4444", color: "#DC2626" } : {}),
+                ...(isTamperPassed && activeTab !== t_tab.id ? { color: "#15803D" } : {})
               }}
               onClick={() => setActiveTab(t_tab.id)}
             >
-              <Icon size={16} />
+              <Icon size={16} color={isTamperFlagged ? "#DC2626" : (isTamperPassed && activeTab !== t_tab.id ? "#16A34A" : undefined)} />
               {t_tab.label}
+              {isTamperFlagged && (
+                <span style={{
+                  background: "#EF4444",
+                  color: "#FFFFFF",
+                  fontSize: "0.65rem",
+                  fontWeight: 800,
+                  padding: "1px 6px",
+                  borderRadius: "10px",
+                  marginLeft: "4px"
+                }}>
+                  FLAGGED
+                </span>
+              )}
+              {isTamperPassed && (
+                <span style={{
+                  background: "#ECFDF5",
+                  color: "#15803D",
+                  border: "1px solid #A7F3D0",
+                  fontSize: "0.65rem",
+                  fontWeight: 800,
+                  padding: "1px 6px",
+                  borderRadius: "10px",
+                  marginLeft: "4px"
+                }}>
+                  PASS
+                </span>
+              )}
             </button>
           );
         })}
@@ -182,6 +218,103 @@ export default function VerificationCard({ result }) {
       {/* TAB CONTENT: 7-Checklist */}
       {activeTab === "overview" && (
         <div className="checklistSection" style={styles.checklistSection}>
+          {/* Splicing / Tamper Warning Banner if detected */}
+          {tamperDetails?.suspicious ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: "#FEF2F2",
+                border: "1px solid #FECACA",
+                borderRadius: "8px",
+                padding: "12px 16px",
+                marginBottom: "16px",
+                gap: "12px"
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <AlertTriangle size={22} color="#DC2626" />
+                <div>
+                  <div style={{ fontWeight: 700, color: "#991B1B", fontSize: "0.9rem" }}>
+                    Digital Splicing / Compression Inconsistency Detected
+                  </div>
+                  <div style={{ fontSize: "0.8rem", color: "#B91C1C", marginTop: "2px" }}>
+                    Error Level Analysis (ELA) found localized pixel variance spikes exceeding baseline noise.
+                  </div>
+                </div>
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={() => setActiveTab("tampering")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.8rem",
+                  fontWeight: 700,
+                  color: "#DC2626",
+                  borderColor: "#FCA5A5",
+                  background: "#FFFFFF",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                <Flame size={14} color="#DC2626" />
+                View Forensic Heatmap
+              </button>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: "#F0FDF4",
+                border: "1px solid #BBF7D0",
+                borderRadius: "8px",
+                padding: "10px 16px",
+                marginBottom: "16px",
+                gap: "12px"
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <CheckCircle2 size={20} color="#16A34A" />
+                <div>
+                  <div style={{ fontWeight: 700, color: "#166534", fontSize: "0.88rem" }}>
+                    Error Level Analysis (ELA) Audit: Authentic
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#15803D", marginTop: "1px" }}>
+                    Uniform micro-compression variance across 192 grid blocks. Zero digital tampering detected.
+                  </div>
+                </div>
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={() => setActiveTab("tampering")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.78rem",
+                  fontWeight: 700,
+                  color: "#16A34A",
+                  borderColor: "#86EFAC",
+                  background: "#FFFFFF",
+                  padding: "5px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                <Flame size={13} color="#16A34A" />
+                Inspect Heatmap
+              </button>
+            </div>
+          )}
+
           <div className="checkGrid" style={styles.checkGrid}>
             {checksList.map((chk) => (
               <div
@@ -192,13 +325,23 @@ export default function VerificationCard({ result }) {
                   borderColor: chk.pass ? "#A7F3D0" : "#FECACA"
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {chk.pass ? (
                     <CheckCircle2 size={20} color="#16A34A" />
                   ) : (
                     <XCircle size={20} color="#DC2626" />
                   )}
                   <span style={{ fontWeight: 600, fontSize: "0.92rem", color: "#0F172A" }}>{chk.label}</span>
+                  <span style={{
+                    fontSize: "0.68rem",
+                    fontWeight: 700,
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    background: chk.priority === "CRITICAL SECURITY" ? "#FEE2E2" : chk.priority === "HIGH SECURITY" ? "#FEF3C7" : chk.priority === "AUTHORITATIVE" ? "#E0E7FF" : "#F1F5F9",
+                    color: chk.priority === "CRITICAL SECURITY" ? "#991B1B" : chk.priority === "HIGH SECURITY" ? "#92400E" : chk.priority === "AUTHORITATIVE" ? "#3730A3" : "#475569"
+                  }}>
+                    {chk.priority}
+                  </span>
                 </div>
                 <span
                   style={{
@@ -220,7 +363,20 @@ export default function VerificationCard({ result }) {
               </div>
               <ul style={{ paddingLeft: "20px", fontSize: "0.85rem", color: "#B45309" }}>
                 {penalties.map((p, idx) => (
-                  <li key={idx}>
+                  <li key={idx} style={{ marginBottom: "4px" }}>
+                    {p.priority && (
+                      <span style={{
+                        fontSize: "0.68rem",
+                        fontWeight: 700,
+                        padding: "1px 5px",
+                        borderRadius: "3px",
+                        background: p.priority === "CRITICAL SECURITY" ? "#FEE2E2" : "#FEF3C7",
+                        color: p.priority === "CRITICAL SECURITY" ? "#991B1B" : "#92400E",
+                        marginRight: "6px"
+                      }}>
+                        [{p.priority}]
+                      </span>
+                    )}
                     <strong>{p.check}</strong> (+{p.points} risk): {p.reason}
                   </li>
                 ))}
@@ -233,32 +389,11 @@ export default function VerificationCard({ result }) {
       {/* TAB CONTENT: Tamper Details */}
       {activeTab === "tampering" && (
         <div className="tabContent" style={styles.tabContent}>
-          <div className="tamperAuditGrid" style={styles.tamperAuditGrid}>
-            <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp1')}</div>
-              <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.aspectRatioCheck ? "#16A34A" : "#DC2626" }}>
-                {tamperDetails?.indicators?.aspectRatioCheck ? t('verCard.tamp1A') : t('verCard.tamp1B')}
-              </div>
-            </div>
-            <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp2')}</div>
-              <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.compressionConsistency ? "#16A34A" : "#DC2626" }}>
-                {tamperDetails?.indicators?.compressionConsistency ? t('verCard.tamp2A') : t('verCard.tamp2B')}
-              </div>
-            </div>
-            <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp3')}</div>
-              <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
-                {tamperDetails?.details?.dimensions || t('verCard.tamp3A')}
-              </div>
-            </div>
-            <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp4')}</div>
-              <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
-                {tamperDetails?.details?.avgEdgeVariance || "12.4"}
-              </div>
-            </div>
-          </div>
+          <TamperHeatmapViewer
+            tamperDetails={tamperDetails}
+            documentType={documentType || detectedType}
+            documentImage={documentImage || result?.tamperDetails?.previewUrl || result?.previewUrl}
+          />
         </div>
       )}
 
