@@ -12,13 +12,16 @@ import {
   Landmark,
   CheckCircle2,
   AlertCircle,
-  KeyRound
+  KeyRound,
+  Fingerprint
 } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 import "./Login.css";
 import { useClerk, useSignIn, useSignUp, useUser } from "@clerk/react";
 import { useLocation } from "react-router-dom";
 
 export default function Login({ onLoginSuccess, onNavigateHome }) {
+  const { t } = useLanguage();
   const clerk = useClerk();
   const { signIn } = useSignIn();
   const { signUp } = useSignUp();
@@ -36,7 +39,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
 
   const [authMode, setAuthMode] = useState(location.state?.mode === "signup" ? "signup" : "signin"); // "signin", "signup"
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Form States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -134,7 +137,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
         return;
       }
       if (!password) {
-        setErrorMsg("Please enter your password.");
+        setErrorMsg(t('login.errPass'));
         return;
       }
 
@@ -401,18 +404,18 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
             </div>
             <div>
               <div className="login-brand-title">
-                DocAuth <span style={{ color: "#2563EB" }}>India</span>
+                PramaanSetu <span style={{ color: "#2563EB" }}>India</span>
               </div>
               <div className="login-brand-subtitle">Secure Documents. Trusted India.</div>
             </div>
           </div>
 
-          <button 
+          <button
             className="login-back-btn"
             onClick={onNavigateHome}
           >
             <ArrowLeft size={16} color="#2563EB" />
-            <span>Back to Home</span>
+            <span>{t('login.backBtn')}</span>
           </button>
         </div>
       </header>
@@ -423,29 +426,28 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
 
           {/* LEFT COLUMN: Hero & Features */}
           <div className="login-left-col">
-            
+
             {/* Badges */}
             <div className="login-badge-row">
               <div className="login-green-badge">
                 <span className="login-green-dot" />
-                <span>Government Compliant</span>
+                <span>{t('login.bdgGovt')}</span>
               </div>
               <div className="login-india-badge">
                 <span style={{ fontSize: "1rem" }}>🇮🇳</span>
-                <span>Made for a Digital India</span>
+                <span>{t('login.bdgDigital')}</span>
               </div>
             </div>
 
             {/* Headline */}
             <h1 className="login-hero-headline">
-              Real Documents. <br />
-              <span className="login-gradient-text">Verified</span> Identities.
+              {t('login.title1')} <br />
+              <span className="login-gradient-text">{t('login.title2')}</span> {t('login.title3')}
             </h1>
 
             {/* Description */}
             <p className="login-hero-subtext">
-              DocAuth India helps you verify Indian identity documents like PAN Card, 
-              Driving Licence, Aadhaar and more — quickly, securely and with AI-powered accuracy.
+              {t('login.heroSub')}
             </p>
 
             {/* 4 Feature Icons Grid */}
@@ -455,8 +457,8 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                   <ShieldCheck size={20} color="#2563EB" />
                 </div>
                 <div>
-                  <div className="login-feature-title">AI-Powered Verification</div>
-                  <div className="login-feature-desc">Advanced OCR & ML models</div>
+                  <div className="login-feature-title">{t('login.f1T')}</div>
+                  <div className="login-feature-desc">{t('login.f1D')}</div>
                 </div>
               </div>
 
@@ -465,8 +467,8 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                   <Zap size={20} color="#2563EB" />
                 </div>
                 <div>
-                  <div className="login-feature-title">Fast & Reliable</div>
-                  <div className="login-feature-desc">Results in seconds</div>
+                  <div className="login-feature-title">{t('login.f2T')}</div>
+                  <div className="login-feature-desc">{t('login.f2D')}</div>
                 </div>
               </div>
 
@@ -475,8 +477,8 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                   <Lock size={20} color="#2563EB" />
                 </div>
                 <div>
-                  <div className="login-feature-title">Tamper-Proof</div>
-                  <div className="login-feature-desc">Secure & compliant</div>
+                  <div className="login-feature-title">{t('login.f3T')}</div>
+                  <div className="login-feature-desc">{t('login.f3D')}</div>
                 </div>
               </div>
 
@@ -485,8 +487,8 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                   <Landmark size={20} color="#2563EB" />
                 </div>
                 <div>
-                  <div className="login-feature-title">Government Standards</div>
-                  <div className="login-feature-desc">Built for India</div>
+                  <div className="login-feature-title">{t('login.f4T')}</div>
+                  <div className="login-feature-desc">{t('login.f4D')}</div>
                 </div>
               </div>
             </div>
@@ -502,7 +504,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
 
               {/* Tilted Cards */}
               <div className="login-card-pedestal-wrapper">
-                
+
                 {/* Card 1: PAN Card (Saffron #FF9933 - Blended dark navy text) */}
                 <div className="login-doc-card-3d login-pan-card">
                   <div className="login-card-header">
@@ -533,7 +535,7 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
                   </div>
                   <div className="login-card-body">
                     <div className="login-photo-box" style={{ borderColor: "#BFDBFE" }}>
-                      <FingerprintIcon color="#1E3A8A" />
+                      <Fingerprint color="#1E3A8A" />
                     </div>
                     <div style={{ flex: 1 }}>
                       <div className="login-card-title-text" style={{ color: "#1E3A8A" }}>IDENTITY CARD</div>
@@ -574,13 +576,13 @@ export default function Login({ onLoginSuccess, onNavigateHome }) {
 
             {/* Left Footer */}
             <div className="login-left-footer">
-              <span>Trusted by enterprises across India</span>
+              <span>{t('login.trustedBy')}</span>
               <span style={{ margin: "0 4px", opacity: 0.4 }}>|</span>
-              <span>Secure</span>
+              <span>{t('login.secure')}</span>
               <span style={{ margin: "0 4px", color: "#94A3B8" }}>•</span>
-              <span>Compliant</span>
+              <span>{t('login.compliant')}</span>
               <span style={{ margin: "0 4px", color: "#94A3B8" }}>•</span>
-              <span>Scalable</span>
+              <span>{t('login.scalable')}</span>
             </div>
 
           </div>

@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Camera, RefreshCw, X, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 export default function CameraScanner({ onCapture, onClose }) {
+  const { t } = useLanguage();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
@@ -33,7 +35,7 @@ export default function CameraScanner({ onCapture, onClose }) {
         }
       } catch (err) {
         console.error("Camera Access Error:", err);
-        setError("Could not access device camera. Please check camera permissions.");
+        setError(t('camera.error'));
       }
     }
 
@@ -126,7 +128,7 @@ export default function CameraScanner({ onCapture, onClose }) {
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <Camera size={22} color="#2563eb" />
             <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#0f172a" }}>
-              Live Document Camera Scanner
+              {t('camera.title')}
             </span>
           </div>
           <button className="iconBtn" style={styles.iconBtn} onClick={onClose}>
@@ -171,12 +173,12 @@ export default function CameraScanner({ onCapture, onClose }) {
                   {isClear ? (
                     <>
                       <CheckCircle2 size={16} />
-                      <span>Perfect Clarity — Auto-Capturing!</span>
+                      <span>{t('camera.perfectClarity')}</span>
                     </>
                   ) : (
                     <>
                       <Sparkles size={16} />
-                      <span>Align PAN/DL Card within Frame & Hold Still</span>
+                      <span>{t('camera.alignCard')}</span>
                     </>
                   )}
                 </div>
@@ -189,7 +191,7 @@ export default function CameraScanner({ onCapture, onClose }) {
         <div className="controlBar" style={styles.controlBar}>
           <div className="meterBox" style={styles.meterBox}>
             <span style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600 }}>
-              Clarity Index: {sharpness} / 20
+              {t('camera.clarityIndex')} {sharpness} / 20
             </span>
             <div className="meterTrack" style={styles.meterTrack}>
               <div
@@ -203,9 +205,9 @@ export default function CameraScanner({ onCapture, onClose }) {
           </div>
 
           <div style={{ display: "flex", gap: "10px" }}>
-            <button className="btn-secondary" onClick={toggleCamera} title="Switch Camera">
+            <button className="btn-secondary" onClick={toggleCamera} title={t('camera.switch')}>
               <RefreshCw size={18} />
-              Flip
+              {t('camera.flip')}
             </button>
             <button
               className="btn-primary"
@@ -213,7 +215,7 @@ export default function CameraScanner({ onCapture, onClose }) {
               disabled={autoCaptured}
             >
               <Camera size={18} />
-              Capture Snapshot
+              {t('camera.capture')}
             </button>
           </div>
         </div>
