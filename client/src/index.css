@@ -259,6 +259,8 @@ p, .body-text {
   gap: 6px;
 }
 
+
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 7px;
@@ -293,3 +295,5 @@ p, .body-text {
 .pulse-animation {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
+
+
