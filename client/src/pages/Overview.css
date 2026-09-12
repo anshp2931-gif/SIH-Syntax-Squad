@@ -1166,3 +1166,134 @@
   color: #64748B;
   margin-top: 2px;
 }
+
+/* Base styles for sandbox components created from previous inline styles */
+.sandbox-controls-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sandbox-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-right: 6px;
+}
+.sandbox-controls-row .doc-tab-btn {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+}
+.sandbox-load-btn {
+  margin-left: auto;
+}
+.sandbox-demo-box {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 18px 24px;
+}
+.sandbox-result-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sandbox-result-title > span {
+  font-weight: 800;
+  color: #0F172A;
+  font-size: 0.95rem;
+}
+.sandbox-bottom-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.command-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   13 — RESPONSIVE MOBILE POLISH
+   ========================================================================== */
+@media (max-width: 600px) {
+  /* Replay controls */
+  .replay-controls-strip {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .replay-controls-strip button {
+    flex: 1;
+    min-width: calc(50% - 12px);
+    justify-content: center;
+  }
+  
+  /* Document specs tabs */
+  .doc-explorer-tabs {
+    justify-content: center;
+  }
+  .doc-explorer-tabs button {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+  
+  /* Activity Item List */
+  .activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .activity-item .result-badge {
+    align-self: flex-start;
+  }
+  
+  /* Workflow Sandbox Controls */
+  .sandbox-controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sandbox-label {
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  .sandbox-load-btn {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+  .sandbox-bottom-actions button {
+    flex: 1;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Command Bar Final Area */
+  .command-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .command-bar-actions {
+    width: 100%;
+  }
+  .command-bar-actions button {
+    flex: 1;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 400px) {
+  .doc-explorer-tabs button {
+    flex: 1 1 100%;
+  }
+  .sandbox-controls-row .doc-tab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

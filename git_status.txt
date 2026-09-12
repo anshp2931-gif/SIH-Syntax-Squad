@@ -1,0 +1,22 @@
+On branch feat/responsive-redesign
+Your branch is ahead of 'myfork/feat/responsive-redesign' by 39 commits.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   client/src/components/UploadBox.jsx
+	modified:   client/src/pages/Overview.css
+	modified:   client/src/pages/Verify.jsx
+	modified:   client/src/services/api.js
+	modified:   server/controllers/verificationController.js
+
+Unmerged paths:
+  (use "git restore --staged <file>..." to unstage)
+  (use "git add/rm <file>..." as appropriate to mark resolution)
+	deleted by us:   client/src/pages/Overview.jsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status.txt
+	remote.txt
+
