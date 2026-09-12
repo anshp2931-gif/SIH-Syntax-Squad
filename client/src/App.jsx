@@ -8,7 +8,6 @@ import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import History from "./pages/History";
 import Login from "./pages/Login";
-import Overview from "./pages/Overview";
 import MobileUpload from "./pages/MobileUpload";
 
 export default function App() {
@@ -80,15 +79,6 @@ export default function App() {
           />
           <Route path="/mobile-upload" element={<MobileUpload />} />
           <Route 
-            path="/overview" 
-            element={
-              <Overview 
-                onNavigateVerify={() => navigate("/verify")}
-                onNavigateHistory={() => navigate("/history")}
-              />
-            } 
-          />
-          <Route 
             path="/login" 
             element={
               isLoaded && isSignedIn ? (
@@ -112,7 +102,7 @@ export default function App() {
       <footer className="footer" style={styles.footer}>
         <div className="footerContainer" style={styles.footerContainer}>
           <div style={{ color: "#334155", fontWeight: 600 }}>
-            <strong>PramaanSetu India</strong> — {t("footer.title")}
+            <strong>DocAuth India</strong> — {t("footer.title")}
           </div>
           <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "6px" }}>
             {t("footer.subtitle")}

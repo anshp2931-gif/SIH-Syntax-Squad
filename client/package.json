@@ -19,7 +19,9 @@
     "@capacitor/core": "^8.5.2",
     "@capacitor/ios": "^8.5.2",
     "@clerk/react": "^6.15.2",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.42.0",
+    "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3"

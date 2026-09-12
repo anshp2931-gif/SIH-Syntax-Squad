@@ -5,7 +5,6 @@ import {
   Home as HomeIcon, 
   FileText, 
   History as HistoryIcon, 
-  LayoutGrid, 
   ChevronDown,
   Menu,
   X,
@@ -32,7 +31,6 @@ export default function Navbar({ currentUser, onLogout }) {
     if (location.pathname === "/") return "home";
     if (location.pathname.startsWith("/verify")) return "verify";
     if (location.pathname.startsWith("/history")) return "history";
-    if (location.pathname.startsWith("/overview")) return "overview";
     return "";
   };
   const activeTab = getActiveTab();
@@ -42,7 +40,6 @@ export default function Navbar({ currentUser, onLogout }) {
     if (tab === "home") navigate("/");
     else if (tab === "verify") navigate("/verify");
     else if (tab === "history") navigate("/history");
-    else if (tab === "overview") navigate("/overview");
   };
 
   useEffect(() => {
@@ -89,7 +86,6 @@ export default function Navbar({ currentUser, onLogout }) {
   const isHome = activeTab === "home";
   const isVerify = activeTab === "verify";
   const isHistory = activeTab === "history";
-  const isOverview = activeTab === "overview";
 
   return (
     <header className="header">
@@ -102,7 +98,7 @@ export default function Navbar({ currentUser, onLogout }) {
           </div>
           <div>
             <div className="brandName">
-              PramaanSetu <span style={{ color: "#2563EB" }}>India</span>
+              DocAuth <span style={{ color: "#2563EB" }}>India</span>
             </div>
             <div className="brandSub">{t('navbar.secure')}</div>
           </div>
@@ -141,15 +137,6 @@ export default function Navbar({ currentUser, onLogout }) {
             <HistoryIcon size={17} color={isHistory ? "#2563EB" : "#64748B"} />
             <span>{t('navbar.history')}</span>
             {isHistory && <div className="activeIndicator" />}
-          </button>
-
-          <button
-            className={`navBtn ${isOverview ? "navBtnActive" : ""}`}
-            onClick={() => handleNav("overview")}
-          >
-            <LayoutGrid size={17} color={isOverview ? "#2563EB" : "#64748B"} />
-            <span>{t('navbar.overview')}</span>
-            {isOverview && <div className="activeIndicator" />}
           </button>
 
           <div className="mobile-auth-section" style={{ width: "100%", marginTop: "12px", paddingTop: "16px", borderTop: "1px solid #E2E8F0" }}>

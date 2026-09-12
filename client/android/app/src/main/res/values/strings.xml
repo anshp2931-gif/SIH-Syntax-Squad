@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">DocAuth India</string>
     <string name="title_activity_main">DocAuth India</string>
-    <string name="package_name">com.docauth.india</string>
-    <string name="custom_url_scheme">com.docauth.india</string>
+    <string name="package_name">com.DocAuth.india</string>
+    <string name="custom_url_scheme">com.DocAuth.india</string>
 </resources>

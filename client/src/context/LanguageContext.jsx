@@ -14,7 +14,7 @@ export const LanguageProvider = ({ children }) => {
 
   // Load persisted language
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('PramaanSetu_language');
+    const savedLanguage = localStorage.getItem('DocAuth_language');
     if (savedLanguage && dictionaries[savedLanguage]) {
       setLanguage(savedLanguage);
       document.documentElement.lang = savedLanguage;
@@ -24,7 +24,7 @@ export const LanguageProvider = ({ children }) => {
   const changeLanguage = (lang) => {
     if (dictionaries[lang]) {
       setLanguage(lang);
-      localStorage.setItem('PramaanSetu_language', lang);
+      localStorage.setItem('DocAuth_language', lang);
       document.documentElement.lang = lang;
     }
   };
