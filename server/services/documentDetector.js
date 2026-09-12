@@ -1,131 +1,8 @@
 /**
- * Document Classifier & Detector
- * Analyzes raw OCR text and layout signatures to determine document type
+ * Document Classifier & Field Extractor Suite
+ * Detects and extracts identity fields across 7 Indian Document Types
  */
 
-export function detectDocument(text = "") {
-  if (!text || typeof text !== "string") {
-    return {
-      documentType: "UNKNOWN",
-      confidence: 0,
-      keywordsFound: []
-    };
-  }
-
-  const normalized = text.toUpperCase();
-  const panScoreKeywords = [
-    "INCOME TAX DEPARTMENT",
-    "PERMANENT ACCOUNT NUMBER",
-    "GOVT OF INDIA",
-    "GOVERNMENT OF INDIA",
-    "INCOMETAX",
-    "SIGNATURE",
-    "FATHER'S NAME",
-    "DATE OF BIRTH"
-  ];
-
-  const dlScoreKeywords = [
-    "DRIVING LICENCE",
-    "DRIVING LICENSE",
-    "TRANSPORT DEPARTMENT",
-    "MOTOR VEHICLES",
-    "LICENCE NO",
-    "LICENSE NO",
-    "DL NO",
-    "FORM 7",
-    "AUTHORISATION TO DRIVE",
-    "UNION OF INDIA",
-    "STATE TRANSPORT",
-    "VALID TILL",
-    "DOB",
-    "BLOOD GROUP"
-  ];
-
-  const aadhaarKeywords = [
-    "UNIQUE IDENTIFICATION AUTHORITY OF INDIA",
-    "AADHAAR",
-    "GOVERNMENT OF INDIA",
-    "MERA AADHAAR",
-    "ENROLMENT NO"
-  ];
-
-  // Regex patterns
-  const panPattern = /[A-Z]{5}[0-9]{4}[A-Z]/;
-  const dlPattern = /[A-Z]{2}[0-9]{2}[ -]?[0-9]{11}/;
-  const aadhaarPattern = /\b\d{4}\s?\d{4}\s?\d{4}\b/;
-
-  let panMatches = [];
-  let dlMatches = [];
-  let aadhaarMatches = [];
-
-  panScoreKeywords.forEach((kw) => {
-    if (normalized.includes(kw)) panMatches.push(kw);
-  });
-
-  dlScoreKeywords.forEach((kw) => {
-    if (normalized.includes(kw)) dlMatches.push(kw);
-  });
-
-  aadhaarKeywords.forEach((kw) => {
-    if (normalized.includes(kw)) aadhaarMatches.push(kw);
-  });
-
-  let panScore = panMatches.length * 20 + (panPattern.test(normalized) ? 40 : 0);
-  let dlScore = dlMatches.length * 20 + (dlPattern.test(normalized) ? 40 : 0);
-  let aadhaarScore = aadhaarMatches.length * 25 + (aadhaarPattern.test(normalized) ? 40 : 0);
-
-  if (panScore > dlScore && panScore > aadhaarScore && panScore >= 20) {
-    return {
-      documentType: "PAN",
-      confidence: Math.min(100, panScore),
-      keywordsFound: panMatches
-    };
-  }
-
-  if (dlScore > panScore && dlScore > aadhaarScore && dlScore >= 20) {
-    return {
-      documentType: "DRIVING_LICENSE",
-      confidence: Math.min(100, dlScore),
-      keywordsFound: dlMatches
-    };
-  }
-
-  if (aadhaarScore > 30) {
-    return {
-      documentType: "AADHAAR",
-      confidence: Math.min(100, aadhaarScore),
-      keywordsFound: aadhaarMatches
-    };
-  }
-
-  // Secondary checks based purely on regex if keywords are slightly obscured
-  if (panPattern.test(normalized)) {
-    return {
-      documentType: "PAN",
-      confidence: 60,
-      keywordsFound: ["PAN_REGEX_MATCH"]
-    };
-  }
-
-  if (dlPattern.test(normalized)) {
-    return {
-      documentType: "DRIVING_LICENSE",
-      confidence: 60,
-      keywordsFound: ["DL_REGEX_MATCH"]
-    };
-  }
-
-  return {
-    documentType: "UNKNOWN",
-    confidence: 0,
-    keywordsFound: []
-  };
-}
-
-/**
- * Smart OCR Character Normalization for PAN numbers
- * Fixes common Tesseract misreads (0/O, 1/I/L, 5/S, 8/B, 2/Z) based on PAN positional structure
- */
 export function fixPanOcrErrors(token = "") {
   const clean = token.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   if (clean.length !== 10) return clean;
@@ -134,178 +11,220 @@ export function fixPanOcrErrors(token = "") {
   const charToNum = { "I": "1", "L": "1", "|": "1", "O": "0", "Q": "0", "S": "5", "B": "8", "Z": "2", "G": "6", "T": "7" };
 
   let fixed = "";
-
-  // Positions 1-5 must be alpha
   for (let i = 0; i < 5; i++) {
     const c = clean[i];
     fixed += /[A-Z]/.test(c) ? c : (charToAlpha[c] || c);
   }
-
-  // Positions 6-9 must be numeric
   for (let i = 5; i < 9; i++) {
     const c = clean[i];
     fixed += /[0-9]/.test(c) ? c : (charToNum[c] || c);
   }
-
-  // Position 10 must be alpha
   const last = clean[9];
   fixed += /[A-Z]/.test(last) ? last : (charToAlpha[last] || last);
 
   return fixed;
 }
 
+export function detectDocument(text = "") {
+  if (!text || typeof text !== "string") {
+    return { documentType: "UNKNOWN", confidence: 0, keywordsFound: [] };
+  }
+
+  const normalized = text.toUpperCase();
+
+  const panKeywords = ["INCOME TAX DEPARTMENT", "PERMANENT ACCOUNT NUMBER", "GOVT OF INDIA", "GOVERNMENT OF INDIA", "INCOMETAX", "FATHER'S NAME"];
+  const dlKeywords = ["DRIVING LICENCE", "DRIVING LICENSE", "TRANSPORT DEPARTMENT", "MOTOR VEHICLES", "LICENCE NO", "DL NO", "AUTHORISATION TO DRIVE"];
+  const aadhaarKeywords = ["UNIQUE IDENTIFICATION AUTHORITY OF INDIA", "AADHAAR", "MERA AADHAAR", "ENROLMENT NO", "VID :"];
+  const voterKeywords = ["ELECTION COMMISSION OF INDIA", "ELECTORAL PHOTO IDENTITY CARD", "EPIC", "ELECTOR'S NAME"];
+  const passportKeywords = ["REPUBLIC OF INDIA", "PASSPORT", "PASSPORT NO", "P<IND", "GIVEN NAME(S)"];
+  const rcKeywords = ["REGISTRATION CERTIFICATE", "MOTOR VEHICLES DEPARTMENT", "CHASSIS NO", "ENGINE NO", "UNLADEN WT", "VEHICLE CLASS"];
+  const gstinKeywords = ["GOODS AND SERVICES TAX", "GSTIN", "REGISTRATION CERTIFICATE", "TAX PERIOD", "TRADE NAME"];
+
+  const panPattern = /[A-Z]{5}[0-9]{4}[A-Z]/;
+  const dlPattern = /[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7}/;
+  const aadhaarPattern = /\b\d{4}\s?\d{4}\s?\d{4}\b/;
+  const voterPattern = /[A-Z]{3}[0-9]{7}/;
+  const passportPattern = /[A-Z]{1}[0-9]{7}/;
+  const rcPattern = /[A-Z]{2}[0-9]{2}[A-Z]{1,3}[0-9]{4}/;
+  const gstinPattern = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+
+  const countMatches = (list) => list.filter((kw) => normalized.includes(kw));
+
+  const scores = [
+    { type: "PAN", score: countMatches(panKeywords).length * 20 + (panPattern.test(normalized) ? 40 : 0), matches: countMatches(panKeywords) },
+    { type: "DRIVING_LICENSE", score: countMatches(dlKeywords).length * 20 + (dlPattern.test(normalized) ? 40 : 0), matches: countMatches(dlKeywords) },
+    { type: "AADHAAR", score: countMatches(aadhaarKeywords).length * 25 + (aadhaarPattern.test(normalized) ? 40 : 0), matches: countMatches(aadhaarKeywords) },
+    { type: "VOTER_ID", score: countMatches(voterKeywords).length * 25 + (voterPattern.test(normalized) ? 40 : 0), matches: countMatches(voterKeywords) },
+    { type: "PASSPORT", score: countMatches(passportKeywords).length * 25 + (passportPattern.test(normalized) ? 40 : 0), matches: countMatches(passportKeywords) },
+    { type: "VEHICLE_RC", score: countMatches(rcKeywords).length * 25 + (rcPattern.test(normalized) ? 40 : 0), matches: countMatches(rcKeywords) },
+    { type: "GSTIN", score: countMatches(gstinKeywords).length * 25 + (gstinPattern.test(normalized) ? 40 : 0), matches: countMatches(gstinKeywords) }
+  ];
+
+  scores.sort((a, b) => b.score - a.score);
+  const best = scores[0];
+
+  if (best && best.score >= 20) {
+    return { documentType: best.type, confidence: Math.min(100, best.score), keywordsFound: best.matches };
+  }
+
+  return { documentType: "UNKNOWN", confidence: 0, keywordsFound: [] };
+}
+
 /**
- * Field Extractor for PAN and Driving Licence from raw OCR text
- * Uses sliding window algorithm across sanitized lines to extract ID numbers despite OCR noise, spaces, or punctuation
+ * Universal Field Extractor for all 7 Document Types
  */
 export function extractFields(documentType, text = "") {
   if (!text) return {};
   const rawLines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const normalizedText = text.toUpperCase();
 
-  if (documentType === "PAN") {
-    let pan = null;
+  switch (documentType) {
+    case "PAN": {
+      let pan = null;
+      const exactMatches = normalizedText.match(/[A-Z]{5}[0-9]{4}[A-Z]/g);
+      if (exactMatches) pan = exactMatches[0];
 
-    // 1. Direct Regex Match
-    const panRegex = /[A-Z]{5}[0-9]{4}[A-Z]/g;
-    const exactMatches = normalizedText.match(panRegex);
-    if (exactMatches && exactMatches.length > 0) {
-      pan = exactMatches[0];
-    }
-
-    // 2. Sliding Window Extractor over line-by-line sanitized alphanumeric strings
-    if (!pan) {
-      for (const line of rawLines) {
-        const cleanLine = line.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-        if (cleanLine.length >= 10) {
-          for (let i = 0; i <= cleanLine.length - 10; i++) {
-            const windowToken = cleanLine.substring(i, i + 10);
-            const fixed = fixPanOcrErrors(windowToken);
-            if (/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(fixed)) {
-              pan = fixed;
-              break;
+      if (!pan) {
+        for (const line of rawLines) {
+          const cleanLine = line.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+          if (cleanLine.length >= 10) {
+            for (let i = 0; i <= cleanLine.length - 10; i++) {
+              const windowToken = cleanLine.substring(i, i + 10);
+              const fixed = fixPanOcrErrors(windowToken);
+              if (/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(fixed)) {
+                pan = fixed;
+                break;
+              }
             }
           }
-        }
-        if (pan) break;
-      }
-    }
-
-    // 3. Fallback: Search across whole document text with spaces/punctuation stripped
-    if (!pan) {
-      const fullClean = normalizedText.replace(/[^A-Za-z0-9]/g, "");
-      if (fullClean.length >= 10) {
-        for (let i = 0; i <= fullClean.length - 10; i++) {
-          const windowToken = fullClean.substring(i, i + 10);
-          const fixed = fixPanOcrErrors(windowToken);
-          if (/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(fixed)) {
-            pan = fixed;
-            break;
-          }
+          if (pan) break;
         }
       }
-    }
 
-    // Extract DOB (DD/MM/YYYY)
-    const dobRegex = /\b(0[1-9]|[12][0-9]|3[01])[\/\.-](0[1-9]|1[012])[\/\.-](19|20)\d\d\b/;
-    const dobMatch = text.match(dobRegex);
-    const dob = dobMatch ? dobMatch[0] : null;
+      const dobMatch = text.match(/\b(0[1-9]|[12][0-9]|3[01])[\/\.-](0[1-9]|1[012])[\/\.-](19|20)\d\d\b/);
+      let name = null;
+      let fatherName = null;
 
-    // Extract Name & Father's Name heuristic
-    let name = null;
-    let fatherName = null;
-
-    for (let i = 0; i < rawLines.length; i++) {
-      const lineUpper = rawLines[i].toUpperCase();
-      if (lineUpper.includes("NAME") && !lineUpper.includes("FATHER") && i + 1 < rawLines.length) {
-        if (!name) name = rawLines[i + 1].replace(/[^A-Za-z\s]/g, "").trim();
+      for (let i = 0; i < rawLines.length; i++) {
+        const u = rawLines[i].toUpperCase();
+        if (u.includes("NAME") && !u.includes("FATHER") && i + 1 < rawLines.length) {
+          if (!name) name = rawLines[i + 1].replace(/[^A-Za-z\s]/g, "").trim();
+        }
+        if (u.includes("FATHER") && i + 1 < rawLines.length) {
+          if (!fatherName) fatherName = rawLines[i + 1].replace(/[^A-Za-z\s]/g, "").trim();
+        }
       }
-      if (lineUpper.includes("FATHER") && i + 1 < rawLines.length) {
-        if (!fatherName) fatherName = rawLines[i + 1].replace(/[^A-Za-z\s]/g, "").trim();
-      }
+
+      return {
+        pan: pan || "NOT_DETECTED",
+        name: name || "UNKNOWN",
+        fatherName: fatherName || "UNKNOWN",
+        dob: dobMatch ? dobMatch[0] : "NOT_DETECTED"
+      };
     }
 
-    if (!name) {
-      const candidates = rawLines.filter((l) => {
-        const u = l.toUpperCase();
-        return (
-          /^[A-Z\s]{3,30}$/.test(l) &&
-          !u.includes("INCOME TAX") &&
-          !u.includes("GOVT OF INDIA") &&
-          !u.includes("PERMANENT ACCOUNT") &&
-          !u.includes("CARD") &&
-          !u.includes("SIGNATURE")
-        );
-      });
-      if (candidates.length > 0) name = candidates[0].trim();
-      if (candidates.length > 1) fatherName = candidates[1].trim();
-    }
+    case "DRIVING_LICENSE": {
+      let dlNumber = null;
+      const dlMatch = normalizedText.match(/[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7}/);
+      if (dlMatch) dlNumber = dlMatch[0].replace(/\s+/g, "");
 
-    return {
-      pan: pan || "NOT_DETECTED",
-      name: name || "UNKNOWN",
-      fatherName: fatherName || "UNKNOWN",
-      dob: dob || "NOT_DETECTED"
-    };
-  }
-
-  if (documentType === "DRIVING_LICENSE") {
-    let dlNumber = null;
-
-    // 1. Exact DL Pattern Match
-    const dlRegex = /[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7,8}/;
-    const dlMatch = normalizedText.match(dlRegex);
-    if (dlMatch) {
-      dlNumber = dlMatch[0].replace(/\s+/g, "");
-    }
-
-    // 2. Sliding Window Extractor over sanitized lines for 15-character DL string
-    if (!dlNumber) {
-      for (const line of rawLines) {
-        const cleanLine = line.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-        if (cleanLine.length >= 15) {
-          for (let i = 0; i <= cleanLine.length - 15; i++) {
-            const windowToken = cleanLine.substring(i, i + 15);
-            // 2 State letters + 2 digits + 4 digits + 7 digits
-            if (/^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$/.test(windowToken)) {
-              dlNumber = windowToken;
-              break;
+      if (!dlNumber) {
+        for (const line of rawLines) {
+          const cleanLine = line.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+          if (cleanLine.length >= 15) {
+            for (let i = 0; i <= cleanLine.length - 15; i++) {
+              const tok = cleanLine.substring(i, i + 15);
+              if (/^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$/.test(tok)) {
+                dlNumber = tok;
+                break;
+              }
             }
           }
+          if (dlNumber) break;
         }
-        if (dlNumber) break;
       }
+
+      const dobMatches = text.match(/\b(0[1-9]|[12][0-9]|3[01])[\/\.-](0[1-9]|1[012])[\/\.-](19|20)\d\d\b/g);
+
+      return {
+        dlNumber: dlNumber || "NOT_DETECTED",
+        name: "UNKNOWN",
+        dob: dobMatches && dobMatches.length > 0 ? dobMatches[0] : "NOT_DETECTED",
+        validTill: dobMatches && dobMatches.length > 1 ? dobMatches[1] : "NOT_SPECIFIED",
+        stateCode: dlNumber ? dlNumber.substring(0, 2) : "UNKNOWN"
+      };
     }
 
-    const dobRegex = /\b(0[1-9]|[12][0-9]|3[01])[\/\.-](0[1-9]|1[012])[\/\.-](19|20)\d\d\b/g;
-    const dobMatches = text.match(dobRegex);
-    const dob = dobMatches && dobMatches.length > 0 ? dobMatches[0] : null;
-    const expiry = dobMatches && dobMatches.length > 1 ? dobMatches[1] : null;
+    case "AADHAAR": {
+      let aadhaarNumber = null;
+      const match = normalizedText.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/);
+      if (match) aadhaarNumber = match[0].replace(/\s+/g, "");
 
-    let name = null;
-    for (let i = 0; i < rawLines.length; i++) {
-      const u = rawLines[i].toUpperCase();
-      if ((u.includes("NAME") || u.includes("HOLDER")) && i + 1 < rawLines.length) {
-        name = rawLines[i + 1].replace(/[^A-Za-z\s]/g, "").trim();
-        break;
+      if (!aadhaarNumber) {
+        const maskedMatch = normalizedText.match(/X{4}\s?X{4}\s?\d{4}/i);
+        if (maskedMatch) aadhaarNumber = maskedMatch[0].replace(/\s+/g, "");
       }
+
+      return {
+        aadhaarNumber: aadhaarNumber || "NOT_DETECTED",
+        name: "UNKNOWN",
+        dob: "NOT_DETECTED",
+        gender: normalizedText.includes("FEMALE") ? "FEMALE" : normalizedText.includes("MALE") ? "MALE" : "NOT_SPECIFIED"
+      };
     }
 
-    if (!name) {
-      const candidates = rawLines.filter((l) => /^[A-Z\s]{4,30}$/.test(l.toUpperCase()) && !l.toUpperCase().includes("DRIVING") && !l.toUpperCase().includes("LICENCE"));
-      if (candidates.length > 0) name = candidates[0].trim();
+    case "VOTER_ID": {
+      let epicNumber = null;
+      const match = normalizedText.match(/[A-Z]{3}[0-9]{7}/);
+      if (match) epicNumber = match[0];
+
+      return {
+        epicNumber: epicNumber || "NOT_DETECTED",
+        name: "UNKNOWN",
+        assemblyConstituency: "STATE ELECTORAL ROLL"
+      };
     }
 
-    const stateCode = dlNumber ? dlNumber.substring(0, 2) : "UNKNOWN";
+    case "PASSPORT": {
+      let passportNumber = null;
+      const match = normalizedText.match(/[A-Z]{1}[0-9]{7}/);
+      if (match) passportNumber = match[0];
 
-    return {
-      dlNumber: dlNumber || "NOT_DETECTED",
-      name: name || "UNKNOWN",
-      dob: dob || "NOT_DETECTED",
-      validTill: expiry || "NOT_SPECIFIED",
-      stateCode
-    };
+      return {
+        passportNumber: passportNumber || "NOT_DETECTED",
+        name: "UNKNOWN",
+        nationality: "IND",
+        expiryDate: "NOT_DETECTED"
+      };
+    }
+
+    case "VEHICLE_RC": {
+      let vehicleNumber = null;
+      const match = normalizedText.match(/[A-Z]{2}[0-9]{2}[A-Z]{1,3}[0-9]{4}/);
+      if (match) vehicleNumber = match[0];
+
+      return {
+        vehicleNumber: vehicleNumber || "NOT_DETECTED",
+        ownerName: "UNKNOWN",
+        vehicleClass: "LMV / MOTOR VEHICLE",
+        chassisNo: "NOT_DETECTED"
+      };
+    }
+
+    case "GSTIN": {
+      let gstinNumber = null;
+      const match = normalizedText.match(/[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/);
+      if (match) gstinNumber = match[0];
+
+      return {
+        gstinNumber: gstinNumber || "NOT_DETECTED",
+        legalName: "REGISTERED TAXPAYER",
+        taxpayerType: "REGULAR",
+        stateCode: gstinNumber ? gstinNumber.substring(0, 2) : "UNKNOWN"
+      };
+    }
+
+    default:
+      return {};
   }
-
-  return {};
 }
