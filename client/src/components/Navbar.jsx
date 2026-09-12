@@ -82,6 +82,11 @@ export default function Navbar({ currentUser, onLogout }) {
         .toUpperCase()
     : "VP";
 
+  const isHome = activeTab === "home";
+  const isVerify = activeTab === "verify";
+  const isHistory = activeTab === "history";
+  const isOverview = activeTab === "overview";
+
   return (
     <header className="header">
       <div className="nav-container">
@@ -108,39 +113,39 @@ export default function Navbar({ currentUser, onLogout }) {
           </div>
           
           <button
-            className={`navBtn ${activeTab === "home" ? "navBtnActive" : ""}`}
+            className={`navBtn ${isHome ? "navBtnActive" : ""}`}
             onClick={() => handleNav("home")}
           >
-            <HomeIcon size={17} color={activeTab === "home" ? "#2563EB" : "#64748B"} />
+            <HomeIcon size={17} color={isHome ? "#2563EB" : "#64748B"} />
             <span>Home</span>
-            {activeTab === "home" && <div className="activeIndicator" />}
+            {isHome && <div className="activeIndicator" />}
           </button>
 
           <button
-            className={`navBtn ${activeTab === "verify" ? "navBtnActive" : ""}`}
+            className={`navBtn ${isVerify ? "navBtnActive" : ""}`}
             onClick={() => handleNav("verify")}
           >
-            <FileText size={17} color={activeTab === "verify" ? "#2563EB" : "#64748B"} />
+            <FileText size={17} color={isVerify ? "#2563EB" : "#64748B"} />
             <span>Verify Document</span>
-            {activeTab === "verify" && <div className="activeIndicator" />}
+            {isVerify && <div className="activeIndicator" />}
           </button>
 
           <button
-            className={`navBtn ${activeTab === "history" ? "navBtnActive" : ""}`}
+            className={`navBtn ${isHistory ? "navBtnActive" : ""}`}
             onClick={() => handleNav("history")}
           >
-            <HistoryIcon size={17} color={activeTab === "history" ? "#2563EB" : "#64748B"} />
+            <HistoryIcon size={17} color={isHistory ? "#2563EB" : "#64748B"} />
             <span>Audit Log</span>
-            {activeTab === "history" && <div className="activeIndicator" />}
+            {isHistory && <div className="activeIndicator" />}
           </button>
 
           <button
-            className={`navBtn ${activeTab === "overview" ? "navBtnActive" : ""}`}
+            className={`navBtn ${isOverview ? "navBtnActive" : ""}`}
             onClick={() => handleNav("overview")}
           >
-            <LayoutGrid size={17} color={activeTab === "overview" ? "#2563EB" : "#64748B"} />
+            <LayoutGrid size={17} color={isOverview ? "#2563EB" : "#64748B"} />
             <span>Overview</span>
-            {activeTab === "overview" && <div className="activeIndicator" />}
+            {isOverview && <div className="activeIndicator" />}
           </button>
 
           <div className="mobile-auth-section" style={{ width: "100%", marginTop: "12px", paddingTop: "16px", borderTop: "1px solid #E2E8F0" }}>

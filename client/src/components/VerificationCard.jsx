@@ -12,12 +12,23 @@ export default function VerificationCard({ result }) {
     documentType = "UNKNOWN",
     status = "UNVERIFIED",
     riskScore = 0,
+    originalityScore,
     checks = {},
     extractedData = {},
     tamperDetails = {},
     issuerDetails = {},
     penalties = []
   } = result.data ? result.data : result;
+
+  const displayOriginalityScore = originalityScore !== undefined ? originalityScore : Math.max(0, 100 - riskScore);
+
+  const getOriginalityColor = (score) => {
+    const s = Math.min(100, Math.max(0, score));
+    const hue = (s / 100) * 120;
+    return `hsl(${hue}, 85%, 40%)`;
+  };
+
+  const scoreColor = getOriginalityColor(displayOriginalityScore);
 
   const checksList = [
     { key: "documentType", label: "1. Document Type Detection", pass: checks.documentType },
@@ -48,41 +59,38 @@ export default function VerificationCard({ result }) {
           <div className="verIdValue" style={styles.verIdValue}>{verificationId}</div>
         </div>
         <div>
-          <ResultBadge status={status} riskScore={riskScore} />
+          <ResultBadge status={status} riskScore={riskScore} originalityScore={displayOriginalityScore} />
         </div>
       </div>
 
       {/* Primary Summary Grid */}
       <div className="summaryGrid" style={styles.summaryGrid}>
-        {/* Risk Score Gauge */}
+        {/* Originality Score Gauge */}
         <div className="scoreGaugeBox" style={styles.scoreGaugeBox}>
           <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
-            COMPUTE RISK SCORE
+            ORIGINALITY SCORE
           </div>
-          <div className="gaugeNumber" style={styles.gaugeNumber}>
-            {riskScore}
+          <div className="gaugeNumber" style={{ ...styles.gaugeNumber, color: "#0F172A" }}>
+            {displayOriginalityScore}
             <span style={{ fontSize: "1rem", color: "#64748B" }}>/100</span>
           </div>
           <div className="gaugeTrack" style={styles.gaugeTrack}>
             <div
               style={{
                 ...styles.gaugeFill,
-                width: `${riskScore}%`,
-                background:
-                  riskScore <= 15
-                    ? "#16A34A"
-                    : riskScore <= 40
-                    ? "#F59E0B"
-                    : "#DC2626"
+                width: `${displayOriginalityScore}%`,
+                background: scoreColor,
+                boxShadow: `0 2px 8px ${scoreColor}44`,
+                transition: "all 0.5s ease"
               }}
             />
           </div>
-          <div className="gaugeCaption" style={styles.gaugeCaption}>
-            {riskScore <= 15
-              ? "Low Risk — Document Authenticated"
-              : riskScore <= 40
-              ? "Moderate Risk — Needs Manual Review"
-              : "High Risk — Potential Anomaly or Tampering"}
+          <div className="gaugeCaption" style={{ ...styles.gaugeCaption, color: scoreColor, fontWeight: 600 }}>
+            {displayOriginalityScore >= 85
+              ? "High Originality — Document Authenticated"
+              : displayOriginalityScore >= 60
+              ? "Moderate Originality — Needs Manual Review"
+              : "Low Originality — Potential Anomaly or Tampering"}
           </div>
         </div>
 

@@ -5,61 +5,128 @@ import { PNG } from "pngjs";
 import jpeg from "jpeg-js";
 
 /**
- * Reads an image file (PNG/JPEG) into RGBA raw pixel array for jsQR
+ * Reads an image file into RGBA raw pixel array, with format fallback
  */
 function readImageData(imagePath) {
-  const ext = path.extname(imagePath).toLowerCase();
   const buffer = fs.readFileSync(imagePath);
+  const ext = path.extname(imagePath).toLowerCase();
 
+  // Try parsing as PNG first if extension is .png, else try JPEG, then try the other
   if (ext === ".png") {
-    const png = PNG.sync.read(buffer);
-    return {
-      data: new Uint8ClampedArray(png.data),
-      width: png.width,
-      height: png.height
-    };
-  } else if (ext === ".jpg" || ext === ".jpeg") {
-    const rawImageData = jpeg.decode(buffer, { useTolerantUnknown: true });
-    return {
-      data: new Uint8ClampedArray(rawImageData.data),
-      width: rawImageData.width,
-      height: rawImageData.height
-    };
+    try {
+      const png = PNG.sync.read(buffer);
+      return { data: new Uint8ClampedArray(png.data), width: png.width, height: png.height };
+    } catch (e) {
+      const raw = jpeg.decode(buffer, { useTolerantUnknown: true });
+      return { data: new Uint8ClampedArray(raw.data), width: raw.width, height: raw.height };
+    }
+  } else {
+    try {
+      const raw = jpeg.decode(buffer, { useTolerantUnknown: true });
+      return { data: new Uint8ClampedArray(raw.data), width: raw.width, height: raw.height };
+    } catch (e) {
+      const png = PNG.sync.read(buffer);
+      return { data: new Uint8ClampedArray(png.data), width: png.width, height: png.height };
+    }
   }
-
-  throw new Error("Unsupported image format for QR code scanning");
 }
 
 /**
- * Detects and decodes QR codes from image file
+ * Crops a sub-region of RGBA image data for localized QR scanning
+ */
+function cropImageData(img, startXRatio, startYRatio, widthRatio, heightRatio) {
+  const cropX = Math.floor(img.width * startXRatio);
+  const cropY = Math.floor(img.height * startYRatio);
+  const cropW = Math.floor(img.width * widthRatio);
+  const cropH = Math.floor(img.height * heightRatio);
+
+  const croppedData = new Uint8ClampedArray(cropW * cropH * 4);
+
+  for (let y = 0; y < cropH; y++) {
+    for (let x = 0; x < cropW; x++) {
+      const srcIdx = ((cropY + y) * img.width + (cropX + x)) << 2;
+      const destIdx = (y * cropW + x) << 2;
+      croppedData[destIdx] = img.data[srcIdx];
+      croppedData[destIdx + 1] = img.data[srcIdx + 1];
+      croppedData[destIdx + 2] = img.data[srcIdx + 2];
+      croppedData[destIdx + 3] = img.data[srcIdx + 3];
+    }
+  }
+
+  return { data: croppedData, width: cropW, height: cropH };
+}
+
+/**
+ * Scans image for QR code using multi-pass full & sub-region crop strategy
+ */
+function scanPasses(img) {
+  // Pass 1: Full image scan (normal + inverted)
+  let code = jsQR(img.data, img.width, img.height, { inversionAttempts: "attemptBoth" });
+  if (code && code.data) return code;
+
+  // Pass 2: Quadrant crops (bottom-left, bottom-right, top-right, top-left)
+  const regions = [
+    { x: 0.0, y: 0.4, w: 0.6, h: 0.6 }, // Bottom-left (Common in Aadhaar / PAN)
+    { x: 0.4, y: 0.4, w: 0.6, h: 0.6 }, // Bottom-right
+    { x: 0.4, y: 0.0, w: 0.6, h: 0.6 }, // Top-right
+    { x: 0.0, y: 0.0, w: 0.6, h: 0.6 }  // Top-left
+  ];
+
+  for (const r of regions) {
+    try {
+      const cropped = cropImageData(img, r.x, r.y, r.w, r.h);
+      code = jsQR(cropped.data, cropped.width, cropped.height, { inversionAttempts: "attemptBoth" });
+      if (code && code.data) return code;
+    } catch (e) {
+      // ignore region crop error
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Detects and decodes QR codes from document image file
  */
 export async function detectQR(imagePath) {
   try {
     const img = readImageData(imagePath);
-    const code = jsQR(img.data, img.width, img.height, {
-      inversionAttempts: "dontInvert"
-    });
+    const code = scanPasses(img);
 
-    if (code && code.data) {
-      const payload = code.data;
+    if (code && (code.data || code.binaryData)) {
+      const payload = code.data || "";
 
-      // Check if QR data points to official / authorized domain or structured string
       let isAuthorizedDomain = false;
-      let issuerName = "Unknown Issuer";
+      let issuerName = "Standard Document Barcode / QR";
 
-      if (payload.includes("incometax.gov.in") || payload.includes("nsdl.co.in") || payload.includes("utiitsl.com")) {
+      // Classify official Indian issuer QR code formats
+      if (payload.includes("incometax.gov.in") || payload.includes("nsdl.co.in") || payload.includes("utiitsl.com") || payload.includes("PAN:")) {
         isAuthorizedDomain = true;
         issuerName = "Income Tax Department / Authorized NSDL Channel";
-      } else if (payload.includes("parivahan.gov.in") || payload.includes("sarathi")) {
+      } else if (payload.includes("parivahan.gov.in") || payload.includes("sarathi") || payload.includes("DL:") || payload.includes("RC:")) {
         isAuthorizedDomain = true;
         issuerName = "Ministry of Road Transport & Highways (Parivahan)";
-      } else if (payload.includes("digilocker.gov.in")) {
+      } else if (payload.includes("uidai.gov.in") || payload.includes("uidai") || payload.includes("PrintLetterBarcodeData") || payload.includes("AADHAAR:") || payload.length > 150) {
         isAuthorizedDomain = true;
-        issuerName = "DigiLocker Verified QR";
-      } else if (payload.includes("PAN:") || payload.includes("DL:")) {
-        // Structured raw text payload
+        issuerName = "Unique Identification Authority of India (UIDAI / Secure QR)";
+      } else if (payload.includes("digilocker.gov.in") || payload.includes("nad.digilocker.gov.in") || payload.includes("ROLL:")) {
         isAuthorizedDomain = true;
-        issuerName = "Structured Cryptographic Issuer QR Payload";
+        issuerName = "DigiLocker / National Academic Depository Verified QR";
+      } else if (payload.includes("nvsp.in") || payload.includes("EPIC:")) {
+        isAuthorizedDomain = true;
+        issuerName = "Election Commission of India (EPIC)";
+      } else if (payload.includes("gst.gov.in") || payload.includes("GSTIN:")) {
+        isAuthorizedDomain = true;
+        issuerName = "Goods and Services Tax Network (GSTN)";
+      } else if (payload.includes("nfsa.gov.in") || payload.includes("RATION:")) {
+        isAuthorizedDomain = true;
+        issuerName = "Department of Food & Public Distribution (NFSA)";
+      } else if (payload.includes("crsorgi.gov.in") || payload.includes("BIRTH:")) {
+        isAuthorizedDomain = true;
+        issuerName = "Civil Registration System (CRS India)";
+      } else if (payload.length > 20 || payload.includes("http://") || payload.includes("https://")) {
+        isAuthorizedDomain = true;
+        issuerName = "Structured Digital Signature QR";
       }
 
       return {
@@ -70,7 +137,7 @@ export async function detectQR(imagePath) {
         issuerName,
         details: {
           location: code.location,
-          payloadPreview: payload.substring(0, 100) + (payload.length > 100 ? "..." : "")
+          payloadPreview: payload.substring(0, 120) + (payload.length > 120 ? "..." : "")
         }
       };
     }

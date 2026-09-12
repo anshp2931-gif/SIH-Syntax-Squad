@@ -1,5 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { UploadCloud, FileText, Sparkles, Camera, ChevronDown } from "lucide-react";
+import { 
+  UploadCloud, 
+  FileText, 
+  Sparkles, 
+  Camera, 
+  ChevronDown, 
+  X, 
+  RefreshCw,
+  CreditCard,
+  Car,
+  Fingerprint,
+  UserCheck,
+  Globe,
+  Building,
+  Wheat,
+  GraduationCap,
+  FileBadge,
+  Lightbulb
+} from "lucide-react";
 import { fetchSampleDocumentsApi } from "../services/api";
 import CameraScanner from "./CameraScanner";
 
@@ -15,9 +33,17 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
   const dropdownRef = useRef(null);
   
   const documentTypes = [
-    { id: "AUTO", label: "✨ Auto-Detect" },
-    { id: "PAN", label: "💳 PAN Card" },
-    { id: "DRIVING_LICENSE", label: "🪪 Driving Licence" }
+    { id: "AUTO", label: "Auto-Detect Document Type", icon: Sparkles },
+    { id: "PAN", label: "Indian Income Tax PAN Card", icon: CreditCard },
+    { id: "DRIVING_LICENSE", label: "Indian Driving Licence (DL)", icon: Car },
+    { id: "AADHAAR", label: "Aadhaar Card (UIDAI)", icon: Fingerprint },
+    { id: "VOTER_ID", label: "Voter ID Card (EPIC)", icon: UserCheck },
+    { id: "PASSPORT", label: "Indian Passport", icon: Globe },
+    { id: "VEHICLE_RC", label: "Vehicle Registration Certificate (RC)", icon: Car },
+    { id: "GSTIN", label: "GSTIN Certificate", icon: Building },
+    { id: "RATION_CARD", label: "Ration Card (NFSA / PDS)", icon: Wheat },
+    { id: "DEGREE_CERTIFICATE", label: "Degree Certificate (UGC / NAD)", icon: GraduationCap },
+    { id: "BIRTH_CERTIFICATE", label: "Birth Certificate (CRS)", icon: FileBadge }
   ];
 
   useEffect(() => {
@@ -41,6 +67,18 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
       })
       .catch((err) => console.warn("Could not load demo samples:", err));
   }, []);
+
+  const handleClearFile = (e) => {
+    if (e) e.stopPropagation();
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setManualNumber("");
+    const fileInput = document.getElementById("doc-upload-input");
+    if (fileInput) fileInput.value = "";
+  };
 
   const handleFileDrop = (e) => {
     e.preventDefault();
@@ -72,14 +110,17 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
     onUpload(capturedFile, forcedType === "AUTO" ? null : forcedType, manualNumber);
   };
 
+  const activeDocObj = documentTypes.find(t => t.id === forcedType) || documentTypes[0];
+  const ActiveIcon = activeDocObj.icon;
+
   return (
     <div className="glass-card" style={styles.card}>
       <h2 className="title" style={styles.title}>Upload Indian Identity Document</h2>
       <p className="subtitle" style={styles.subtitle}>
-        Supports standard PAN Card, Driving Licence, Aadhaar preview, & PDFs.
+        Supports PAN Card, Driving Licence, Aadhaar, Voter ID, Passport, RC, GSTIN, Ration Card, Degree & Birth Certs.
       </p>
 
-      {/* Target Document Selector */}
+      {/* Target Document Selector Custom Dropdown */}
       <div className="typeSelectorGroup" style={styles.typeSelectorGroup}>
         <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#64748B" }}>
           Target Document Type:
@@ -108,8 +149,9 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
               transition: "all 0.2s ease"
             }}
           >
-            <span style={{ pointerEvents: "none" }}>
-              {documentTypes.find(t => t.id === forcedType)?.label}
+            <span style={{ display: "flex", alignItems: "center", gap: "8px", pointerEvents: "none" }}>
+              <ActiveIcon size={16} color="#2563EB" />
+              <span>{activeDocObj.label}</span>
             </span>
             <ChevronDown 
               size={20} 
@@ -131,37 +173,44 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
               borderRadius: "8px",
               boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1)",
               zIndex: 50,
-              overflow: "hidden"
+              overflow: "hidden",
+              maxHeight: "280px",
+              overflowY: "auto"
             }}>
-              {documentTypes.map((t) => (
-                <div
-                  key={t.id}
-                  onClick={() => {
-                    setForcedType(t.id);
-                    setIsDropdownOpen(false);
-                  }}
-                  onMouseEnter={(e) => {
-                    if (forcedType !== t.id) e.currentTarget.style.background = "#F1F5F9";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = forcedType === t.id ? "#EFF6FF" : "transparent";
-                  }}
-                  style={{
-                    padding: "12px 16px",
-                    fontSize: "0.95rem",
-                    fontWeight: 500,
-                    color: forcedType === t.id ? "#2563EB" : "#334155",
-                    background: forcedType === t.id ? "#EFF6FF" : "transparent",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    borderLeft: forcedType === t.id ? "3px solid #2563EB" : "3px solid transparent"
-                  }}
-                >
-                  {t.label}
-                </div>
-              ))}
+              {documentTypes.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <div
+                    key={t.id}
+                    onClick={() => {
+                      setForcedType(t.id);
+                      setIsDropdownOpen(false);
+                    }}
+                    onMouseEnter={(e) => {
+                      if (forcedType !== t.id) e.currentTarget.style.background = "#F1F5F9";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = forcedType === t.id ? "#EFF6FF" : "transparent";
+                    }}
+                    style={{
+                      padding: "12px 16px",
+                      fontSize: "0.92rem",
+                      fontWeight: 500,
+                      color: forcedType === t.id ? "#2563EB" : "#334155",
+                      background: forcedType === t.id ? "#EFF6FF" : "transparent",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      borderLeft: forcedType === t.id ? "3px solid #2563EB" : "3px solid transparent"
+                    }}
+                  >
+                    <Icon size={16} color={forcedType === t.id ? "#2563EB" : "#64748B"} />
+                    <span>{t.label}</span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -197,6 +246,49 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
               <div style={{ fontSize: "0.78rem", color: "#64748B" }}>
                 {(selectedFile.size / 1024).toFixed(1)} KB
               </div>
+
+              {/* Action buttons: Replace and Remove */}
+              <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+                <label
+                  htmlFor="doc-upload-input"
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: "#2563EB",
+                    background: "#EFF6FF",
+                    border: "1px solid #DBEAFE",
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  }}
+                >
+                  <RefreshCw size={12} />
+                  Replace
+                </label>
+                <button
+                  type="button"
+                  onClick={handleClearFile}
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: "#DC2626",
+                    background: "#FEE2E2",
+                    border: "1px solid #FECACA",
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  }}
+                >
+                  <X size={12} />
+                  Remove File
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -217,8 +309,9 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
 
       {/* Optional Manual Document Number Override */}
       <div style={{ marginTop: "16px" }}>
-        <div style={{ fontSize: "0.82rem", color: "#64748B", marginBottom: "6px" }}>
-          💡 Optional — Confirm / Enter PAN or DL Number (if OCR image has glare/blur):
+        <div style={{ fontSize: "0.82rem", color: "#64748B", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+          <Lightbulb size={15} color="#EAB308" />
+          <span>Optional — Confirm / Enter Document Number (if OCR image has glare/blur):</span>
         </div>
         <input
           type="text"

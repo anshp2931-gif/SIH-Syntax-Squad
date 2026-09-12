@@ -389,7 +389,9 @@ export default function Home({ onNavigateVerify }) {
                 {/* Emblem Seal */}
                 <div className="emblemWrapper" style={styles.emblemWrapper}>
                   <div className="ashokaEmblem" style={styles.ashokaEmblem}>
-                    <div className="emblemCrown" style={styles.emblemCrown}>🏛️</div>
+                    <div className="emblemCrown" style={styles.emblemCrown}>
+                      <Landmark size={22} color="#1E3A8A" />
+                    </div>
                     <div className="emblemBase" style={styles.emblemBase}>सत्यमेव जयते</div>
                   </div>
                 </div>

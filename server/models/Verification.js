@@ -9,7 +9,7 @@ const verificationSchema = new mongoose.Schema(
     },
     documentType: {
       type: String,
-      enum: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "UNKNOWN"],
+      enum: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VEHICLE_RC", "GSTIN", "RATION_CARD", "DEGREE_CERTIFICATE", "BIRTH_CERTIFICATE", "UNKNOWN"],
       required: true
     },
     status: {
@@ -33,6 +33,10 @@ const verificationSchema = new mongoose.Schema(
     riskScore: {
       type: Number,
       required: true
+    },
+    originalityScore: {
+      type: Number,
+      default: 100
     },
     tamperDetails: {
       type: Object,
