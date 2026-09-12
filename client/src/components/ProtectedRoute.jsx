@@ -37,7 +37,7 @@ export default function ProtectedRoute({ children }) {
               Verifying Security Credentials
             </h3>
             <p style={{ fontSize: "0.85rem", color: "#64748B", marginTop: "4px" }}>
-              Connecting to DocAuth India enterprise authentication service...
+              Connecting to PramaanSetu India authentication service...
             </p>
           </div>
         </div>
@@ -198,7 +198,7 @@ export default function ProtectedRoute({ children }) {
               style={styles.backHomeBtn}
             >
               <ArrowLeft size={15} color="#64748B" />
-              <span>Return to DocAuth India Homepage</span>
+              <span>Return to PramaanSetu India Homepage</span>
             </button>
           </div>
 

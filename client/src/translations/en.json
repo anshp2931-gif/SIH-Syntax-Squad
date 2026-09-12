@@ -1,7 +1,7 @@
 {
   "footer": {
     "title": "Enterprise Indian Document Authenticity Platform",
-    "subtitle": "PAN Card • Driving Licence • Aadhaar Verification Architecture • DigiLocker Integration Ready",
+    "subtitle": "PAN Card • Driving Licence • Aadhaar • Voter ID • Passport • RC • GSTIN • Ration Card • Degree & Birth Certs",
     "compliance": "Compliant with UIDAI, ITD-NSDL, and MoRTH-Parivahan security guidelines."
   },
   "navbar": {
@@ -28,12 +28,12 @@
     "loading": "Document Verification Pipeline In Progress",
     "empty": {
       "title": "No Active Verification",
-      "desc": "Upload a PAN Card or Driving Licence image on the left, or select a synthetic demo sample to view real-time verification analysis."
+      "desc": "Upload an Indian identity or official document image on the left, or select a demo sample to view real-time verification analysis."
     }
   },
   "uploadBox": {
     "title": "Upload Indian Identity Document",
-    "subtitle": "Supports standard PAN Card, Driving Licence, Aadhaar preview, & PDFs.",
+    "subtitle": "Supports PAN Card, Driving Licence, Aadhaar, Voter ID, Passport, RC, GSTIN, Ration Card, Degree & Birth Certs.",
     "docType": "Target Document Type:",
     "autoDetect": "✨ Auto-Detect",
     "pan": "💳 PAN Card",
@@ -51,7 +51,7 @@
     "dropLabel": "Drag & drop document image here, or",
     "browse": "browse",
     "dropHint": "JPG, PNG, WEBP, or PDF (Max 10MB)",
-    "manualOverride": "💡 Optional — Confirm / Enter PAN or DL Number (if OCR image has glare/blur):",
+    "manualOverride": "💡 Optional — Confirm / Enter Document Number (if OCR image has glare/blur):",
     "manualPlaceholder": "Enter document number (e.g. ABCDE1234F or DL1420110012345)",
     "cameraBtn": "Open Live Camera Scanner (Auto-Capture When Clear)",
     "analyzing": "Analyzing Pipeline...",
@@ -85,7 +85,7 @@
     "error": "Could not access device camera. Please check camera permissions.",
     "title": "Live Document Camera Scanner",
     "perfectClarity": "Perfect Clarity — Auto-Capturing!",
-    "alignCard": "Align PAN/DL Card within Frame & Hold Still",
+    "alignCard": "Align Document Card within Frame & Hold Still",
     "clarityIndex": "Clarity Index:",
     "switch": "Switch Camera",
     "flip": "Flip",
