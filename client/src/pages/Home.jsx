@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import {Shield,Zap,Lock,Cloud,ArrowRight,PlayCircle,Fingerprint,CreditCard,Car,User,Globe,FileCheck2,FileText,ShieldCheck,CheckCircle2,UploadCloud,X,ScanLine,Cpu,Award,Sparkles,Check,Landmark,Briefcase,GraduationCap,AlertTriangle,Eye,ShieldAlert,BadgeCheck,FileWarning} from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
+import { Shield, Zap, Lock, Cloud, ArrowRight, PlayCircle, Fingerprint, CreditCard, Car, User, Globe, FileCheck2, FileText, ShieldCheck, CheckCircle2, UploadCloud, X, ScanLine, Cpu, Award, Sparkles, Check, Landmark, Briefcase, GraduationCap, AlertTriangle, Eye, ShieldAlert, BadgeCheck, FileWarning } from "lucide-react";
 
 function UseCaseRow({
   reverse = false,
@@ -37,6 +38,7 @@ function UseCaseRow({
   return (
     <div
       ref={rowRef}
+      className="useCaseRow"
       style={{
         ...styles.useCaseRow,
         flexDirection: reverse ? "row-reverse" : "row",
@@ -78,13 +80,12 @@ function UseCaseRow({
 
       {/* Visual Image/Mockup Column with sliding animation */}
       <div
-        className={`use-case-visual ${
-          inView
+        className={`use-case-visual ${inView
             ? "slide-visible"
             : reverse
-            ? "slide-hidden-left"
-            : "slide-hidden-right"
-        }`}
+              ? "slide-hidden-left"
+              : "slide-hidden-right"
+          }`}
         style={styles.useCaseVisualCol}
       >
         {renderVisual()}
@@ -94,6 +95,7 @@ function UseCaseRow({
 }
 
 export default function Home({ onNavigateVerify }) {
+  const { t } = useLanguage();
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [activeCard, setActiveCard] = useState(0);
   const [sliderPos, setSliderPos] = useState(50);
@@ -182,19 +184,17 @@ export default function Home({ onNavigateVerify }) {
 
 
           <h1 className="heroTitle" style={styles.heroTitle}>
-            Indian Document Authenticity &<br />
-            <span style={{ color: "#2563EB" }}>Verification Platform</span>
+            {t('home.img.heroTitle1')}<br />
+            <span style={{ color: "#2563EB" }}>{t('home.img.heroTitle2')}</span>
           </h1>
 
           <p className="heroSub" style={styles.heroSub}>
-            An enterprise-grade, AI-powered platform for verifying the authenticity
-            of Indian identity documents like PAN Card, Driving Licence, Aadhaar and more.
-            Fast, secure and tamper-proof.
+            {t('home.img.heroDesc')}
           </p>
 
           <div className="heroCtaGroup" style={styles.heroCtaGroup}>
             <button className="btn-primary btnVerify" onClick={onNavigateVerify} style={styles.btnVerify}>
-              <span>Verify a Document</span>
+              <span>{t('home.img.verifyBtn')}</span>
               <ArrowRight size={18} />
             </button>
 
@@ -204,7 +204,7 @@ export default function Home({ onNavigateVerify }) {
               style={styles.btnDemo}
             >
               <PlayCircle size={20} color="#2563EB" />
-              <span>Watch Demo</span>
+              <span>{t('home.img.demoBtn')}</span>
             </button>
           </div>
 
@@ -213,9 +213,9 @@ export default function Home({ onNavigateVerify }) {
             <div style={styles.quickCheckHeader}>
               <div style={styles.quickCheckLabel}>
                 <Sparkles size={14} color="#2563EB" />
-                <span>TRY A LIVE SAMPLE TEASER</span>
+                <span>{t('home.img.teaser')}</span>
               </div>
-              <span style={styles.quickCheckSub}>Instant 1-click preview</span>
+              <span style={styles.quickCheckSub}>{t('home.img.instant')}</span>
             </div>
 
             <div style={styles.quickCheckBtnRow}>
@@ -229,8 +229,8 @@ export default function Home({ onNavigateVerify }) {
               >
                 <BadgeCheck size={16} color="#059669" />
                 <div style={{ textAlign: "left" }}>
-                  <div style={styles.quickBtnTitle}>Clean Document</div>
-                  <div style={styles.quickBtnDesc}>Valid PAN • Passed 100%</div>
+                  <div style={styles.quickBtnTitle}>{t('home.img.cleanDoc')}</div>
+                  <div style={styles.quickBtnDesc}>{t('home.img.cleanDesc')}</div>
                 </div>
               </button>
 
@@ -244,8 +244,8 @@ export default function Home({ onNavigateVerify }) {
               >
                 <ShieldAlert size={16} color="#DC2626" />
                 <div style={{ textAlign: "left" }}>
-                  <div style={styles.quickBtnTitle}>Forged Document</div>
-                  <div style={styles.quickBtnDesc}>Altered Aadhaar • Tampered</div>
+                  <div style={styles.quickBtnTitle}>{t('home.img.forgedDoc')}</div>
+                  <div style={styles.quickBtnDesc}>{t('home.img.forgedDesc')}</div>
                 </div>
               </button>
             </div>
@@ -330,7 +330,7 @@ export default function Home({ onNavigateVerify }) {
                 title="PAN Card"
               >
                 <div className="panHeader" style={styles.panHeader}>
-                  <span className="panTitle" style={styles.panTitle}>PAN CARD</span>
+                  <span className="panTitle" style={styles.panTitle}>{t('home.cards.pan')}</span>
                 </div>
                 <div className="panBody" style={styles.panBody}>
                   <div className="panAvatar" style={styles.panAvatar}>
@@ -355,8 +355,8 @@ export default function Home({ onNavigateVerify }) {
                 title="Aadhaar Card"
               >
                 <div className="aadhaarHeader" style={styles.aadhaarHeader}>
-                  <span className="aadhaarTitle" style={styles.aadhaarTitle}>आधार</span>
-                  <span className="aadhaarSubtitle" style={styles.aadhaarSubtitle}>AADHAAR CARD</span>
+                  <span className="aadhaarTitle" style={styles.aadhaarTitle}>{t('home.cards.aadhaar')}</span>
+                  <span className="aadhaarSubtitle" style={styles.aadhaarSubtitle}>{t('home.cards.aadhaarSub')}</span>
                 </div>
 
                 {/* Aadhaar main blue accent bar like Satyameva Jayate */}
@@ -392,7 +392,7 @@ export default function Home({ onNavigateVerify }) {
                     <div className="emblemCrown" style={styles.emblemCrown}>
                       <Landmark size={22} color="#1E3A8A" />
                     </div>
-                    <div className="emblemBase" style={styles.emblemBase}>सत्यमेव जयते</div>
+                    <div className="emblemBase" style={styles.emblemBase}>{t('home.cards.satyameva')}</div>
                   </div>
                 </div>
 
@@ -421,7 +421,7 @@ export default function Home({ onNavigateVerify }) {
                 title="Driving Licence"
               >
                 <div className="dlHeader" style={styles.dlHeader}>
-                  <span className="dlTitle" style={styles.dlTitle}>DRIVING LICENCE</span>
+                  <span className="dlTitle" style={styles.dlTitle}>{t('home.cards.dl')}</span>
                   <Car size={16} color="#2563EB" />
                 </div>
                 <div className="panBody" style={styles.panBody}>
@@ -453,8 +453,8 @@ export default function Home({ onNavigateVerify }) {
             <Shield size={20} color="#2563EB" />
           </div>
           <div>
-            <div className="featureTitle" style={styles.featureTitle}>AI-Powered Verification</div>
-            <div className="featureSub" style={styles.featureSub}>Advanced OCR & ML models</div>
+            <div className="featureTitle" style={styles.featureTitle}>{t('home.banner.f1Title')}</div>
+            <div className="featureSub" style={styles.featureSub}>{t('home.banner.f1Sub')}</div>
           </div>
         </div>
 
@@ -463,8 +463,8 @@ export default function Home({ onNavigateVerify }) {
             <Zap size={20} color="#2563EB" />
           </div>
           <div>
-            <div className="featureTitle" style={styles.featureTitle}>Fast & Reliable</div>
-            <div className="featureSub" style={styles.featureSub}>Results in seconds</div>
+            <div className="featureTitle" style={styles.featureTitle}>{t('home.banner.f2Title')}</div>
+            <div className="featureSub" style={styles.featureSub}>{t('home.banner.f2Sub')}</div>
           </div>
         </div>
 
@@ -473,8 +473,8 @@ export default function Home({ onNavigateVerify }) {
             <Lock size={20} color="#2563EB" />
           </div>
           <div>
-            <div className="featureTitle" style={styles.featureTitle}>Tamper Detection</div>
-            <div className="featureSub" style={styles.featureSub}>Detects forged & altered docs</div>
+            <div className="featureTitle" style={styles.featureTitle}>{t('home.banner.f3Title')}</div>
+            <div className="featureSub" style={styles.featureSub}>{t('home.banner.f3Sub')}</div>
           </div>
         </div>
 
@@ -483,8 +483,8 @@ export default function Home({ onNavigateVerify }) {
             <Cloud size={20} color="#2563EB" />
           </div>
           <div>
-            <div className="featureTitle" style={styles.featureTitle}>Secure & Compliant</div>
-            <div className="featureSub" style={styles.featureSub}>Govt. standards & data privacy</div>
+            <div className="featureTitle" style={styles.featureTitle}>{t('home.banner.f4Title')}</div>
+            <div className="featureSub" style={styles.featureSub}>{t('home.banner.f4Sub')}</div>
           </div>
         </div>
       </section>
@@ -494,19 +494,19 @@ export default function Home({ onNavigateVerify }) {
         <div style={styles.pipelineHeader}>
           <div style={styles.pipelineBadge}>
             <Sparkles size={14} color="#2563EB" />
-            <span>Seamless AI Pipeline</span>
+            <span>{t('home.pipeline.badge')}</span>
           </div>
-          <h2 style={styles.pipelineHeading}>How It Works</h2>
+          <h2 style={styles.pipelineHeading}>{t('home.pipeline.title')}</h2>
           <p style={styles.pipelineSub}>
-            Verify any Indian government document in 3 transparent, automated steps powered by neural OCR and forensic tamper detection.
+            {t('home.pipeline.sub')}
           </p>
         </div>
 
-        <div style={styles.pipelineGrid}>
+        <div className="pipelineGrid" style={styles.pipelineGrid}>
           {/* STEP 1 */}
           <div style={styles.pipelineCard} className="glass-card">
             <div style={styles.pipelineStepNumber}>01</div>
-            
+
             {/* Step Mockup Illustration */}
             <div style={styles.pipelineMockup}>
               <div style={styles.mockupCardTop}>
@@ -529,18 +529,18 @@ export default function Home({ onNavigateVerify }) {
               <div style={styles.pipelineIconBox}>
                 <ScanLine size={20} color="#2563EB" />
               </div>
-              <h3 style={styles.pipelineStepTitle}>1. Upload & Extract</h3>
+              <h3 style={styles.pipelineStepTitle}>{t('home.img.step1Title')}</h3>
               <p style={styles.pipelineStepDesc}>
-                Drag & drop Aadhaar, PAN, DL, or Passport in PDF/JPG format. High-precision Tesseract OCR auto-detects fields, names, DOB, and document numbers.
+                {t('home.img.step1Desc')}
               </p>
               <div style={styles.pipelineFeaturesList}>
                 <div style={styles.pipelineFeaturePoint}>
                   <Check size={14} color="#16A34A" />
-                  <span>Optical character auto-extraction</span>
+                  <span>{t('home.img.step1F1')}</span>
                 </div>
                 <div style={styles.pipelineFeaturePoint}>
                   <Check size={14} color="#16A34A" />
-                  <span>Perspective & angle correction</span>
+                  <span>{t('home.img.step1F2')}</span>
                 </div>
               </div>
             </div>
@@ -581,18 +581,18 @@ export default function Home({ onNavigateVerify }) {
               <div style={styles.pipelineIconBox}>
                 <Cpu size={20} color="#2563EB" />
               </div>
-              <h3 style={styles.pipelineStepTitle}>2. Multi-Layer Analysis</h3>
+              <h3 style={styles.pipelineStepTitle}>{t('home.img.step2Title')}</h3>
               <p style={styles.pipelineStepDesc}>
-                Cross-matches signed QR matrix payload against visual text, runs checksum algorithms, and applies Error Level Analysis (ELA) to detect image alteration.
+                {t('home.img.step2Desc')}
               </p>
               <div style={styles.pipelineFeaturesList}>
                 <div style={styles.pipelineFeaturePoint}>
                   <Check size={14} color="#16A34A" />
-                  <span>QR code cryptographic check</span>
+                  <span>{t('home.img.step2F1')}</span>
                 </div>
                 <div style={styles.pipelineFeaturePoint}>
                   <Check size={14} color="#16A34A" />
-                  <span>Pixel compression anomaly scan</span>
+                  <span>{t('home.img.step2F2')}</span>
                 </div>
               </div>
             </div>
@@ -626,18 +626,18 @@ export default function Home({ onNavigateVerify }) {
               <div style={styles.pipelineIconBox}>
                 <Award size={20} color="#2563EB" />
               </div>
-              <h3 style={styles.pipelineStepTitle}>3. Instant Verdict</h3>
+              <h3 style={styles.pipelineStepTitle}>{t('home.img.step3Title')}</h3>
               <p style={styles.pipelineStepDesc}>
-                Generates a 0–100% Trust Score in seconds with an itemized risk breakdown, forensic flags, and an authoritative compliance summary.
+                {t('home.img.step3Desc')}
               </p>
               <div style={styles.pipelineFeaturesList}>
                 <div style={styles.pipelineFeaturePoint}>
                   <Check size={14} color="#16A34A" />
-                  <span>Clear penalty & confidence metrics</span>
+                  <span>{t('home.img.step3F1')}</span>
                 </div>
                 <div style={styles.pipelineFeaturePoint}>
                   <Check size={14} color="#16A34A" />
-                  <span>Audit-ready certificate report</span>
+                  <span>{t('home.img.step3F2')}</span>
                 </div>
               </div>
             </div>
@@ -669,8 +669,8 @@ export default function Home({ onNavigateVerify }) {
               <Fingerprint size={24} color="#DC2626" />
             </div>
             <div>
-              <div className="docTypeTitle" style={styles.docTypeTitle}>Aadhaar Card</div>
-              <div className="docTypeSub" style={styles.docTypeSub}>Identity Verification</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>{t('home.img.tcAadhaar')}</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>{t('home.img.tcAadhaarSub')}</div>
             </div>
           </div>
 
@@ -684,8 +684,8 @@ export default function Home({ onNavigateVerify }) {
               <CreditCard size={24} color="#8B5CF6" />
             </div>
             <div>
-              <div className="docTypeTitle" style={styles.docTypeTitle}>PAN Card</div>
-              <div className="docTypeSub" style={styles.docTypeSub}>Financial Identity</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>{t('home.img.tcPan')}</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>{t('home.img.tcPanSub')}</div>
             </div>
           </div>
 
@@ -699,8 +699,8 @@ export default function Home({ onNavigateVerify }) {
               <Car size={24} color="#2563EB" />
             </div>
             <div>
-              <div className="docTypeTitle" style={styles.docTypeTitle}>Driving Licence</div>
-              <div className="docTypeSub" style={styles.docTypeSub}>Transport Identity</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>{t('home.img.tcDl')}</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>{t('home.img.tcDlSub')}</div>
             </div>
           </div>
 
@@ -714,8 +714,8 @@ export default function Home({ onNavigateVerify }) {
               <User size={24} color="#A855F7" />
             </div>
             <div>
-              <div className="docTypeTitle" style={styles.docTypeTitle}>Voter ID</div>
-              <div className="docTypeSub" style={styles.docTypeSub}>Electoral Identity</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>{t('home.img.tcVoter')}</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>{t('home.img.tcVoterSub')}</div>
             </div>
           </div>
 
@@ -729,8 +729,8 @@ export default function Home({ onNavigateVerify }) {
               <Globe size={24} color="#F97316" />
             </div>
             <div>
-              <div className="docTypeTitle" style={styles.docTypeTitle}>Passport</div>
-              <div className="docTypeSub" style={styles.docTypeSub}>International Travel</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>{t('home.img.tcPass')}</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>{t('home.img.tcPassSub')}</div>
             </div>
           </div>
 
@@ -744,8 +744,8 @@ export default function Home({ onNavigateVerify }) {
               <FileCheck2 size={24} color="#16A34A" />
             </div>
             <div>
-              <div className="docTypeTitle" style={styles.docTypeTitle}>Degree Certificate</div>
-              <div className="docTypeSub" style={styles.docTypeSub}>Educational Verification</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>{t('home.img.tcDeg')}</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>{t('home.img.tcDegSub')}</div>
             </div>
           </div>
         </div>
@@ -758,8 +758,8 @@ export default function Home({ onNavigateVerify }) {
             <FileText size={18} color="#2563EB" />
           </div>
           <div>
-            <div className="statNumber" style={styles.statNumber}>1M+</div>
-            <div className="statLabel" style={styles.statLabel}>Documents Verified</div>
+            <div className="statNumber" style={styles.statNumber}>{t('home.img.stat1')}</div>
+            <div className="statLabel" style={styles.statLabel}>{t('home.img.stat1L')}</div>
           </div>
         </div>
 
@@ -770,8 +770,8 @@ export default function Home({ onNavigateVerify }) {
             <ShieldCheck size={18} color="#2563EB" />
           </div>
           <div>
-            <div className="statNumber" style={styles.statNumber}>99.8%</div>
-            <div className="statLabel" style={styles.statLabel}>Accuracy Rate</div>
+            <div className="statNumber" style={styles.statNumber}>{t('home.img.stat2')}</div>
+            <div className="statLabel" style={styles.statLabel}>{t('home.img.stat2L')}</div>
           </div>
         </div>
 
@@ -782,8 +782,8 @@ export default function Home({ onNavigateVerify }) {
             <Zap size={18} color="#2563EB" />
           </div>
           <div>
-            <div className="statNumber" style={styles.statNumber}>2.4s</div>
-            <div className="statLabel" style={styles.statLabel}>Avg. Verification Time</div>
+            <div className="statNumber" style={styles.statNumber}>{t('home.img.stat3')}</div>
+            <div className="statLabel" style={styles.statLabel}>{t('home.img.stat3L')}</div>
           </div>
         </div>
 
@@ -794,8 +794,8 @@ export default function Home({ onNavigateVerify }) {
             <ShieldCheck size={18} color="#16A34A" />
           </div>
           <div>
-            <div className="statNumber" style={styles.statNumber}>100%</div>
-            <div className="statLabel" style={styles.statLabel}>Data Secure</div>
+            <div className="statNumber" style={styles.statNumber}>{t('home.img.stat4')}</div>
+            <div className="statLabel" style={styles.statLabel}>{t('home.img.stat4L')}</div>
           </div>
         </div>
 
@@ -809,24 +809,26 @@ export default function Home({ onNavigateVerify }) {
             <div style={{ height: "4px", background: "#138808", borderRadius: "0 0 2px 2px" }} />
           </div>
           <div className="trustText" style={styles.trustText}>
-            Building a Safer Digital India
+            {t('home.img.stat5')}
           </div>
         </div>
       </section>
 
       {/* ================= SECTION B: BEFORE VS AFTER TAMPER DETECTION ================= */}
       <section style={styles.showcaseSection}>
-        <div style={styles.sectionHeader}>
-          <div style={styles.sectionPill}>
-            <ScanLine size={14} color="#2563EB" />
-            <span>AI FORENSIC ENGINE</span>
+        <div className="sectionHeader" style={{...styles.sectionHeader, alignItems: "flex-start"}}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <div style={styles.sectionPill}>
+              <ScanLine size={14} color="#2563EB" />
+              <span>{t('home.img.aiFor')}</span>
+            </div>
+            <h2 className="sectionHeading" style={styles.sectionHeading}>
+              {t('home.img.showcaseTitle')}
+            </h2>
+            <p className="sectionSub" style={styles.sectionSub}>
+              {t('home.img.showcaseSub')}
+            </p>
           </div>
-          <h2 style={styles.sectionTitle}>
-            Interactive Before vs After: Tamper Detection Showcase
-          </h2>
-          <p style={styles.sectionSub}>
-            Drag the interactive slider below to reveal how DocAuth's neural forensic pipeline detects altered fonts, forged dates of birth, and manipulated pixel compression that bypass standard visual checks.
-          </p>
         </div>
 
         {/* Interactive Comparison Stage */}
@@ -834,11 +836,11 @@ export default function Home({ onNavigateVerify }) {
           <div style={styles.sliderHeaderBar}>
             <div style={styles.sliderTagOriginal}>
               <Eye size={14} color="#64748B" />
-              <span>LEFT: Human Eye View (Counterfeit ID)</span>
+              <span>{t('home.img.leftEye')}</span>
             </div>
             <div style={styles.sliderTagAi}>
               <Cpu size={14} color="#2563EB" />
-              <span>RIGHT: AI Tamper Heatmap Overlay </span>
+              <span>{t('home.img.rightHeat')}</span>
             </div>
           </div>
 
@@ -907,7 +909,7 @@ export default function Home({ onNavigateVerify }) {
                 <div style={styles.mockAadhaarTop}>
                   <div style={styles.mockAadhaarEmblem}>🇮🇳</div>
                   <div style={styles.mockAadhaarGov}>
-                    <span style={{ fontWeight: 800, color: "#93C5FD", fontSize: "14px" }}>DOCAUTH FORENSICS</span>
+                    <span style={{ fontWeight: 800, color: "#93C5FD", fontSize: "14px" }}>PramaanSetu FORENSICS</span>
                     <span style={{ fontSize: "11px", color: "#94A3B8" }}>Multi-Layer Neural Analysis</span>
                   </div>
                   <div style={styles.mockDocPillAi}>
@@ -998,23 +1000,23 @@ export default function Home({ onNavigateVerify }) {
           </div>
 
           {/* Feature Highlights beneath slider */}
-          <div style={styles.sliderFootnotes}>
+          <div className="sliderFootnotes" style={styles.sliderFootnotes}>
             <div style={styles.sliderFootItem}>
               <div style={{ ...styles.footDot, background: "#EF4444" }} />
               <div>
-                <strong>Font & Kerning Inconsistency:</strong> Detects altered digits spliced in different typography.
+                <strong>{t('home.img.f1')}</strong> {t('home.img.f1D')}
               </div>
             </div>
             <div style={styles.sliderFootItem}>
               <div style={{ ...styles.footDot, background: "#F59E0B" }} />
               <div>
-                <strong>ELA Pixel Compression:</strong> Spots resampled borders where a new photo was pasted.
+                <strong>{t('home.img.f2')}</strong> {t('home.img.f2D')}
               </div>
             </div>
             <div style={styles.sliderFootItem}>
               <div style={{ ...styles.footDot, background: "#3B82F6" }} />
               <div>
-                <strong>QR Payload vs OCR Cross-Match:</strong> Verifies visual text against digitally signed payload.
+                <strong>{t('home.img.f3')}</strong> {t('home.img.f3D')}
               </div>
             </div>
           </div>
@@ -1023,32 +1025,34 @@ export default function Home({ onNavigateVerify }) {
 
       {/* ================= SECTION C: ENTERPRISE & GOV USE CASES GRID ================= */}
       <section style={styles.useCasesSection}>
-        <div style={styles.sectionHeader}>
-          <div style={styles.sectionPill}>
-            <Award size={14} color="#2563EB" />
-            <span>INDUSTRY APPLICATIONS</span>
+        <div className="sectionHeader" style={{...styles.sectionHeader, alignItems: "flex-start"}}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <div style={styles.sectionPill}>
+              <Award size={14} color="#2563EB" />
+              <span>{t('home.img.indApp')}</span>
+            </div>
+            <h2 className="sectionHeading" style={styles.sectionHeading}>
+              {t('home.img.entUse')}
+            </h2>
+            <p className="sectionSub" style={styles.sectionSub}>
+              {t('home.img.entSub')}
+            </p>
           </div>
-          <h2 style={styles.sectionTitle}>
-            Enterprise & Government Use Cases
-          </h2>
-          <p style={styles.sectionSub}>
-            Designed for high-scale, zero-trust environments requiring instant verification compliance and defense against synthetic identity fraud.
-          </p>
         </div>
 
         <div style={styles.useCasesRowsContainer}>
           {/* Row 1: Fintech & Banking */}
           <UseCaseRow
             reverse={false}
-            badge="FINTECH & BANKING"
+            badge={t('home.img.finBan')}
             badgeBg="#EFF6FF"
             badgeColor="#1E40AF"
             icon={Landmark}
             iconBg="#EFF6FF"
             iconColor="#2563EB"
-            title="Instant KYC Onboarding & Credit Verification"
-            subtitle="Automated API verification across NSDL, UIDAI & RBI Compliance"
-            description="Streamline savings accounts, credit cards, and digital loan approvals in under 3 seconds. DocAuth eliminates synthetic identity fraud, forged salary slips, and altered PAN cards before onboarding."
+            title={t('home.img.kyc')}
+            subtitle={t('home.img.kycSub')}
+            description={t('home.img.kycDesc')}
             features={[
               "2.4s Average Turnaround Time for instant customer KYC clearance",
               "99.8% Synthetic Identity and Tampered Document Prevention",
@@ -1097,23 +1101,23 @@ export default function Home({ onNavigateVerify }) {
           {/* Row 2: HR & Corporate Onboarding */}
           <UseCaseRow
             reverse={true}
-            badge="HR & CORPORATE TECH"
+            badge={t('home.more.hrBadge')}
             badgeBg="#DCFCE7"
             badgeColor="#166534"
             icon={Briefcase}
             iconBg="#F0FDF4"
             iconColor="#16A34A"
-            title="Workforce Identity & Background Screening"
-            subtitle="Eliminate Candidate Impersonation & Moonlighting in Bulk Hiring"
-            description="Accelerate enterprise hiring cycles without compromising security. Automatically verify educational degrees, past employer PF records, and Aadhaar/PAN credentials with zero impersonation risks."
+            title={t('home.more.hrTitle')}
+            subtitle={t('home.more.hrSub')}
+            description={t('home.more.hrDesc')}
             features={[
-              "10x Faster Hiring Cycles from job offer to successful joining day",
-              "EPFO Dual Employment Scan to spot unauthorized moonlighting",
-              "National Academic Depository (NAD) integration for degree checks",
-              "Automated candidate dossier generation for HR audits"
+              t('home.more.hrF1'),
+              t('home.more.hrF2'),
+              t('home.more.hrF3'),
+              t('home.more.hrF4')
             ]}
-            stat="Zero Fraud"
-            statLabel="100% Pre-employment regulatory and identity compliance verified"
+            stat={t('home.more.hrStat')}
+            statLabel={t('home.more.hrStatL')}
             renderVisual={() => (
               <div style={styles.hrMockCard}>
                 <div style={styles.hrCardHeader}>
@@ -1162,23 +1166,23 @@ export default function Home({ onNavigateVerify }) {
           {/* Row 3: Law Enforcement & RTOs */}
           <UseCaseRow
             reverse={false}
-            badge="GOV & TRANSPORTATION"
+            badge={t('home.more.govBadge')}
             badgeBg="#FEF3C7"
             badgeColor="#92400E"
             icon={Car}
             iconBg="#FEF3C7"
             iconColor="#D97706"
-            title="On-The-Spot Driving Licence & RC Validation"
-            subtitle="Direct Roadside Parivahan & Sarathi Highway Integration"
-            description="Empower traffic police officers, checkpoint squads, and transit authorities to instantly validate driver credentials and vehicle registration certificates using high-precision mobile OCR."
+            title={t('home.more.govTitle')}
+            subtitle={t('home.more.govSub')}
+            description={t('home.more.govDesc')}
             features={[
-              "Sub-Second Parivahan & Sarathi Government Database Query",
-              "Instant optical recognition of faded, laminated, or smart DLs",
-              "Real-time identification of suspended, fake, or cloned licenses",
-              "Instant pending challan and vehicle registration status check"
+              t('home.more.govF1'),
+              t('home.more.govF2'),
+              t('home.more.govF3'),
+              t('home.more.govF4')
             ]}
-            stat="Real-Time"
-            statLabel="Sarathi & Parivahan API integration for instant highway verification"
+            stat={t('home.more.govStat')}
+            statLabel={t('home.more.govStatL')}
             renderVisual={() => (
               <div style={styles.rtoMockCard}>
                 <div style={styles.rtoCardHeader}>
@@ -1225,23 +1229,23 @@ export default function Home({ onNavigateVerify }) {
           {/* Row 4: Universities & Examinations */}
           <UseCaseRow
             reverse={true}
-            badge="EDUCATION & EXAMS"
+            badge={t('home.more.eduBadge')}
             badgeBg="#F3E8FF"
             badgeColor="#6B21A8"
             icon={GraduationCap}
             iconBg="#F3E8FF"
             iconColor="#9333EA"
-            title="Hall Ticket & Examination Impersonation Defense"
-            subtitle="Biometric Admit Card & Proxy Candidate Prevention at Gate"
-            description="Protect the integrity of national competitive exams like UPSC, JEE, NEET, and GATE. Prevent proxy examinees and fraudulent hall tickets through cryptographic QR validation and real-time facial comparison."
+            title={t('home.more.eduTitle')}
+            subtitle={t('home.more.eduSub')}
+            description={t('home.more.eduDesc')}
             features={[
-              "Offline-capable encrypted QR decryption for centers with low network",
-              "Biometric 1:1 face matching between application photo and candidate",
-              "Cryptographic anti-tampering seal verification on printed admit cards",
-              "Automated attendance audit trail with zero proxy tolerance"
+              t('home.more.eduF1'),
+              t('home.more.eduF2'),
+              t('home.more.eduF3'),
+              t('home.more.eduF4')
             ]}
-            stat="100% Traceable"
-            statLabel="Offline QR + Facial cross-match to stop proxy test-takers"
+            stat={t('home.more.eduStat')}
+            statLabel={t('home.more.eduStatL')}
             renderVisual={() => (
               <div style={styles.examMockCard}>
                 <div style={styles.examHeader}>
@@ -1295,20 +1299,20 @@ export default function Home({ onNavigateVerify }) {
             <div style={styles.complianceTitleGroup}>
               <ShieldCheck size={26} color="#2563EB" />
               <div>
-                <h3 style={styles.complianceTitle}>Enterprise Security & Regulatory Compliance</h3>
-                <p style={styles.complianceSub}>DocAuth complies with Indian data sovereignty and global cryptographic security baselines.</p>
+                <h3 style={styles.complianceTitle}>{t('home.more.secTitle')}</h3>
+                <p style={styles.complianceSub}>{t('home.more.secSub')}</p>
               </div>
             </div>
           </div>
 
-          <div style={styles.complianceBadgesGrid}>
+          <div className="complianceBadgesGrid" style={styles.complianceBadgesGrid}>
             <div style={styles.complianceBadgeCard}>
               <div style={styles.complianceBadgeIcon}>
                 <Lock size={20} color="#2563EB" />
               </div>
               <div>
-                <div style={styles.complianceBadgeName}>ISO 27001 Ready</div>
-                <div style={styles.complianceBadgeDesc}>Information Security Management Certified Architecture</div>
+                <div style={styles.complianceBadgeName}>{t('home.more.sec1T')}</div>
+                <div style={styles.complianceBadgeDesc}>{t('home.more.sec1D')}</div>
               </div>
             </div>
 
@@ -1317,8 +1321,8 @@ export default function Home({ onNavigateVerify }) {
                 <Shield size={20} color="#059669" />
               </div>
               <div>
-                <div style={styles.complianceBadgeName}>AES-256 Bit Encryption</div>
-                <div style={styles.complianceBadgeDesc}>Military-Grade Cryptography for Data in Transit & Rest</div>
+                <div style={styles.complianceBadgeName}>{t('home.more.sec2T')}</div>
+                <div style={styles.complianceBadgeDesc}>{t('home.more.sec2D')}</div>
               </div>
             </div>
 
@@ -1327,8 +1331,8 @@ export default function Home({ onNavigateVerify }) {
                 <Award size={20} color="#D97706" />
               </div>
               <div>
-                <div style={styles.complianceBadgeName}>DPDP Act 2023 Aligned</div>
-                <div style={styles.complianceBadgeDesc}>India Digital Personal Data Protection Act Strict Compliance</div>
+                <div style={styles.complianceBadgeName}>{t('home.more.sec3T')}</div>
+                <div style={styles.complianceBadgeDesc}>{t('home.more.sec3D')}</div>
               </div>
             </div>
 
@@ -1337,8 +1341,8 @@ export default function Home({ onNavigateVerify }) {
                 <Fingerprint size={20} color="#7C3AED" />
               </div>
               <div>
-                <div style={styles.complianceBadgeName}>Zero Permanent Storage</div>
-                <div style={styles.complianceBadgeDesc}>Ephemeral memory processing with automated session shredding</div>
+                <div style={styles.complianceBadgeName}>{t('home.more.sec4T')}</div>
+                <div style={styles.complianceBadgeDesc}>{t('home.more.sec4D')}</div>
               </div>
             </div>
           </div>
@@ -1349,7 +1353,7 @@ export default function Home({ onNavigateVerify }) {
           <div className="modalContent" style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className="modalHeader" style={styles.modalHeader}>
               <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0F172A" }}>
-                DocAuth India Demo Walkthrough
+                {t('home.modal.title')}
               </h3>
               <button className="closeBtn" style={styles.closeBtn} onClick={() => setShowDemoModal(false)}>
                 <X size={20} color="#64748B" />
@@ -1357,16 +1361,16 @@ export default function Home({ onNavigateVerify }) {
             </div>
             <div className="modalBody" style={styles.modalBody}>
               <p style={{ color: "#64748B", lineHeight: 1.6, marginBottom: "16px" }}>
-                DocAuth India executes a 7-stage automated pipeline:
+                {t('home.modal.subtitle')}
               </p>
               <ol style={{ paddingLeft: "20px", color: "#0F172A", lineHeight: 1.8, fontSize: "0.95rem" }}>
-                <li><strong>Document Ingestion:</strong> Multiformat image/PDF support with preprocessing.</li>
-                <li><strong>Tesseract OCR:</strong> Optical extraction of PAN, DL, DOB, and Names.</li>
-                <li><strong>Format & Checksum:</strong> Algorithmic validation (PAN regex, DL State codes).</li>
-                <li><strong>QR Matrix Code Match:</strong> Extracts embedded signed payload and compares with visual OCR.</li>
-                <li><strong>Error Level Analysis (ELA):</strong> Scans pixel compression anomalies to detect alterations.</li>
-                <li><strong>Authoritative Registry:</strong> Simulates lookup against DigiLocker, NSDL & Parivahan API.</li>
-                <li><strong>Risk Score Engine:</strong> Computes 0-100 authenticity score with penalty breakdown.</li>
+                <li><strong>{t('home.modal.s1T')}</strong> {t('home.modal.s1D')}</li>
+                <li><strong>{t('home.modal.s2T')}</strong> {t('home.modal.s2D')}</li>
+                <li><strong>{t('home.modal.s3T')}</strong> {t('home.modal.s3D')}</li>
+                <li><strong>{t('home.modal.s4T')}</strong> {t('home.modal.s4D')}</li>
+                <li><strong>{t('home.modal.s5T')}</strong> {t('home.modal.s5D')}</li>
+                <li><strong>{t('home.modal.s6T')}</strong> {t('home.modal.s6D')}</li>
+                <li><strong>{t('home.modal.s7T')}</strong> {t('home.modal.s7D')}</li>
               </ol>
               <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
                 <button
@@ -1376,7 +1380,7 @@ export default function Home({ onNavigateVerify }) {
                     onNavigateVerify();
                   }}
                 >
-                  <span>Launch Live Verification</span>
+                  <span>{t('home.modal.btn')}</span>
                   <ArrowRight size={16} />
                 </button>
               </div>
