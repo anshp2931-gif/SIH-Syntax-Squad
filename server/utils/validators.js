@@ -320,7 +320,45 @@ export function validateBirthCertificate(registrationNumber) {
 }
 
 /**
- * Universal router validating any of the 10 Indian Document Types
+ * 11. Indian Visa Validation
+ */
+export function validateVisa(visaNumber, passportNumber) {
+  if (!visaNumber || typeof visaNumber !== "string" || visaNumber === "NOT_DETECTED") {
+    return { valid: false, reason: "Visa number missing from document" };
+  }
+
+  const cleanVisa = visaNumber.replace(/[\s-]/g, "").toUpperCase();
+  const isValidPattern = /^[A-Z0-9]{7,14}$/.test(cleanVisa);
+
+  return {
+    valid: isValidPattern,
+    visaNumber: cleanVisa,
+    checks: { patternValid: isValidPattern },
+    reason: isValidPattern ? null : "Visa number format invalid"
+  };
+}
+
+/**
+ * 12. Transport / Commercial Vehicle Permit Validation
+ */
+export function validatePermit(permitNumber, vehicleNumber) {
+  if (!permitNumber || typeof permitNumber !== "string" || permitNumber === "NOT_DETECTED") {
+    return { valid: false, reason: "Permit number missing from document" };
+  }
+
+  const cleanPermit = permitNumber.replace(/[\s-]/g, "").toUpperCase();
+  const isValidPattern = cleanPermit.length >= 6 && cleanPermit.length <= 24;
+
+  return {
+    valid: isValidPattern,
+    permitNumber: cleanPermit,
+    checks: { patternValid: isValidPattern },
+    reason: isValidPattern ? null : "Permit number format invalid"
+  };
+}
+
+/**
+ * Universal router validating any of the Indian Document Types
  */
 export function validateDocument(documentType, extractedData = {}) {
   switch (documentType) {
@@ -334,6 +372,10 @@ export function validateDocument(documentType, extractedData = {}) {
       return validateVoterID(extractedData.epicNumber);
     case "PASSPORT":
       return validatePassport(extractedData.passportNumber);
+    case "VISA":
+      return validateVisa(extractedData.visaNumber, extractedData.passportNumber);
+    case "PERMIT":
+      return validatePermit(extractedData.permitNumber, extractedData.vehicleNumber);
     case "VEHICLE_RC":
       return validateVehicleRC(extractedData.vehicleNumber || extractedData.regNumber);
     case "GSTIN":
@@ -348,3 +390,4 @@ export function validateDocument(documentType, extractedData = {}) {
       return { valid: false, reason: `Unsupported document type: ${documentType}` };
   }
 }
+

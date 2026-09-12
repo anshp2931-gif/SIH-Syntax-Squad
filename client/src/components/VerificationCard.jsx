@@ -1,15 +1,38 @@
 import React, { useState } from "react";
-import { CheckCircle2, XCircle, AlertCircle, Download, ShieldCheck, FileText, Cpu, Eye } from "lucide-react";
+import { CheckCircle2, XCircle, Download, ShieldCheck, FileText, Cpu, Eye } from "lucide-react";
 import ResultBadge from "./ResultBadge";
+
+function formatDocName(type) {
+  const map = {
+    PAN: "Indian PAN Card",
+    AADHAAR: "Aadhaar Card (UIDAI)",
+    DRIVING_LICENSE: "Indian Driving Licence",
+    PASSPORT: "Indian Passport",
+    VISA: "Indian Visa / e-Visa",
+    PERMIT: "Commercial Transport Permit",
+    VOTER_ID: "Voter ID Card (EPIC)",
+    VEHICLE_RC: "Vehicle Registration Certificate (RC)",
+    GSTIN: "GSTIN Certificate",
+    RATION_CARD: "Ration Card (NFSA / PDS)",
+    DEGREE_CERTIFICATE: "Degree Certificate / Marksheet",
+    BIRTH_CERTIFICATE: "Birth Certificate (CRS)",
+    UNSUPPORTED: "Unsupported Document",
+    UNKNOWN: "Unknown Document"
+  };
+  return map[type] || type || "Unknown Document";
+}
 
 export default function VerificationCard({ result }) {
   const [activeTab, setActiveTab] = useState("overview");
 
   if (!result) return null;
 
+  const dataObj = result.data ? result.data : result;
   const {
     verificationId = "DV-UNKNOWN",
     documentType = "UNKNOWN",
+    detectedType = result.detectedType || null,
+    detectionConfidence = result.detectionConfidence || null,
     status = "UNVERIFIED",
     riskScore = 0,
     originalityScore,
@@ -18,7 +41,7 @@ export default function VerificationCard({ result }) {
     tamperDetails = {},
     issuerDetails = {},
     penalties = []
-  } = result.data ? result.data : result;
+  } = dataObj;
 
   const displayOriginalityScore = originalityScore !== undefined ? originalityScore : Math.max(0, 100 - riskScore);
 
@@ -30,8 +53,13 @@ export default function VerificationCard({ result }) {
 
   const scoreColor = getOriginalityColor(displayOriginalityScore);
 
+  const effectiveDetected = detectedType || documentType;
   const checksList = [
-    { key: "documentType", label: "1. Document Type Detection", pass: checks.documentType },
+    { 
+      key: "documentType", 
+      label: `1. Document Type Detection (${formatDocName(effectiveDetected)}${detectionConfidence ? ` • ${detectionConfidence}%` : ""})`, 
+      pass: checks.documentType !== false 
+    },
     { key: "ocr", label: "2. OCR / Data Extraction", pass: checks.ocr },
     { key: "format", label: "3. Format & Algorithmic Checksum", pass: checks.format },
     { key: "qr", label: "4. QR Code Security Match", pass: checks.qr },
@@ -96,18 +124,29 @@ export default function VerificationCard({ result }) {
 
         {/* Document Classification */}
         <div className="infoBox" style={styles.infoBox}>
-          <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
-            DOCUMENT TYPE
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
+              DOCUMENT TYPE
+            </span>
+            {detectionConfidence ? (
+              <span style={{
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                color: "#16A34A",
+                background: "#ECFDF5",
+                padding: "2px 8px",
+                borderRadius: "9999px",
+                border: "1px solid #A7F3D0"
+              }}>
+                {detectionConfidence}% Match
+              </span>
+            ) : null}
           </div>
           <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
-            {documentType === "PAN"
-              ? "Indian PAN Card"
-              : documentType === "DRIVING_LICENSE"
-              ? "Indian Driving Licence"
-              : documentType}
+            {formatDocName(documentType)}
           </div>
           <div style={{ fontSize: "0.82rem", color: "#64748B", marginTop: "4px" }}>
-            Issuer: {issuerDetails?.issuer || "Govt. of India / Authoritative Portal"}
+            Detected: <strong>{formatDocName(effectiveDetected)}</strong> • {issuerDetails?.issuer || "Govt. of India"}
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import History from "./pages/History";
 import Login from "./pages/Login";
+import Overview from "./pages/Overview";
 
 export default function App() {
   const navigate = useNavigate();
@@ -57,6 +58,15 @@ export default function App() {
           <Route path="/" element={<Home onNavigateVerify={() => navigate("/verify")} />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/history" element={<History />} />
+          <Route 
+            path="/overview" 
+            element={
+              <Overview 
+                onNavigateVerify={() => navigate("/verify")}
+                onNavigateHistory={() => navigate("/history")}
+              />
+            } 
+          />
           <Route 
             path="/login" 
             element={

@@ -1,6 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
+  /* DocAuth Verification Desk Dark Design Tokens */
+  --da-ink: #0A0E17;
+  --da-ink-surface: #111726;
+  --da-ink-raised: #182032;
+  --da-ink-muted: #1E293B;
+  --da-teal: #14B8A6;
+  --da-teal-dim: rgba(20, 184, 166, 0.12);
+  --da-teal-border: rgba(20, 184, 166, 0.35);
+  --da-amber: #F59E0B;
+  --da-amber-dim: rgba(245, 158, 11, 0.12);
+  --da-amber-border: rgba(245, 158, 11, 0.35);
+  --da-rose: #F43F5E;
+  --da-rose-dim: rgba(244, 63, 94, 0.12);
+  --da-border: rgba(255, 255, 255, 0.08);
+  --da-border-strong: rgba(255, 255, 255, 0.14);
+  --da-text: #E2E8F0;
+  --da-text-muted: #94A3B8;
+  --da-text-faint: #64748B;
+  --da-font-serif: 'Fraunces', Georgia, serif;
+  --da-font-sans: 'Inter', system-ui, sans-serif;
+  --da-font-mono: 'JetBrains Mono', monospace;
+
+  /* Canonical DocAuth Design System Tokens */
+  --color-primary: #2563EB;
+  --color-primary-soft: #EFF6FF;
+  --color-heading: #0F172A;
+  --color-text: #334155;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
+  --color-surface: #FFFFFF;
+  --color-page: #F8FAFC;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+
   /* Primary Colors */
   --primary-blue: #2563EB;
   --light-blue: #60A5FA;
@@ -320,4 +355,58 @@ p, .body-text {
   transform: translateX(0) scale(1) !important;
 }
 
+/* DocAuth Verification Desk Shared Button & Focus Treatments */
+.da-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background-color: var(--da-teal);
+  color: #0A0E17;
+  font-family: var(--da-font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
 
+.da-btn-primary:hover {
+  background-color: #2DD4BF;
+  box-shadow: 0 4px 14px rgba(20, 184, 166, 0.3);
+}
+
+.da-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--da-text);
+  font-family: var(--da-font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--da-border-strong);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.da-btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #FFFFFF;
+}
+
+/* Keyboard focus treatment matching --da-focus */
+.da-btn-primary:focus-visible,
+.da-btn-secondary:focus-visible,
+.da-focus-target:focus-visible {
+  outline: 2px solid var(--da-teal);
+  outline-offset: 3px;
+}

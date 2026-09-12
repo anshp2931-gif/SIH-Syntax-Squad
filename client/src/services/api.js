@@ -1,12 +1,35 @@
 const API_BASE_URL = "http://localhost:5000/api";
 
 /**
+ * Detects document type and checks for category mismatch
+ */
+export async function detectDocumentApi(file, selectedType = null) {
+  const formData = new FormData();
+  formData.append("document", file);
+  if (selectedType && selectedType !== "AUTO") {
+    formData.append("selectedType", selectedType);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/verification/detect`, {
+    method: "POST",
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Server responded with error status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Uploads document image file to backend verification API
  */
 export async function verifyDocumentApi(file, forcedType = null, manualNumber = "") {
   const formData = new FormData();
   formData.append("document", file);
-  if (forcedType) {
+  if (forcedType && forcedType !== "AUTO") {
     formData.append("forcedType", forcedType);
   }
   if (manualNumber && manualNumber.trim()) {
@@ -22,6 +45,10 @@ export async function verifyDocumentApi(file, forcedType = null, manualNumber = 
       overrideObj = { epicNumber: cleanNum };
     } else if (forcedType === "PASSPORT") {
       overrideObj = { passportNumber: cleanNum };
+    } else if (forcedType === "VISA") {
+      overrideObj = { visaNumber: cleanNum };
+    } else if (forcedType === "PERMIT") {
+      overrideObj = { permitNumber: cleanNum };
     } else if (forcedType === "VEHICLE_RC") {
       overrideObj = { vehicleNumber: cleanNum };
     } else if (forcedType === "GSTIN") {
