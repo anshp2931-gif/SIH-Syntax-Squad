@@ -191,20 +191,28 @@ export default function VerificationCard({ result }) {
       {/* TAB CONTENT: Extracted Data */}
       {activeTab === "extracted" && (
         <div className="tabContent" style={styles.tabContent}>
-          <table className="dataTable" style={styles.dataTable}>
-            <tbody>
-              {Object.entries(extractedData).map(([key, val]) => (
-                <tr key={key} className="tableRow" style={styles.tableRow}>
-                  <td className="tableKey" style={styles.tableKey}>
-                    {key.replace(/([A-Z])/g, " $1").toUpperCase()}
-                  </td>
-                  <td className="tableVal code-font" style={styles.tableVal}>
-                    {typeof val === "object" ? JSON.stringify(val) : String(val)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {Object.entries(extractedData).filter(([_, val]) => val && val !== "NOT_DETECTED" && val !== "NOT_SPECIFIED" && val !== "UNKNOWN").length > 0 ? (
+            <table className="dataTable" style={styles.dataTable}>
+              <tbody>
+                {Object.entries(extractedData)
+                  .filter(([_, val]) => val && val !== "NOT_DETECTED" && val !== "NOT_SPECIFIED" && val !== "UNKNOWN")
+                  .map(([key, val]) => (
+                    <tr key={key} className="tableRow" style={styles.tableRow}>
+                      <td className="tableKey" style={styles.tableKey}>
+                        {key.replace(/([A-Z])/g, " $1").toUpperCase()}
+                      </td>
+                      <td className="tableVal code-font" style={styles.tableVal}>
+                        {typeof val === "object" ? JSON.stringify(val) : String(val)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ padding: "24px", textAlign: "center", color: "#64748B", fontSize: "0.9rem" }}>
+              Only high-confidence verified fields are displayed. No uncertain fields were extracted from this document.
+            </div>
+          )}
         </div>
       )}
 
