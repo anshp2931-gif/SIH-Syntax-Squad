@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import History from "./pages/History";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("home");
+  const navigate = useNavigate();
 
   return (
     <div className="app-container">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar />
 
       <main style={{ flex: 1 }}>
-        {activeTab === "home" && <Home onNavigateVerify={() => setActiveTab("verify")} />}
-        {activeTab === "verify" && <Verify />}
-        {activeTab === "history" && <History />}
-        {activeTab === "overview" && <Home onNavigateVerify={() => setActiveTab("verify")} />}
+        <Routes>
+          <Route path="/" element={<Home onNavigateVerify={() => navigate("/verify")} />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/history" element={<History />} />
+        </Routes>
       </main>
 
       <footer style={styles.footer}>
