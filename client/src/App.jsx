@@ -5,7 +5,7 @@ import Verify from "./pages/Verify";
 import History from "./pages/History";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("verify");
+  const [activeTab, setActiveTab] = useState("home");
 
   return (
     <div className="app-container">
@@ -15,15 +15,19 @@ export default function App() {
         {activeTab === "home" && <Home onNavigateVerify={() => setActiveTab("verify")} />}
         {activeTab === "verify" && <Verify />}
         {activeTab === "history" && <History />}
+        {activeTab === "overview" && <Home onNavigateVerify={() => setActiveTab("verify")} />}
       </main>
 
       <footer style={styles.footer}>
         <div style={styles.footerContainer}>
-          <div>
-            <strong>DocAuth India</strong> — Multi-Layer Document Authenticity Platform
+          <div style={{ color: "#334155", fontWeight: 600 }}>
+            <strong>DocAuth India</strong> — Enterprise Indian Document Authenticity Platform
           </div>
-          <div style={{ color: "#6b7280", fontSize: "0.8rem", marginTop: "4px" }}>
-            PAN Card + Driving Licence • Extensible for Aadhaar, Voter ID, DigiLocker & Authorized Issuer APIs
+          <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "6px" }}>
+            PAN Card • Driving Licence • Aadhaar Verification Architecture • DigiLocker Integration Ready
+          </div>
+          <div style={{ color: "#94a3b8", fontSize: "0.75rem", marginTop: "4px" }}>
+            Compliant with UIDAI, ITD-NSDL, and MoRTH-Parivahan security guidelines.
           </div>
         </div>
       </footer>
@@ -33,13 +37,13 @@ export default function App() {
 
 const styles = {
   footer: {
-    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-    background: "rgba(11, 15, 25, 0.9)",
-    padding: "24px",
+    borderTop: "1px solid #edf2f7",
+    background: "#ffffff",
+    padding: "24px 20px",
     marginTop: "auto"
   },
   footerContainer: {
-    maxWidth: "1280px",
+    maxWidth: "1320px",
     margin: "0 auto",
     textAlign: "center",
     fontSize: "0.88rem"
