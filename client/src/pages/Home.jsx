@@ -1,27 +1,117 @@
-import React, { useState, useEffect } from "react";
-import {
-  Shield,
-  Zap,
-  Lock,
-  Cloud,
-  ArrowRight,
-  PlayCircle,
-  Fingerprint,
-  CreditCard,
-  Car,
-  User,
-  Globe,
-  FileCheck2,
-  FileText,
-  ShieldCheck,
-  CheckCircle2,
-  UploadCloud,
-  X
-} from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import {Shield,Zap,Lock,Cloud,ArrowRight,PlayCircle,Fingerprint,CreditCard,Car,User,Globe,FileCheck2,FileText,ShieldCheck,CheckCircle2,UploadCloud,X,ScanLine,Cpu,Award,Sparkles,Check,Landmark,Briefcase,GraduationCap,AlertTriangle,Eye,ShieldAlert,BadgeCheck,FileWarning} from "lucide-react";
+
+function UseCaseRow({
+  reverse = false,
+  badge,
+  badgeBg,
+  badgeColor,
+  icon: IconComponent,
+  iconBg,
+  iconColor,
+  title,
+  subtitle,
+  description,
+  features = [],
+  stat,
+  statLabel,
+  renderVisual,
+}) {
+  const [inView, setInView] = useState(false);
+  const rowRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -70px 0px" }
+    );
+
+    if (rowRef.current) {
+      observer.observe(rowRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={rowRef}
+      style={{
+        ...styles.useCaseRow,
+        flexDirection: reverse ? "row-reverse" : "row",
+      }}
+    >
+      {/* Text Column */}
+      <div style={styles.useCaseTextCol}>
+        <div style={styles.useCaseTopRow}>
+          <div style={{ ...styles.useCaseIconBox, background: iconBg, color: iconColor }}>
+            <IconComponent size={22} />
+          </div>
+          <span style={{ ...styles.useCaseBadge, background: badgeBg, color: badgeColor }}>
+            {badge}
+          </span>
+        </div>
+        <h3 style={styles.useCaseRowTitle}>{title}</h3>
+        {subtitle && <p style={styles.useCaseRowSub}>{subtitle}</p>}
+        <p style={styles.useCaseRowDesc}>{description}</p>
+
+        {/* Feature checklist */}
+        <div style={styles.useCaseFeaturesList}>
+          {features.map((feat, i) => (
+            <div key={i} style={styles.useCaseFeatureItem}>
+              <div style={styles.useCaseCheckIcon}>
+                <Check size={14} color="#16A34A" />
+              </div>
+              <span style={styles.useCaseFeatureText}>{feat}</span>
+            </div>
+          ))}
+        </div>
+
+        <div style={styles.useCaseMetricStrip}>
+          <div>
+            <div style={styles.useCaseMetricVal}>{stat}</div>
+            <div style={styles.useCaseMetricLabel}>{statLabel}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Visual Image/Mockup Column with sliding animation */}
+      <div
+        className={`use-case-visual ${
+          inView
+            ? "slide-visible"
+            : reverse
+            ? "slide-hidden-left"
+            : "slide-hidden-right"
+        }`}
+        style={styles.useCaseVisualCol}
+      >
+        {renderVisual()}
+      </div>
+    </div>
+  );
+}
 
 export default function Home({ onNavigateVerify }) {
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [activeCard, setActiveCard] = useState(0);
+  const [sliderPos, setSliderPos] = useState(50);
+  const [quickCheckSample, setQuickCheckSample] = useState(null);
+  const [quickCheckLoading, setQuickCheckLoading] = useState(false);
+
+  const handleQuickCheck = (type) => {
+    if (quickCheckSample === type) {
+      setQuickCheckSample(null);
+      return;
+    }
+    setQuickCheckLoading(true);
+    setQuickCheckSample(null);
+    setTimeout(() => {
+      setQuickCheckLoading(false);
+      setQuickCheckSample(type);
+    }, 450);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -116,6 +206,106 @@ export default function Home({ onNavigateVerify }) {
               <PlayCircle size={20} color="#2563EB" />
               <span>Watch Demo</span>
             </button>
+          </div>
+
+          {/* Section E: Interactive Live Quick-Check Widget (Hero Teaser) */}
+          <div style={styles.quickCheckCard}>
+            <div style={styles.quickCheckHeader}>
+              <div style={styles.quickCheckLabel}>
+                <Sparkles size={14} color="#2563EB" />
+                <span>TRY A LIVE SAMPLE TEASER</span>
+              </div>
+              <span style={styles.quickCheckSub}>Instant 1-click preview</span>
+            </div>
+
+            <div style={styles.quickCheckBtnRow}>
+              <button
+                type="button"
+                style={{
+                  ...styles.quickSampleBtn,
+                  ...(quickCheckSample === "clean" ? styles.quickSampleBtnActiveClean : {}),
+                }}
+                onClick={() => handleQuickCheck("clean")}
+              >
+                <BadgeCheck size={16} color="#059669" />
+                <div style={{ textAlign: "left" }}>
+                  <div style={styles.quickBtnTitle}>Clean Document</div>
+                  <div style={styles.quickBtnDesc}>Valid PAN • Passed 100%</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  ...styles.quickSampleBtn,
+                  ...(quickCheckSample === "forged" ? styles.quickSampleBtnActiveForged : {}),
+                }}
+                onClick={() => handleQuickCheck("forged")}
+              >
+                <ShieldAlert size={16} color="#DC2626" />
+                <div style={{ textAlign: "left" }}>
+                  <div style={styles.quickBtnTitle}>Forged Document</div>
+                  <div style={styles.quickBtnDesc}>Altered Aadhaar • Tampered</div>
+                </div>
+              </button>
+            </div>
+
+            {quickCheckLoading && (
+              <div style={styles.quickLoadingBox}>
+                <div style={styles.quickSpinner} />
+                <span>Running multi-layer verification checks...</span>
+              </div>
+            )}
+
+            {quickCheckSample === "clean" && !quickCheckLoading && (
+              <div style={styles.quickResultClean}>
+                <div style={styles.quickResultTop}>
+                  <div style={styles.quickResultBadgeClean}>
+                    <CheckCircle2 size={15} color="#059669" />
+                    <span>AUTHENTIC VERIFIED • 98% SCORE</span>
+                  </div>
+                  <span style={styles.quickResultDocType}>NSDL / Income Tax Validated</span>
+                </div>
+                <div style={styles.quickResultSpecs}>
+                  <span>✓ Checksum: Matches algorithmic PAN hash</span>
+                  <span>✓ ELA Tamper: Clean uniform pixel noise</span>
+                  <span>✓ QR Code: Cryptographic signature verified</span>
+                </div>
+                <button
+                  type="button"
+                  style={styles.quickTryFullBtn}
+                  onClick={onNavigateVerify}
+                >
+                  <span>Test with your own document</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            )}
+
+            {quickCheckSample === "forged" && !quickCheckLoading && (
+              <div style={styles.quickResultForged}>
+                <div style={styles.quickResultTop}>
+                  <div style={styles.quickResultBadgeForged}>
+                    <AlertTriangle size={15} color="#DC2626" />
+                    <span>HIGH RISK FRAUD DETECTED • 24% SCORE</span>
+                  </div>
+                  <span style={styles.quickResultDocType}>UIDAI Pattern Failure</span>
+                </div>
+                <div style={styles.quickResultSpecsForged}>
+                  <span>✗ Font Alteration: Non-standard typeface in DOB</span>
+                  <span>✗ ELA Tamper: Resampling anomaly around photo</span>
+                  <span>✗ QR Mismatch: Encrypted payload hash mismatch</span>
+                </div>
+                <button
+                  type="button"
+                  style={styles.quickInspectBtn}
+                  onClick={onNavigateVerify}
+                >
+                  <span>Open Full Forensics Suite</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -297,6 +487,162 @@ export default function Home({ onNavigateVerify }) {
         </div>
       </section>
 
+      {/* ================= HOW IT WORKS: 3-STEP PIPELINE ================= */}
+      <section style={styles.pipelineSection}>
+        <div style={styles.pipelineHeader}>
+          <div style={styles.pipelineBadge}>
+            <Sparkles size={14} color="#2563EB" />
+            <span>Seamless AI Pipeline</span>
+          </div>
+          <h2 style={styles.pipelineHeading}>How It Works</h2>
+          <p style={styles.pipelineSub}>
+            Verify any Indian government document in 3 transparent, automated steps powered by neural OCR and forensic tamper detection.
+          </p>
+        </div>
+
+        <div style={styles.pipelineGrid}>
+          {/* STEP 1 */}
+          <div style={styles.pipelineCard} className="glass-card">
+            <div style={styles.pipelineStepNumber}>01</div>
+            
+            {/* Step Mockup Illustration */}
+            <div style={styles.pipelineMockup}>
+              <div style={styles.mockupCardTop}>
+                <div style={styles.mockupDotRed} />
+                <div style={styles.mockupDotYellow} />
+                <div style={styles.mockupDotGreen} />
+                <span style={styles.mockupFilename}>document_upload.pdf</span>
+              </div>
+              <div style={styles.mockupUploadArea}>
+                <UploadCloud size={28} color="#2563EB" />
+                <span style={styles.mockupUploadText}>Aadhaar / PAN / DL / Passport</span>
+                <div style={styles.mockupBadgesRow}>
+                  <span style={styles.mockupPill}>Auto-Detect</span>
+                  <span style={styles.mockupPill}>Tesseract OCR</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.pipelineContent}>
+              <div style={styles.pipelineIconBox}>
+                <ScanLine size={20} color="#2563EB" />
+              </div>
+              <h3 style={styles.pipelineStepTitle}>1. Upload & Extract</h3>
+              <p style={styles.pipelineStepDesc}>
+                Drag & drop Aadhaar, PAN, DL, or Passport in PDF/JPG format. High-precision Tesseract OCR auto-detects fields, names, DOB, and document numbers.
+              </p>
+              <div style={styles.pipelineFeaturesList}>
+                <div style={styles.pipelineFeaturePoint}>
+                  <Check size={14} color="#16A34A" />
+                  <span>Optical character auto-extraction</span>
+                </div>
+                <div style={styles.pipelineFeaturePoint}>
+                  <Check size={14} color="#16A34A" />
+                  <span>Perspective & angle correction</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 2 */}
+          <div style={styles.pipelineCard} className="glass-card">
+            <div style={styles.pipelineStepNumber}>02</div>
+
+            {/* Step Mockup Illustration */}
+            <div style={styles.pipelineMockup}>
+              <div style={styles.mockupCardTop}>
+                <div style={styles.mockupDotRed} />
+                <div style={styles.mockupDotYellow} />
+                <div style={styles.mockupDotGreen} />
+                <span style={styles.mockupFilename}>neural_analysis.engine</span>
+              </div>
+              <div style={styles.mockupScanArea}>
+                <div style={styles.mockupGridLines}>
+                  <div style={styles.mockupScanLaser} />
+                  <div style={styles.mockupAnalyzeItem}>
+                    <span style={{ color: "#2563EB", fontWeight: 700 }}>QR Payload:</span>
+                    <span style={{ color: "#16A34A", fontWeight: 600 }}>Decoded & Matched</span>
+                  </div>
+                  <div style={styles.mockupAnalyzeItem}>
+                    <span style={{ color: "#2563EB", fontWeight: 700 }}>Checksum:</span>
+                    <span style={{ color: "#16A34A", fontWeight: 600 }}>Valid State Code</span>
+                  </div>
+                  <div style={styles.mockupAnalyzeItem}>
+                    <span style={{ color: "#2563EB", fontWeight: 700 }}>ELA Heatmap:</span>
+                    <span style={{ color: "#16A34A", fontWeight: 600 }}>0 Pixel Tampering</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.pipelineContent}>
+              <div style={styles.pipelineIconBox}>
+                <Cpu size={20} color="#2563EB" />
+              </div>
+              <h3 style={styles.pipelineStepTitle}>2. Multi-Layer Analysis</h3>
+              <p style={styles.pipelineStepDesc}>
+                Cross-matches signed QR matrix payload against visual text, runs checksum algorithms, and applies Error Level Analysis (ELA) to detect image alteration.
+              </p>
+              <div style={styles.pipelineFeaturesList}>
+                <div style={styles.pipelineFeaturePoint}>
+                  <Check size={14} color="#16A34A" />
+                  <span>QR code cryptographic check</span>
+                </div>
+                <div style={styles.pipelineFeaturePoint}>
+                  <Check size={14} color="#16A34A" />
+                  <span>Pixel compression anomaly scan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 3 */}
+          <div style={styles.pipelineCard} className="glass-card">
+            <div style={styles.pipelineStepNumber}>03</div>
+
+            {/* Step Mockup Illustration */}
+            <div style={styles.pipelineMockup}>
+              <div style={styles.mockupCardTop}>
+                <div style={styles.mockupDotRed} />
+                <div style={styles.mockupDotYellow} />
+                <div style={styles.mockupDotGreen} />
+                <span style={styles.mockupFilename}>verdict_report.json</span>
+              </div>
+              <div style={styles.mockupScoreArea}>
+                <div style={styles.mockupScoreCircle}>
+                  <span style={styles.mockupScoreVal}>98%</span>
+                  <span style={styles.mockupScoreLbl}>TRUST SCORE</span>
+                </div>
+                <div style={styles.mockupVerdictBadge}>
+                  <CheckCircle2 size={16} color="#16A34A" />
+                  <span>AUTHENTIC & VERIFIED</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.pipelineContent}>
+              <div style={styles.pipelineIconBox}>
+                <Award size={20} color="#2563EB" />
+              </div>
+              <h3 style={styles.pipelineStepTitle}>3. Instant Verdict</h3>
+              <p style={styles.pipelineStepDesc}>
+                Generates a 0–100% Trust Score in seconds with an itemized risk breakdown, forensic flags, and an authoritative compliance summary.
+              </p>
+              <div style={styles.pipelineFeaturesList}>
+                <div style={styles.pipelineFeaturePoint}>
+                  <Check size={14} color="#16A34A" />
+                  <span>Clear penalty & confidence metrics</span>
+                </div>
+                <div style={styles.pipelineFeaturePoint}>
+                  <Check size={14} color="#16A34A" />
+                  <span>Audit-ready certificate report</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ================= SUPPORTED DOCUMENT TYPES ================= */}
       <section style={styles.supportedSection}>
         <div style={styles.sectionHeader}>
@@ -466,7 +812,536 @@ export default function Home({ onNavigateVerify }) {
         </div>
       </section>
 
-      {/* ================= DEMO MODAL ================= */}
+      {/* ================= SECTION B: BEFORE VS AFTER TAMPER DETECTION ================= */}
+      <section style={styles.showcaseSection}>
+        <div style={styles.sectionHeader}>
+          <div style={styles.sectionPill}>
+            <ScanLine size={14} color="#2563EB" />
+            <span>AI FORENSIC ENGINE</span>
+          </div>
+          <h2 style={styles.sectionTitle}>
+            Interactive Before vs After: Tamper Detection Showcase
+          </h2>
+          <p style={styles.sectionSub}>
+            Drag the interactive slider below to reveal how DocAuth's neural forensic pipeline detects altered fonts, forged dates of birth, and manipulated pixel compression that bypass standard visual checks.
+          </p>
+        </div>
+
+        {/* Interactive Comparison Stage */}
+        <div style={styles.sliderContainer}>
+          <div style={styles.sliderHeaderBar}>
+            <div style={styles.sliderTagOriginal}>
+              <Eye size={14} color="#64748B" />
+              <span>LEFT: Human Eye View (Counterfeit ID)</span>
+            </div>
+            <div style={styles.sliderTagAi}>
+              <Cpu size={14} color="#2563EB" />
+              <span>RIGHT: AI Tamper Heatmap Overlay </span>
+            </div>
+          </div>
+
+          <div style={styles.stageFrame}>
+            {/* Base Layer: Counterfeit Document (What human eyes see) */}
+            <div style={styles.stageBaseDocument}>
+              <div style={styles.mockAadhaarCard}>
+                <div style={styles.mockAadhaarTop}>
+                  <div style={styles.mockAadhaarEmblem}>🇮🇳</div>
+                  <div style={styles.mockAadhaarGov}>
+                    <span style={{ fontWeight: 800, color: "#1E3A8A", fontSize: "14px" }}>भारत सरकार</span>
+                    <span style={{ fontSize: "11px", color: "#64748B" }}>Government of India</span>
+                  </div>
+                  <div style={styles.mockDocPill}>COUNTERFEIT SAMPLE</div>
+                </div>
+
+                <div style={styles.mockAadhaarContent}>
+                  <div style={styles.mockPhotoBox}>
+                    <User size={48} color="#94A3B8" />
+                    <span style={styles.mockPhotoLabel}>Forged Photo</span>
+                  </div>
+
+                  <div style={styles.mockFieldsCol}>
+                    <div style={styles.mockFieldRow}>
+                      <span style={styles.mockFieldKey}>Name:</span>
+                      <span style={styles.mockFieldValue}>RAJESH KUMAR SHARMA</span>
+                    </div>
+                    <div style={styles.mockFieldRowAltered}>
+                      <span style={styles.mockFieldKey}>DOB:</span>
+                      <span style={{ ...styles.mockFieldValue, color: "#DC2626", fontWeight: 700 }}>
+                        15/08/1988 (Altered from 1998)
+                      </span>
+                    </div>
+                    <div style={styles.mockFieldRow}>
+                      <span style={styles.mockFieldKey}>Gender:</span>
+                      <span style={styles.mockFieldValue}>MALE / पुरुष</span>
+                    </div>
+                    <div style={styles.mockAadhaarNoBox}>
+                      <span>XXXX XXXX 4829</span>
+                    </div>
+                  </div>
+
+                  <div style={styles.mockQrBox}>
+                    <div style={styles.mockQrPattern} />
+                    <span style={{ fontSize: "9px", color: "#64748B", marginTop: "4px" }}>Fake QR Payload</span>
+                  </div>
+                </div>
+
+                <div style={styles.mockAadhaarBottom}>
+                  <span>मेरा आधार, मेरी पहचान</span>
+                  <span style={{ fontSize: "10px", color: "#94A3B8" }}>Tampered sample for testing</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Layer: AI Forensic Detection Overlay (Revealed by slider) */}
+            <div
+              style={{
+                ...styles.stageAiOverlay,
+                clipPath: `inset(0 0 0 ${sliderPos}%)`,
+              }}
+            >
+              <div style={styles.mockAadhaarCardAi}>
+                <div style={styles.aiScanGridOverlay} />
+
+                <div style={styles.mockAadhaarTop}>
+                  <div style={styles.mockAadhaarEmblem}>🇮🇳</div>
+                  <div style={styles.mockAadhaarGov}>
+                    <span style={{ fontWeight: 800, color: "#93C5FD", fontSize: "14px" }}>DOCAUTH FORENSICS</span>
+                    <span style={{ fontSize: "11px", color: "#94A3B8" }}>Multi-Layer Neural Analysis</span>
+                  </div>
+                  <div style={styles.mockDocPillAi}>
+                    <AlertTriangle size={12} color="#EF4444" />
+                    <span>FORGERY CONFIRMED</span>
+                  </div>
+                </div>
+
+                <div style={styles.mockAadhaarContent}>
+                  {/* Tampered Photo with ELA bounding box */}
+                  <div style={styles.mockPhotoBoxAi}>
+                    <User size={48} color="#EF4444" />
+                    <div style={styles.aiBoundingBoxPhoto}>
+                      <span>ELA ANOMALY: 87% TAMPERED</span>
+                    </div>
+                  </div>
+
+                  <div style={styles.mockFieldsCol}>
+                    <div style={styles.mockFieldRow}>
+                      <span style={{ ...styles.mockFieldKey, color: "#94A3B8" }}>Name:</span>
+                      <span style={{ ...styles.mockFieldValue, color: "#E2E8F0" }}>RAJESH KUMAR SHARMA</span>
+                    </div>
+
+                    {/* Altered DOB with glowing alert */}
+                    <div style={styles.aiBoundingBoxDob}>
+                      <div style={styles.aiAlertHeader}>
+                        <FileWarning size={12} color="#F87171" />
+                        <span>FONT & RESAMPLING MISMATCH</span>
+                      </div>
+                      <span style={{ color: "#FCA5A5", fontWeight: 700, fontSize: "12px" }}>
+                        DOB: 15/08/1988 [OCR Kerning Variance: +4.2px]
+                      </span>
+                    </div>
+
+                    <div style={styles.mockFieldRow}>
+                      <span style={{ ...styles.mockFieldKey, color: "#94A3B8" }}>Gender:</span>
+                      <span style={{ ...styles.mockFieldValue, color: "#E2E8F0" }}>MALE</span>
+                    </div>
+
+                    <div style={styles.mockAadhaarNoBoxAi}>
+                      <span>XXXX XXXX 4829</span>
+                      <span style={styles.aiChecksumFail}>[UIDAI Checksum Inconsistent]</span>
+                    </div>
+                  </div>
+
+                  {/* QR Code Anomaly Box */}
+                  <div style={styles.mockQrBoxAi}>
+                    <div style={styles.mockQrPatternAi} />
+                    <span style={styles.aiQrAlert}>
+                      SIGNATURE MISMATCH
+                    </span>
+                  </div>
+                </div>
+
+                <div style={styles.mockAadhaarBottomAi}>
+                  <div style={styles.aiStatusBadge}>
+                    <ShieldAlert size={14} color="#EF4444" />
+                    <span>OVERALL TRUST SCORE: 22/100 (HIGH RISK COUNTERFEIT)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Draggable Vertical Divider Handle */}
+            <div
+              style={{
+                ...styles.sliderDividerLine,
+                left: `${sliderPos}%`,
+              }}
+            >
+              <div style={styles.sliderKnob}>
+                <span style={{ fontSize: "11px", fontWeight: 800, color: "#FFFFFF", userSelect: "none" }}>
+                  ◀ ▶
+                </span>
+              </div>
+            </div>
+
+            {/* Invisible full-stage Range Input for smooth touch and drag */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={sliderPos}
+              onChange={(e) => setSliderPos(Number(e.target.value))}
+              style={styles.sliderRangeInput}
+              aria-label="Tamper detection before and after comparison slider"
+            />
+          </div>
+
+          {/* Feature Highlights beneath slider */}
+          <div style={styles.sliderFootnotes}>
+            <div style={styles.sliderFootItem}>
+              <div style={{ ...styles.footDot, background: "#EF4444" }} />
+              <div>
+                <strong>Font & Kerning Inconsistency:</strong> Detects altered digits spliced in different typography.
+              </div>
+            </div>
+            <div style={styles.sliderFootItem}>
+              <div style={{ ...styles.footDot, background: "#F59E0B" }} />
+              <div>
+                <strong>ELA Pixel Compression:</strong> Spots resampled borders where a new photo was pasted.
+              </div>
+            </div>
+            <div style={styles.sliderFootItem}>
+              <div style={{ ...styles.footDot, background: "#3B82F6" }} />
+              <div>
+                <strong>QR Payload vs OCR Cross-Match:</strong> Verifies visual text against digitally signed payload.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= SECTION C: ENTERPRISE & GOV USE CASES GRID ================= */}
+      <section style={styles.useCasesSection}>
+        <div style={styles.sectionHeader}>
+          <div style={styles.sectionPill}>
+            <Award size={14} color="#2563EB" />
+            <span>INDUSTRY APPLICATIONS</span>
+          </div>
+          <h2 style={styles.sectionTitle}>
+            Enterprise & Government Use Cases
+          </h2>
+          <p style={styles.sectionSub}>
+            Designed for high-scale, zero-trust environments requiring instant verification compliance and defense against synthetic identity fraud.
+          </p>
+        </div>
+
+        <div style={styles.useCasesRowsContainer}>
+          {/* Row 1: Fintech & Banking */}
+          <UseCaseRow
+            reverse={false}
+            badge="FINTECH & BANKING"
+            badgeBg="#EFF6FF"
+            badgeColor="#1E40AF"
+            icon={Landmark}
+            iconBg="#EFF6FF"
+            iconColor="#2563EB"
+            title="Instant KYC Onboarding & Credit Verification"
+            subtitle="Automated API verification across NSDL, UIDAI & RBI Compliance"
+            description="Streamline savings accounts, credit cards, and digital loan approvals in under 3 seconds. DocAuth eliminates synthetic identity fraud, forged salary slips, and altered PAN cards before onboarding."
+            features={[
+              "2.4s Average Turnaround Time for instant customer KYC clearance",
+              "99.8% Synthetic Identity and Tampered Document Prevention",
+              "Direct automated cross-verification against NSDL Tax Databases",
+              "Automated CIBIL, AML & PEP fraud risk scoring"
+            ]}
+            stat="99.8% Speedup"
+            statLabel="KYC Drop-off reduced by 40% with zero manual paperwork"
+            renderVisual={() => (
+              <div style={styles.fintechMockCard}>
+                <div style={styles.fintechCardHeader}>
+                  <div style={styles.fintechCardChip} />
+                  <CreditCard size={22} color="#93C5FD" />
+                </div>
+                <div style={styles.fintechCardNo}>•••• •••• •••• 8924</div>
+                <div style={styles.fintechCardBottom}>
+                  <div>
+                    <div style={styles.fintechCardHolder}>ROHAN MALHOTRA</div>
+                    <div style={styles.fintechCardExpiry}>EXPIRES 08/29</div>
+                  </div>
+                  <div style={styles.fintechKycBadge}>
+                    <CheckCircle2 size={14} color="#10B981" />
+                    <span>KYC VERIFIED</span>
+                  </div>
+                </div>
+
+                {/* Floating HUD chips */}
+                <div style={styles.fintechFloatingPill1}>
+                  <Zap size={15} color="#F59E0B" />
+                  <div>
+                    <div style={{ fontWeight: 700 }}>NSDL PAN Matched in 2.4s</div>
+                    <div style={{ fontSize: "0.68rem", color: "#64748B" }}>Checksum & Name 100% verified</div>
+                  </div>
+                </div>
+                <div style={styles.fintechFloatingPill2}>
+                  <ShieldCheck size={15} color="#10B981" />
+                  <div>
+                    <div style={{ fontWeight: 700 }}>Low Risk Clearance (99.8%)</div>
+                    <div style={{ fontSize: "0.68rem", color: "#64748B" }}>Instant loan approval ready</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
+          {/* Row 2: HR & Corporate Onboarding */}
+          <UseCaseRow
+            reverse={true}
+            badge="HR & CORPORATE TECH"
+            badgeBg="#DCFCE7"
+            badgeColor="#166534"
+            icon={Briefcase}
+            iconBg="#F0FDF4"
+            iconColor="#16A34A"
+            title="Workforce Identity & Background Screening"
+            subtitle="Eliminate Candidate Impersonation & Moonlighting in Bulk Hiring"
+            description="Accelerate enterprise hiring cycles without compromising security. Automatically verify educational degrees, past employer PF records, and Aadhaar/PAN credentials with zero impersonation risks."
+            features={[
+              "10x Faster Hiring Cycles from job offer to successful joining day",
+              "EPFO Dual Employment Scan to spot unauthorized moonlighting",
+              "National Academic Depository (NAD) integration for degree checks",
+              "Automated candidate dossier generation for HR audits"
+            ]}
+            stat="Zero Fraud"
+            statLabel="100% Pre-employment regulatory and identity compliance verified"
+            renderVisual={() => (
+              <div style={styles.hrMockCard}>
+                <div style={styles.hrCardHeader}>
+                  <div style={styles.hrAvatar}>
+                    <User size={28} color="#166534" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={styles.hrCandidateName}>Pooja Sharma</div>
+                    <div style={styles.hrCandidateRole}>Lead Systems Engineer • Bangalore</div>
+                  </div>
+                  <span style={styles.hrStatusTag}>HIRE APPROVED</span>
+                </div>
+
+                <div style={styles.hrChecksList}>
+                  <div style={styles.hrCheckItem}>
+                    <CheckCircle2 size={16} color="#16A34A" />
+                    <div>
+                      <div style={styles.hrCheckTitle}>Aadhaar & PAN Cross-Validation</div>
+                      <div style={styles.hrCheckSub}>100% Identity match via UIDAI gateway</div>
+                    </div>
+                  </div>
+                  <div style={styles.hrCheckItem}>
+                    <CheckCircle2 size={16} color="#16A34A" />
+                    <div>
+                      <div style={styles.hrCheckTitle}>Education Credential Verification</div>
+                      <div style={styles.hrCheckSub}>B.Tech Degree verified via DigiLocker NAD</div>
+                    </div>
+                  </div>
+                  <div style={styles.hrCheckItem}>
+                    <CheckCircle2 size={16} color="#16A34A" />
+                    <div>
+                      <div style={styles.hrCheckTitle}>Dual Employment / Moonlighting Scan</div>
+                      <div style={styles.hrCheckSub}>Single active EPFO Provident Fund record</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={styles.hrFooter}>
+                  <BadgeCheck size={15} color="#15803D" />
+                  <span>Enterprise Background Check Passed (Audit #8942)</span>
+                </div>
+              </div>
+            )}
+          />
+
+          {/* Row 3: Law Enforcement & RTOs */}
+          <UseCaseRow
+            reverse={false}
+            badge="GOV & TRANSPORTATION"
+            badgeBg="#FEF3C7"
+            badgeColor="#92400E"
+            icon={Car}
+            iconBg="#FEF3C7"
+            iconColor="#D97706"
+            title="On-The-Spot Driving Licence & RC Validation"
+            subtitle="Direct Roadside Parivahan & Sarathi Highway Integration"
+            description="Empower traffic police officers, checkpoint squads, and transit authorities to instantly validate driver credentials and vehicle registration certificates using high-precision mobile OCR."
+            features={[
+              "Sub-Second Parivahan & Sarathi Government Database Query",
+              "Instant optical recognition of faded, laminated, or smart DLs",
+              "Real-time identification of suspended, fake, or cloned licenses",
+              "Instant pending challan and vehicle registration status check"
+            ]}
+            stat="Real-Time"
+            statLabel="Sarathi & Parivahan API integration for instant highway verification"
+            renderVisual={() => (
+              <div style={styles.rtoMockCard}>
+                <div style={styles.rtoCardHeader}>
+                  <div style={styles.rtoEmblemBadge}>
+                    <Car size={18} color="#B45309" />
+                    <span style={styles.rtoHeaderTitle}>PARIVAHAN SMART REGISTRY</span>
+                  </div>
+                  <span style={styles.rtoLiveTag}>● HIGHWAY RADAR ACTIVE</span>
+                </div>
+
+                <div style={styles.rtoCardBody}>
+                  <div style={styles.rtoDlGraphic}>
+                    <div style={styles.rtoDlTop}>
+                      <span style={{ fontWeight: 800, color: "#1E3A8A", fontSize: "11px" }}>INDIAN UNION DRIVING LICENCE</span>
+                      <span style={{ fontSize: "10px", color: "#92400E", fontWeight: 700 }}>MAHARASHTRA RTO</span>
+                    </div>
+                    <div style={styles.rtoDlMiddle}>
+                      <div style={styles.rtoPhotoBox}>
+                        <User size={30} color="#64748B" />
+                      </div>
+                      <div style={styles.rtoDlDetails}>
+                        <div>DL NO: <strong>MH-14 20210048291</strong></div>
+                        <div>VEHICLE: <strong>LMV-NT, MCWG</strong></div>
+                        <div>VALID UPTO: <strong>14/06/2039</strong></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={styles.rtoVerificationStrip}>
+                    <div style={styles.rtoVerdictGreen}>
+                      <CheckCircle2 size={16} color="#15803D" />
+                      <span>SARATHI VERIFIED: AUTHENTIC LICENSE</span>
+                    </div>
+                    <div style={styles.rtoVerdictSub}>
+                      <span>Challan Records: Clear (0 Penalties)</span>
+                      <span>• Checkpoint: NH-48 Pune Express</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
+          {/* Row 4: Universities & Examinations */}
+          <UseCaseRow
+            reverse={true}
+            badge="EDUCATION & EXAMS"
+            badgeBg="#F3E8FF"
+            badgeColor="#6B21A8"
+            icon={GraduationCap}
+            iconBg="#F3E8FF"
+            iconColor="#9333EA"
+            title="Hall Ticket & Examination Impersonation Defense"
+            subtitle="Biometric Admit Card & Proxy Candidate Prevention at Gate"
+            description="Protect the integrity of national competitive exams like UPSC, JEE, NEET, and GATE. Prevent proxy examinees and fraudulent hall tickets through cryptographic QR validation and real-time facial comparison."
+            features={[
+              "Offline-capable encrypted QR decryption for centers with low network",
+              "Biometric 1:1 face matching between application photo and candidate",
+              "Cryptographic anti-tampering seal verification on printed admit cards",
+              "Automated attendance audit trail with zero proxy tolerance"
+            ]}
+            stat="100% Traceable"
+            statLabel="Offline QR + Facial cross-match to stop proxy test-takers"
+            renderVisual={() => (
+              <div style={styles.examMockCard}>
+                <div style={styles.examHeader}>
+                  <div style={styles.examBadgeTitle}>
+                    <GraduationCap size={20} color="#7E22CE" />
+                    <div>
+                      <div style={styles.examTitleText}>NTA ADMIT CARD GATE VERIFICATION</div>
+                      <div style={styles.examSubText}>UPSC / JEE / NEET Examination Center Access</div>
+                    </div>
+                  </div>
+                  <span style={styles.examVerifiedTag}>GATE PASS</span>
+                </div>
+
+                <div style={styles.examBody}>
+                  <div style={styles.examBiometricGrid}>
+                    <div style={styles.examFaceBox}>
+                      <User size={32} color="#9333EA" />
+                      <span style={styles.examFaceLabel}>Admit Card Photo</span>
+                    </div>
+                    <div style={styles.examCompareArrow}>
+                      <span style={{ fontSize: "12px", fontWeight: 800, color: "#16A34A" }}>99.4%</span>
+                      <span style={{ fontSize: "9px", color: "#16A34A", fontWeight: 700 }}>MATCH</span>
+                    </div>
+                    <div style={styles.examGateFaceBox}>
+                      <User size={32} color="#16A34A" />
+                      <span style={styles.examGateLabel}>Live Gate Camera</span>
+                    </div>
+                  </div>
+
+                  <div style={styles.examDataPills}>
+                    <div style={styles.examDataRow}>
+                      <span>Roll: <strong>2402108849</strong></span>
+                      <span>Hall: <strong>B, Desk 42</strong></span>
+                    </div>
+                    <div style={styles.examPassAlert}>
+                      <ShieldCheck size={16} color="#15803D" />
+                      <span>ZERO PROXY DEFENSE: Candidate Identity Authenticated</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+        </div>
+      </section>
+
+      {/* ================= SECTION D: COMPLIANCE & SECURITY CREDENTIALS BANNER ================= */}
+      <section style={styles.complianceSection}>
+        <div style={styles.complianceInner}>
+          <div style={styles.complianceHeader}>
+            <div style={styles.complianceTitleGroup}>
+              <ShieldCheck size={26} color="#2563EB" />
+              <div>
+                <h3 style={styles.complianceTitle}>Enterprise Security & Regulatory Compliance</h3>
+                <p style={styles.complianceSub}>DocAuth complies with Indian data sovereignty and global cryptographic security baselines.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.complianceBadgesGrid}>
+            <div style={styles.complianceBadgeCard}>
+              <div style={styles.complianceBadgeIcon}>
+                <Lock size={20} color="#2563EB" />
+              </div>
+              <div>
+                <div style={styles.complianceBadgeName}>ISO 27001 Ready</div>
+                <div style={styles.complianceBadgeDesc}>Information Security Management Certified Architecture</div>
+              </div>
+            </div>
+
+            <div style={styles.complianceBadgeCard}>
+              <div style={styles.complianceBadgeIcon}>
+                <Shield size={20} color="#059669" />
+              </div>
+              <div>
+                <div style={styles.complianceBadgeName}>AES-256 Bit Encryption</div>
+                <div style={styles.complianceBadgeDesc}>Military-Grade Cryptography for Data in Transit & Rest</div>
+              </div>
+            </div>
+
+            <div style={styles.complianceBadgeCard}>
+              <div style={styles.complianceBadgeIcon}>
+                <Award size={20} color="#D97706" />
+              </div>
+              <div>
+                <div style={styles.complianceBadgeName}>DPDP Act 2023 Aligned</div>
+                <div style={styles.complianceBadgeDesc}>India Digital Personal Data Protection Act Strict Compliance</div>
+              </div>
+            </div>
+
+            <div style={styles.complianceBadgeCard}>
+              <div style={styles.complianceBadgeIcon}>
+                <Fingerprint size={20} color="#7C3AED" />
+              </div>
+              <div>
+                <div style={styles.complianceBadgeName}>Zero Permanent Storage</div>
+                <div style={styles.complianceBadgeDesc}>Ephemeral memory processing with automated session shredding</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {showDemoModal && (
         <div style={styles.modalOverlay} onClick={() => setShowDemoModal(false)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -891,6 +1766,235 @@ const styles = {
     marginTop: "2px"
   },
 
+  /* 3-STEP PIPELINE SECTION */
+  pipelineSection: {
+    marginBottom: "58px",
+  },
+  pipelineHeader: {
+    textAlign: "center",
+    maxWidth: "640px",
+    margin: "0 auto 36px auto",
+  },
+  pipelineBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    background: "#EFF6FF",
+    border: "1px solid #DBEAFE",
+    padding: "5px 12px",
+    borderRadius: "9999px",
+    fontSize: "0.78rem",
+    fontWeight: 700,
+    color: "#2563EB",
+    marginBottom: "12px",
+  },
+  pipelineHeading: {
+    fontSize: "2rem",
+    fontWeight: 800,
+    color: "#0F172A",
+    letterSpacing: "-0.02em",
+    marginBottom: "10px",
+  },
+  pipelineSub: {
+    fontSize: "0.95rem",
+    color: "#64748B",
+    lineHeight: 1.6,
+  },
+  pipelineGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "24px",
+  },
+  pipelineCard: {
+    position: "relative",
+    background: "#FFFFFF",
+    borderColor: "#E2E8F0",
+    borderRadius: "16px",
+    padding: "24px 20px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    boxShadow: "0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02)",
+    transition: "all 0.3s ease",
+  },
+  pipelineStepNumber: {
+    position: "absolute",
+    top: "14px",
+    right: "18px",
+    fontSize: "1.8rem",
+    fontWeight: 900,
+    color: "#E2E8F0",
+    fontFamily: "monospace",
+  },
+  pipelineMockup: {
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
+    borderRadius: "10px",
+    padding: "10px",
+    marginBottom: "20px",
+    overflow: "hidden",
+  },
+  mockupCardTop: {
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+    marginBottom: "10px",
+  },
+  mockupDotRed: {
+    width: "7px",
+    height: "7px",
+    borderRadius: "50%",
+    background: "#EF4444",
+  },
+  mockupDotYellow: {
+    width: "7px",
+    height: "7px",
+    borderRadius: "50%",
+    background: "#F59E0B",
+  },
+  mockupDotGreen: {
+    width: "7px",
+    height: "7px",
+    borderRadius: "50%",
+    background: "#10B981",
+  },
+  mockupFilename: {
+    fontSize: "0.7rem",
+    fontWeight: 600,
+    color: "#94A3B8",
+    marginLeft: "4px",
+  },
+  mockupUploadArea: {
+    background: "#EFF6FF",
+    border: "1.5px dashed #BFDBFE",
+    borderRadius: "8px",
+    padding: "14px 10px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "6px",
+  },
+  mockupUploadText: {
+    fontSize: "0.78rem",
+    fontWeight: 700,
+    color: "#1E3A8A",
+  },
+  mockupBadgesRow: {
+    display: "flex",
+    gap: "6px",
+    marginTop: "4px",
+  },
+  mockupPill: {
+    fontSize: "0.68rem",
+    fontWeight: 600,
+    background: "#DBEAFE",
+    color: "#1D4ED8",
+    padding: "2px 8px",
+    borderRadius: "9999px",
+  },
+  mockupScanArea: {
+    background: "#0F172A",
+    borderRadius: "8px",
+    padding: "12px 10px",
+  },
+  mockupGridLines: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    position: "relative",
+  },
+  mockupScanLaser: {
+    height: "2px",
+    background: "linear-gradient(90deg, transparent, #60A5FA, #2563EB, transparent)",
+    borderRadius: "1px",
+    marginBottom: "4px",
+  },
+  mockupAnalyzeItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "0.72rem",
+    fontFamily: "monospace",
+  },
+  mockupScoreArea: {
+    background: "#F0FDF4",
+    border: "1px solid #BBF7D0",
+    borderRadius: "8px",
+    padding: "14px 10px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "8px",
+  },
+  mockupScoreCircle: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  mockupScoreVal: {
+    fontSize: "1.5rem",
+    fontWeight: 900,
+    color: "#16A34A",
+    lineHeight: 1.1,
+  },
+  mockupScoreLbl: {
+    fontSize: "0.65rem",
+    fontWeight: 800,
+    color: "#15803D",
+    letterSpacing: "0.05em",
+  },
+  mockupVerdictBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    background: "#DCFCE7",
+    padding: "3px 10px",
+    borderRadius: "9999px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    color: "#16A34A",
+  },
+  pipelineContent: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  pipelineIconBox: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "10px",
+    background: "#EFF6FF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "12px",
+  },
+  pipelineStepTitle: {
+    fontSize: "1.08rem",
+    fontWeight: 800,
+    color: "#0F172A",
+    marginBottom: "8px",
+  },
+  pipelineStepDesc: {
+    fontSize: "0.85rem",
+    color: "#64748B",
+    lineHeight: 1.55,
+    marginBottom: "14px",
+  },
+  pipelineFeaturesList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    borderTop: "1px solid #F1F5F9",
+    paddingTop: "12px",
+  },
+  pipelineFeaturePoint: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.8rem",
+    color: "#334155",
+    fontWeight: 500,
+  },
+
   /* SUPPORTED SECTION */
   supportedSection: {
     marginBottom: "48px"
@@ -1013,6 +2117,1131 @@ const styles = {
     fontWeight: 600,
     color: "#0F172A",
     lineHeight: 1.3
+  },
+
+  /* QUICK-CHECK HERO TEASER */
+  quickCheckCard: {
+    marginTop: "24px",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
+    borderRadius: "14px",
+    padding: "14px 16px",
+    maxWidth: "480px"
+  },
+  quickCheckHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "10px"
+  },
+  quickCheckLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    letterSpacing: "0.06em",
+    color: "#2563EB"
+  },
+  quickCheckSub: {
+    fontSize: "0.72rem",
+    color: "#64748B",
+    fontWeight: 500
+  },
+  quickCheckBtnRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "10px"
+  },
+  quickSampleBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "10px 12px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    borderRadius: "10px",
+    cursor: "pointer",
+    transition: "all 0.2s ease"
+  },
+  quickSampleBtnActiveClean: {
+    borderColor: "#10B981",
+    background: "#ECFDF5",
+    boxShadow: "0 0 0 2px rgba(16, 185, 129, 0.2)"
+  },
+  quickSampleBtnActiveForged: {
+    borderColor: "#EF4444",
+    background: "#FEF2F2",
+    boxShadow: "0 0 0 2px rgba(239, 68, 68, 0.2)"
+  },
+  quickBtnTitle: {
+    fontSize: "0.82rem",
+    fontWeight: 700,
+    color: "#0F172A"
+  },
+  quickBtnDesc: {
+    fontSize: "0.68rem",
+    color: "#64748B",
+    marginTop: "1px"
+  },
+  quickLoadingBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginTop: "12px",
+    padding: "10px",
+    background: "#EFF6FF",
+    borderRadius: "8px",
+    color: "#1D4ED8",
+    fontSize: "0.78rem",
+    fontWeight: 600
+  },
+  quickSpinner: {
+    width: "14px",
+    height: "14px",
+    border: "2px solid #93C5FD",
+    borderTopColor: "#2563EB",
+    borderRadius: "50%",
+    animation: "spin 0.8s linear infinite"
+  },
+  quickResultClean: {
+    marginTop: "12px",
+    padding: "12px",
+    background: "#ECFDF5",
+    border: "1px solid #A7F3D0",
+    borderRadius: "10px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px"
+  },
+  quickResultForged: {
+    marginTop: "12px",
+    padding: "12px",
+    background: "#FEF2F2",
+    border: "1px solid #FECACA",
+    borderRadius: "10px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px"
+  },
+  quickResultTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "6px"
+  },
+  quickResultBadgeClean: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.76rem",
+    fontWeight: 800,
+    color: "#065F46"
+  },
+  quickResultBadgeForged: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.76rem",
+    fontWeight: 800,
+    color: "#991B1B"
+  },
+  quickResultDocType: {
+    fontSize: "0.7rem",
+    color: "#64748B",
+    fontWeight: 600
+  },
+  quickResultSpecs: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "3px",
+    fontSize: "0.72rem",
+    color: "#047857",
+    fontWeight: 500
+  },
+  quickResultSpecsForged: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "3px",
+    fontSize: "0.72rem",
+    color: "#B91C1C",
+    fontWeight: 500
+  },
+  quickTryFullBtn: {
+    marginTop: "4px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    background: "#059669",
+    color: "#FFFFFF",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "0.76rem",
+    fontWeight: 600,
+    cursor: "pointer"
+  },
+  quickInspectBtn: {
+    marginTop: "4px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    background: "#DC2626",
+    color: "#FFFFFF",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "0.76rem",
+    fontWeight: 600,
+    cursor: "pointer"
+  },
+
+  /* SECTION B: SHOWCASE SLIDER */
+  showcaseSection: {
+    padding: "70px 0 30px"
+  },
+  sliderContainer: {
+    background: "#FFFFFF",
+    borderRadius: "20px",
+    border: "1px solid #E2E8F0",
+    padding: "24px",
+    boxShadow: "0 10px 30px -5px rgba(15, 23, 42, 0.05)"
+  },
+  sliderHeaderBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: "16px",
+    borderBottom: "1px solid #E2E8F0",
+    marginBottom: "18px",
+    flexWrap: "wrap",
+    gap: "10px"
+  },
+  sliderTagOriginal: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.82rem",
+    fontWeight: 700,
+    color: "#475569"
+  },
+  sliderTagAi: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.82rem",
+    fontWeight: 800,
+    color: "#2563EB"
+  },
+  stageFrame: {
+    position: "relative",
+    height: "360px",
+    borderRadius: "14px",
+    overflow: "hidden",
+    background: "#0B1329",
+    userSelect: "none"
+  },
+  stageBaseDocument: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#F1F5F9",
+    padding: "20px"
+  },
+  mockAadhaarCard: {
+    width: "100%",
+    maxWidth: "520px",
+    background: "#FFFFFF",
+    borderRadius: "12px",
+    border: "1px solid #CBD5E1",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.06)",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column"
+  },
+  mockAadhaarTop: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "10px 16px",
+    borderBottom: "1px solid #E2E8F0",
+    background: "#F8FAFC"
+  },
+  mockAadhaarEmblem: {
+    fontSize: "18px"
+  },
+  mockAadhaarGov: {
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "center"
+  },
+  mockDocPill: {
+    background: "#FEF2F2",
+    color: "#DC2626",
+    border: "1px solid #FECACA",
+    fontSize: "0.68rem",
+    fontWeight: 700,
+    padding: "2px 8px",
+    borderRadius: "9999px"
+  },
+  mockAadhaarContent: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    padding: "16px"
+  },
+  mockPhotoBox: {
+    width: "80px",
+    height: "95px",
+    background: "#E2E8F0",
+    borderRadius: "6px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px dashed #94A3B8"
+  },
+  mockPhotoLabel: {
+    fontSize: "0.65rem",
+    color: "#64748B",
+    marginTop: "4px"
+  },
+  mockFieldsCol: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px"
+  },
+  mockFieldRow: {
+    display: "flex",
+    gap: "6px",
+    fontSize: "0.82rem"
+  },
+  mockFieldRowAltered: {
+    display: "flex",
+    gap: "6px",
+    fontSize: "0.82rem",
+    background: "#FFF1F2",
+    padding: "2px 4px",
+    borderRadius: "4px"
+  },
+  mockFieldKey: {
+    fontWeight: 600,
+    color: "#64748B"
+  },
+  mockFieldValue: {
+    fontWeight: 700,
+    color: "#0F172A"
+  },
+  mockAadhaarNoBox: {
+    marginTop: "6px",
+    fontSize: "1rem",
+    fontWeight: 800,
+    letterSpacing: "0.12em",
+    color: "#0F172A"
+  },
+  mockQrBox: {
+    width: "70px",
+    height: "85px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  mockQrPattern: {
+    width: "55px",
+    height: "55px",
+    background: "repeating-linear-gradient(45deg, #334155, #334155 3px, #E2E8F0 3px, #E2E8F0 6px)",
+    borderRadius: "4px"
+  },
+  mockAadhaarBottom: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "8px 16px",
+    background: "#F8FAFC",
+    borderTop: "1px solid #E2E8F0",
+    fontSize: "0.78rem",
+    fontWeight: 600,
+    color: "#64748B"
+  },
+
+  /* AI FORENSIC LAYER */
+  stageAiOverlay: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#090D1A",
+    padding: "20px",
+    pointerEvents: "none"
+  },
+  mockAadhaarCardAi: {
+    width: "100%",
+    maxWidth: "520px",
+    background: "rgba(15, 23, 42, 0.95)",
+    borderRadius: "12px",
+    border: "1px solid rgba(59, 130, 246, 0.5)",
+    boxShadow: "0 0 25px rgba(37, 99, 235, 0.25)",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    position: "relative"
+  },
+  aiScanGridOverlay: {
+    position: "absolute",
+    inset: 0,
+    backgroundImage: "linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px)",
+    backgroundSize: "16px 16px",
+    pointerEvents: "none"
+  },
+  mockDocPillAi: {
+    background: "rgba(239, 68, 68, 0.2)",
+    color: "#F87171",
+    border: "1px solid #EF4444",
+    fontSize: "0.68rem",
+    fontWeight: 800,
+    padding: "3px 8px",
+    borderRadius: "9999px",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px"
+  },
+  mockPhotoBoxAi: {
+    width: "80px",
+    height: "95px",
+    background: "rgba(239, 68, 68, 0.15)",
+    borderRadius: "6px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "2px solid #EF4444",
+    position: "relative"
+  },
+  aiBoundingBoxPhoto: {
+    position: "absolute",
+    bottom: "-2px",
+    left: "-2px",
+    right: "-2px",
+    background: "#EF4444",
+    color: "#FFFFFF",
+    fontSize: "0.5rem",
+    fontWeight: 800,
+    textAlign: "center",
+    padding: "1px 0"
+  },
+  aiBoundingBoxDob: {
+    border: "1px solid #EF4444",
+    background: "rgba(239, 68, 68, 0.18)",
+    padding: "3px 6px",
+    borderRadius: "4px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px"
+  },
+  aiAlertHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    fontSize: "0.62rem",
+    fontWeight: 800,
+    color: "#F87171"
+  },
+  mockAadhaarNoBoxAi: {
+    marginTop: "6px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "0.95rem",
+    fontWeight: 800,
+    letterSpacing: "0.1em",
+    color: "#E2E8F0"
+  },
+  aiChecksumFail: {
+    fontSize: "0.64rem",
+    color: "#F87171",
+    fontWeight: 700,
+    letterSpacing: "normal"
+  },
+  mockQrBoxAi: {
+    width: "70px",
+    height: "85px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px dashed #EF4444",
+    borderRadius: "6px",
+    background: "rgba(239, 68, 68, 0.08)",
+    padding: "4px"
+  },
+  mockQrPatternAi: {
+    width: "50px",
+    height: "50px",
+    background: "repeating-linear-gradient(45deg, #EF4444, #EF4444 3px, #1E293B 3px, #1E293B 6px)",
+    borderRadius: "4px"
+  },
+  aiQrAlert: {
+    fontSize: "0.55rem",
+    color: "#F87171",
+    fontWeight: 800,
+    marginTop: "4px",
+    textAlign: "center"
+  },
+  mockAadhaarBottomAi: {
+    padding: "8px 16px",
+    background: "rgba(15, 23, 42, 0.8)",
+    borderTop: "1px solid rgba(59, 130, 246, 0.2)"
+  },
+  aiStatusBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "0.74rem",
+    fontWeight: 800,
+    color: "#F87171"
+  },
+
+  /* SLIDER CONTROLS */
+  sliderDividerLine: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: "3px",
+    background: "#3B82F6",
+    boxShadow: "0 0 12px #3B82F6, 0 0 20px rgba(59, 130, 246, 0.5)",
+    transform: "translateX(-50%)",
+    pointerEvents: "none",
+    zIndex: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  sliderKnob: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    background: "#2563EB",
+    border: "3px solid #FFFFFF",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  sliderRangeInput: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0,
+    cursor: "ew-resize",
+    zIndex: 20,
+    margin: 0
+  },
+  sliderFootnotes: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "16px",
+    marginTop: "20px",
+    paddingTop: "16px",
+    borderTop: "1px solid #F1F5F9"
+  },
+  sliderFootItem: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "8px",
+    fontSize: "0.8rem",
+    color: "#475569",
+    lineHeight: 1.4
+  },
+  footDot: {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    marginTop: "5px",
+    flexShrink: 0
+  },
+
+  /* SECTION C: USE CASES ROWS (FULL WIDTH WITH SLIDING VISUAL) */
+  useCasesSection: {
+    padding: "70px 0 30px"
+  },
+  useCasesRowsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "50px",
+    marginTop: "20px"
+  },
+  useCaseRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "40px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    borderRadius: "24px",
+    padding: "36px 40px",
+    boxShadow: "0 10px 30px -5px rgba(15, 23, 42, 0.04)",
+    overflow: "hidden"
+  },
+  useCaseTextCol: {
+    flex: "1 1 50%",
+    display: "flex",
+    flexDirection: "column"
+  },
+  useCaseTopRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "16px"
+  },
+  useCaseIconBox: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  useCaseBadge: {
+    fontSize: "0.72rem",
+    fontWeight: 800,
+    letterSpacing: "0.05em",
+    padding: "5px 10px",
+    borderRadius: "6px"
+  },
+  useCaseRowTitle: {
+    fontSize: "1.55rem",
+    fontWeight: 800,
+    color: "#0F172A",
+    lineHeight: 1.25,
+    marginBottom: "6px"
+  },
+  useCaseRowSub: {
+    fontSize: "0.88rem",
+    fontWeight: 600,
+    color: "#2563EB",
+    marginBottom: "12px"
+  },
+  useCaseRowDesc: {
+    fontSize: "0.92rem",
+    color: "#64748B",
+    lineHeight: 1.6,
+    marginBottom: "20px"
+  },
+  useCaseFeaturesList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    marginBottom: "24px"
+  },
+  useCaseFeatureItem: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "10px"
+  },
+  useCaseCheckIcon: {
+    width: "20px",
+    height: "20px",
+    borderRadius: "50%",
+    background: "#DCFCE7",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    marginTop: "2px"
+  },
+  useCaseFeatureText: {
+    fontSize: "0.85rem",
+    color: "#334155",
+    fontWeight: 500,
+    lineHeight: 1.4
+  },
+  useCaseMetricStrip: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    padding: "12px 18px",
+    background: "#F8FAFC",
+    border: "1px solid #E2E8F0",
+    borderRadius: "12px"
+  },
+  useCaseMetricVal: {
+    fontSize: "1.1rem",
+    fontWeight: 800,
+    color: "#0F172A"
+  },
+  useCaseMetricLabel: {
+    fontSize: "0.76rem",
+    color: "#64748B",
+    fontWeight: 500
+  },
+  useCaseVisualCol: {
+    flex: "1 1 50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+    willChange: "transform, opacity"
+  },
+
+  /* MOCKUP 1: FINTECH CARD */
+  fintechMockCard: {
+    width: "100%",
+    maxWidth: "420px",
+    background: "linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%)",
+    borderRadius: "20px",
+    padding: "26px",
+    color: "#FFFFFF",
+    position: "relative",
+    boxShadow: "0 20px 40px -10px rgba(30, 58, 138, 0.4)",
+    border: "1px solid rgba(255, 255, 255, 0.12)"
+  },
+  fintechCardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "32px"
+  },
+  fintechCardChip: {
+    width: "40px",
+    height: "28px",
+    background: "linear-gradient(135deg, #FDE68A 0%, #F59E0B 100%)",
+    borderRadius: "6px",
+    border: "1px solid #FCD34D"
+  },
+  fintechCardNo: {
+    fontSize: "1.25rem",
+    fontWeight: 700,
+    letterSpacing: "0.15em",
+    fontFamily: "monospace",
+    color: "#F8FAFC",
+    marginBottom: "24px"
+  },
+  fintechCardBottom: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end"
+  },
+  fintechCardHolder: {
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    color: "#F1F5F9"
+  },
+  fintechCardExpiry: {
+    fontSize: "0.68rem",
+    color: "#94A3B8",
+    marginTop: "2px"
+  },
+  fintechKycBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+    background: "rgba(16, 185, 129, 0.2)",
+    border: "1px solid #10B981",
+    color: "#6EE7B7",
+    padding: "4px 10px",
+    borderRadius: "9999px",
+    fontSize: "0.7rem",
+    fontWeight: 800
+  },
+  fintechFloatingPill1: {
+    position: "absolute",
+    top: "-14px",
+    right: "-10px",
+    background: "#FFFFFF",
+    color: "#0F172A",
+    border: "1px solid #E2E8F0",
+    borderRadius: "12px",
+    padding: "8px 14px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.12)",
+    fontSize: "0.78rem"
+  },
+  fintechFloatingPill2: {
+    position: "absolute",
+    bottom: "-16px",
+    left: "-12px",
+    background: "#FFFFFF",
+    color: "#0F172A",
+    border: "1px solid #E2E8F0",
+    borderRadius: "12px",
+    padding: "8px 14px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.12)",
+    fontSize: "0.78rem"
+  },
+
+  /* MOCKUP 2: HR DOSSIER CARD */
+  hrMockCard: {
+    width: "100%",
+    maxWidth: "440px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    borderRadius: "20px",
+    padding: "24px",
+    boxShadow: "0 15px 35px -5px rgba(16, 185, 129, 0.1)"
+  },
+  hrCardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    paddingBottom: "16px",
+    borderBottom: "1px solid #F1F5F9"
+  },
+  hrAvatar: {
+    width: "48px",
+    height: "48px",
+    borderRadius: "12px",
+    background: "#DCFCE7",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  },
+  hrCandidateName: {
+    fontSize: "1rem",
+    fontWeight: 700,
+    color: "#0F172A"
+  },
+  hrCandidateRole: {
+    fontSize: "0.75rem",
+    color: "#64748B",
+    marginTop: "2px"
+  },
+  hrStatusTag: {
+    background: "#DCFCE7",
+    color: "#166534",
+    border: "1px solid #86EFAC",
+    padding: "4px 10px",
+    borderRadius: "9999px",
+    fontSize: "0.68rem",
+    fontWeight: 800
+  },
+  hrChecksList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    padding: "16px 0"
+  },
+  hrCheckItem: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "10px",
+    background: "#F8FAFC",
+    padding: "10px 12px",
+    borderRadius: "10px",
+    border: "1px solid #F1F5F9"
+  },
+  hrCheckTitle: {
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    color: "#0F172A"
+  },
+  hrCheckSub: {
+    fontSize: "0.7rem",
+    color: "#64748B",
+    marginTop: "1px"
+  },
+  hrFooter: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    background: "#F0FDF4",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    color: "#15803D",
+    fontSize: "0.72rem",
+    fontWeight: 700
+  },
+
+  /* MOCKUP 3: RTO DRIVING LICENCE SCAN */
+  rtoMockCard: {
+    width: "100%",
+    maxWidth: "440px",
+    background: "#FFFFFF",
+    border: "1px solid #FEF3C7",
+    borderRadius: "20px",
+    padding: "24px",
+    boxShadow: "0 15px 35px -5px rgba(245, 158, 11, 0.1)"
+  },
+  rtoCardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "16px"
+  },
+  rtoEmblemBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px"
+  },
+  rtoHeaderTitle: {
+    fontSize: "0.75rem",
+    fontWeight: 800,
+    color: "#92400E",
+    letterSpacing: "0.04em"
+  },
+  rtoLiveTag: {
+    fontSize: "0.68rem",
+    fontWeight: 700,
+    color: "#D97706"
+  },
+  rtoCardBody: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "14px"
+  },
+  rtoDlGraphic: {
+    background: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
+    border: "1px solid #FDE68A",
+    borderRadius: "14px",
+    padding: "16px"
+  },
+  rtoDlTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
+    paddingBottom: "8px",
+    borderBottom: "1px dashed #FCD34D"
+  },
+  rtoDlMiddle: {
+    display: "flex",
+    gap: "14px",
+    alignItems: "center"
+  },
+  rtoPhotoBox: {
+    width: "56px",
+    height: "64px",
+    borderRadius: "8px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  rtoDlDetails: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    fontSize: "0.76rem",
+    color: "#1E293B"
+  },
+  rtoVerificationStrip: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    background: "#ECFDF5",
+    border: "1px solid #A7F3D0",
+    borderRadius: "10px",
+    padding: "10px 14px"
+  },
+  rtoVerdictGreen: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "0.78rem",
+    fontWeight: 800,
+    color: "#065F46"
+  },
+  rtoVerdictSub: {
+    display: "flex",
+    gap: "8px",
+    fontSize: "0.7rem",
+    color: "#047857",
+    paddingLeft: "24px"
+  },
+
+  /* MOCKUP 4: EXAM ADMIT CARD TERMINAL */
+  examMockCard: {
+    width: "100%",
+    maxWidth: "440px",
+    background: "#FFFFFF",
+    border: "1px solid #F3E8FF",
+    borderRadius: "20px",
+    padding: "24px",
+    boxShadow: "0 15px 35px -5px rgba(147, 51, 234, 0.1)"
+  },
+  examHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "16px",
+    paddingBottom: "14px",
+    borderBottom: "1px solid #F3E8FF"
+  },
+  examBadgeTitle: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
+  },
+  examTitleText: {
+    fontSize: "0.76rem",
+    fontWeight: 800,
+    color: "#6B21A8"
+  },
+  examSubText: {
+    fontSize: "0.68rem",
+    color: "#64748B"
+  },
+  examVerifiedTag: {
+    background: "#F3E8FF",
+    color: "#7E22CE",
+    border: "1px solid #D8B4FE",
+    padding: "4px 8px",
+    borderRadius: "9999px",
+    fontSize: "0.65rem",
+    fontWeight: 800
+  },
+  examBody: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "14px"
+  },
+  examBiometricGrid: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    background: "#FAF5FF",
+    padding: "14px 18px",
+    borderRadius: "14px",
+    border: "1px solid #E9D5FF"
+  },
+  examFaceBox: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "6px"
+  },
+  examFaceLabel: {
+    fontSize: "0.68rem",
+    color: "#6B21A8",
+    fontWeight: 600
+  },
+  examCompareArrow: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    background: "#DCFCE7",
+    padding: "4px 10px",
+    borderRadius: "8px",
+    border: "1px solid #86EFAC"
+  },
+  examGateFaceBox: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "6px"
+  },
+  examGateLabel: {
+    fontSize: "0.68rem",
+    color: "#15803D",
+    fontWeight: 600
+  },
+  examDataPills: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px"
+  },
+  examDataRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "0.78rem",
+    color: "#334155",
+    padding: "4px 6px"
+  },
+  examPassAlert: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    background: "#F0FDF4",
+    border: "1px solid #BBF7D0",
+    borderRadius: "8px",
+    padding: "8px 12px",
+    color: "#15803D",
+    fontSize: "0.72rem",
+    fontWeight: 700
+  },
+
+  /* SECTION D: COMPLIANCE BANNER */
+  complianceSection: {
+    padding: "40px 0 60px"
+  },
+  complianceInner: {
+    background: "linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)",
+    border: "1px solid #DBEAFE",
+    borderRadius: "20px",
+    padding: "32px"
+  },
+  complianceHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "24px"
+  },
+  complianceTitleGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px"
+  },
+  complianceTitle: {
+    fontSize: "1.25rem",
+    fontWeight: 800,
+    color: "#0F172A"
+  },
+  complianceSub: {
+    fontSize: "0.84rem",
+    color: "#64748B",
+    marginTop: "2px"
+  },
+  complianceBadgesGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "16px"
+  },
+  complianceBadgeCard: {
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    borderRadius: "12px",
+    padding: "16px",
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "12px",
+    boxShadow: "0 2px 6px rgba(15, 23, 42, 0.04)"
+  },
+  complianceBadgeIcon: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "8px",
+    background: "#F8FAFC",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  },
+  complianceBadgeName: {
+    fontSize: "0.88rem",
+    fontWeight: 700,
+    color: "#0F172A"
+  },
+  complianceBadgeDesc: {
+    fontSize: "0.74rem",
+    color: "#64748B",
+    marginTop: "3px",
+    lineHeight: 1.35
   },
 
   /* MODAL */
