@@ -37,7 +37,7 @@ export default function History() {
 
   return (
     <div className="container" style={styles.container}>
-      <div className="header" style={styles.header}>
+      <div className="pageHeader" style={styles.header}>
         <div>
           <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>Verification Audit Log</h1>
           <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "4px" }}>

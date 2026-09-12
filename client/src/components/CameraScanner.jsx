@@ -122,7 +122,7 @@ export default function CameraScanner({ onCapture, onClose }) {
     <div className="overlay" style={styles.overlay}>
       <div className="modalCard glass-card" style={styles.modalCard}>
         {/* Header */}
-        <div className="header" style={styles.header}>
+        <div className="modalHeader" style={styles.header}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <Camera size={22} color="#2563eb" />
             <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#0f172a" }}>
