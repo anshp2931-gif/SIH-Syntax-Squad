@@ -173,33 +173,33 @@ export default function Home({ onNavigateVerify }) {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="container" style={styles.container}>
       {/* ================= HERO SECTION ================= */}
-      <section style={styles.heroSection}>
+      <section className="heroSection" style={styles.heroSection}>
         {/* Left Column: Headline & CTA */}
-        <div style={styles.heroLeft}>
+        <div className="heroLeft" style={styles.heroLeft}>
           {/* Government Initiative Badge */}
 
 
-          <h1 style={styles.heroTitle}>
+          <h1 className="heroTitle" style={styles.heroTitle}>
             Indian Document Authenticity &<br />
             <span style={{ color: "#2563EB" }}>Verification Platform</span>
           </h1>
 
-          <p style={styles.heroSub}>
+          <p className="heroSub" style={styles.heroSub}>
             An enterprise-grade, AI-powered platform for verifying the authenticity
             of Indian identity documents like PAN Card, Driving Licence, Aadhaar and more.
             Fast, secure and tamper-proof.
           </p>
 
-          <div style={styles.heroCtaGroup}>
-            <button className="btn-primary" onClick={onNavigateVerify} style={styles.btnVerify}>
+          <div className="heroCtaGroup" style={styles.heroCtaGroup}>
+            <button className="btn-primary btnVerify" onClick={onNavigateVerify} style={styles.btnVerify}>
               <span>Verify a Document</span>
               <ArrowRight size={18} />
             </button>
 
             <button
-              className="btn-secondary"
+              className="btn-secondary btnDemo"
               onClick={() => setShowDemoModal(true)}
               style={styles.btnDemo}
             >
@@ -310,10 +310,10 @@ export default function Home({ onNavigateVerify }) {
         </div>
 
         {/* Right Column: 3D Stacked Graphic */}
-        <div style={styles.heroRight}>
-          <div style={styles.heroVisualBackdrop}>
+        <div className="heroRight" style={styles.heroRight}>
+          <div className="heroVisualBackdrop" style={styles.heroVisualBackdrop}>
             {/* Soft ambient background glow */}
-            <div style={styles.glowCircle} />
+            <div className="glowCircle" style={styles.glowCircle} />
 
             {/* Floating sparkle dots */}
             <div style={{ ...styles.sparkleDot, top: "14%", left: "10%" }} />
@@ -322,27 +322,27 @@ export default function Home({ onNavigateVerify }) {
             <div style={{ ...styles.sparkleDot, top: "76%", right: "8%" }} />
 
             {/* Visual Container for Cards */}
-            <div style={styles.cardsContainer} className="float-animation">
+            <div className="cardsContainer float-animation" style={styles.cardsContainer}>
               {/* Card 1: PAN Card */}
               <div
                 style={getCardStyle(0, styles.cardPan)}
                 onClick={() => setActiveCard(0)}
                 title="PAN Card"
               >
-                <div style={styles.panHeader}>
-                  <span style={styles.panTitle}>PAN CARD</span>
+                <div className="panHeader" style={styles.panHeader}>
+                  <span className="panTitle" style={styles.panTitle}>PAN CARD</span>
                 </div>
-                <div style={styles.panBody}>
-                  <div style={styles.panAvatar}>
+                <div className="panBody" style={styles.panBody}>
+                  <div className="panAvatar" style={styles.panAvatar}>
                     <User size={20} color="#60A5FA" />
                   </div>
-                  <div style={styles.panLines}>
+                  <div className="panLines" style={styles.panLines}>
                     <div style={{ ...styles.cardLine, width: "85%" }} />
                     <div style={{ ...styles.cardLine, width: "65%" }} />
                     <div style={{ ...styles.cardLine, width: "75%" }} />
                   </div>
                 </div>
-                <div style={styles.panFooterLines}>
+                <div className="panFooterLines" style={styles.panFooterLines}>
                   <div style={{ ...styles.cardLine, width: "40%" }} />
                   <div style={{ ...styles.cardLine, width: "55%" }} />
                 </div>
@@ -354,27 +354,27 @@ export default function Home({ onNavigateVerify }) {
                 onClick={() => setActiveCard(1)}
                 title="Aadhaar Card"
               >
-                <div style={styles.aadhaarHeader}>
-                  <span style={styles.aadhaarTitle}>आधार</span>
-                  <span style={styles.aadhaarSubtitle}>AADHAAR CARD</span>
+                <div className="aadhaarHeader" style={styles.aadhaarHeader}>
+                  <span className="aadhaarTitle" style={styles.aadhaarTitle}>आधार</span>
+                  <span className="aadhaarSubtitle" style={styles.aadhaarSubtitle}>AADHAAR CARD</span>
                 </div>
 
                 {/* Aadhaar main blue accent bar like Satyameva Jayate */}
-                <div style={styles.aadhaarMainBar} />
+                <div className="aadhaarMainBar" style={styles.aadhaarMainBar} />
 
-                <div style={styles.aadhaarBody}>
-                  <div style={styles.aadhaarAvatar}>
+                <div className="aadhaarBody" style={styles.aadhaarBody}>
+                  <div className="aadhaarAvatar" style={styles.aadhaarAvatar}>
                     <User size={22} color="#2563EB" />
                   </div>
 
-                  <div style={styles.aadhaarLines}>
+                  <div className="aadhaarLines" style={styles.aadhaarLines}>
                     <div style={{ ...styles.docLine, width: "95%" }} />
                     <div style={{ ...styles.docLine, width: "75%" }} />
                     <div style={{ ...styles.docLine, width: "85%" }} />
                   </div>
                 </div>
 
-                <div style={styles.aadhaarFooter}>
+                <div className="aadhaarFooter" style={styles.aadhaarFooter}>
                   <div style={{ ...styles.docLine, width: "65%" }} />
                   <div style={{ ...styles.docLine, width: "50%" }} />
                 </div>
@@ -387,18 +387,18 @@ export default function Home({ onNavigateVerify }) {
                 title="Satyameva Jayate Document"
               >
                 {/* Emblem Seal */}
-                <div style={styles.emblemWrapper}>
-                  <div style={styles.ashokaEmblem}>
-                    <div style={styles.emblemCrown}>🏛️</div>
-                    <div style={styles.emblemBase}>सत्यमेव जयते</div>
+                <div className="emblemWrapper" style={styles.emblemWrapper}>
+                  <div className="ashokaEmblem" style={styles.ashokaEmblem}>
+                    <div className="emblemCrown" style={styles.emblemCrown}>🏛️</div>
+                    <div className="emblemBase" style={styles.emblemBase}>सत्यमेव जयते</div>
                   </div>
                 </div>
 
                 {/* Document header bar */}
-                <div style={styles.docMainBar} />
+                <div className="docMainBar" style={styles.docMainBar} />
 
                 {/* Document text lines */}
-                <div style={styles.docLinesGroup}>
+                <div className="docLinesGroup" style={styles.docLinesGroup}>
                   <div style={{ ...styles.docLine, width: "95%" }} />
                   <div style={{ ...styles.docLine, width: "85%" }} />
                   <div style={{ ...styles.docLine, width: "90%" }} />
@@ -407,7 +407,7 @@ export default function Home({ onNavigateVerify }) {
                 </div>
 
                 {/* Overlapping Verified Green Check Badge (#16A34A) */}
-                <div style={styles.verifiedBadge}>
+                <div className="verifiedBadge" style={styles.verifiedBadge}>
                   <CheckCircle2 size={40} color="#16A34A" fill="#16A34A" stroke="#FFFFFF" strokeWidth={2.5} />
                 </div>
               </div>
@@ -418,21 +418,21 @@ export default function Home({ onNavigateVerify }) {
                 onClick={() => setActiveCard(3)}
                 title="Driving Licence"
               >
-                <div style={styles.dlHeader}>
-                  <span style={styles.dlTitle}>DRIVING LICENCE</span>
+                <div className="dlHeader" style={styles.dlHeader}>
+                  <span className="dlTitle" style={styles.dlTitle}>DRIVING LICENCE</span>
                   <Car size={16} color="#2563EB" />
                 </div>
-                <div style={styles.panBody}>
-                  <div style={styles.panAvatar}>
+                <div className="panBody" style={styles.panBody}>
+                  <div className="panAvatar" style={styles.panAvatar}>
                     <User size={20} color="#60A5FA" />
                   </div>
-                  <div style={styles.panLines}>
+                  <div className="panLines" style={styles.panLines}>
                     <div style={{ ...styles.cardLine, width: "85%" }} />
                     <div style={{ ...styles.cardLine, width: "65%" }} />
                     <div style={{ ...styles.cardLine, width: "75%" }} />
                   </div>
                 </div>
-                <div style={styles.dlBody}>
+                <div className="dlBody" style={styles.dlBody}>
                   <div style={{ ...styles.cardLine, width: "90%", background: "#b6c4d6" }} />
                   <div style={{ ...styles.cardLine, width: "75%", background: "#b6c4d6" }} />
                   <div style={{ ...styles.cardLine, width: "80%", background: "#b6c4d6" }} />
@@ -445,44 +445,44 @@ export default function Home({ onNavigateVerify }) {
       </section>
 
       {/* ================= 4-FEATURE PILL BANNER ================= */}
-      <section style={styles.featuresBanner} className="glass-card">
-        <div style={styles.featureItem}>
-          <div style={styles.featureIconBox}>
+      <section className="featuresBanner glass-card" style={styles.featuresBanner}>
+        <div className="featureItem" style={styles.featureItem}>
+          <div className="featureIconBox" style={styles.featureIconBox}>
             <Shield size={20} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.featureTitle}>AI-Powered Verification</div>
-            <div style={styles.featureSub}>Advanced OCR & ML models</div>
+            <div className="featureTitle" style={styles.featureTitle}>AI-Powered Verification</div>
+            <div className="featureSub" style={styles.featureSub}>Advanced OCR & ML models</div>
           </div>
         </div>
 
-        <div style={styles.featureItem}>
-          <div style={styles.featureIconBox}>
+        <div className="featureItem" style={styles.featureItem}>
+          <div className="featureIconBox" style={styles.featureIconBox}>
             <Zap size={20} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.featureTitle}>Fast & Reliable</div>
-            <div style={styles.featureSub}>Results in seconds</div>
+            <div className="featureTitle" style={styles.featureTitle}>Fast & Reliable</div>
+            <div className="featureSub" style={styles.featureSub}>Results in seconds</div>
           </div>
         </div>
 
-        <div style={styles.featureItem}>
-          <div style={styles.featureIconBox}>
+        <div className="featureItem" style={styles.featureItem}>
+          <div className="featureIconBox" style={styles.featureIconBox}>
             <Lock size={20} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.featureTitle}>Tamper Detection</div>
-            <div style={styles.featureSub}>Detects forged & altered docs</div>
+            <div className="featureTitle" style={styles.featureTitle}>Tamper Detection</div>
+            <div className="featureSub" style={styles.featureSub}>Detects forged & altered docs</div>
           </div>
         </div>
 
-        <div style={styles.featureItem}>
-          <div style={styles.featureIconBox}>
+        <div className="featureItem" style={styles.featureItem}>
+          <div className="featureIconBox" style={styles.featureIconBox}>
             <Cloud size={20} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.featureTitle}>Secure & Compliant</div>
-            <div style={styles.featureSub}>Govt. standards & data privacy</div>
+            <div className="featureTitle" style={styles.featureTitle}>Secure & Compliant</div>
+            <div className="featureSub" style={styles.featureSub}>Govt. standards & data privacy</div>
           </div>
         </div>
       </section>
@@ -644,19 +644,19 @@ export default function Home({ onNavigateVerify }) {
       </section>
 
       {/* ================= SUPPORTED DOCUMENT TYPES ================= */}
-      <section style={styles.supportedSection}>
-        <div style={styles.sectionHeader}>
+      <section className="supportedSection" style={styles.supportedSection}>
+        <div className="sectionHeader" style={styles.sectionHeader}>
           <div>
-            <h2 style={styles.sectionHeading}>Supported Document Types</h2>
-            <p style={styles.sectionSub}>Verify a wide range of Indian government documents</p>
+            <h2 className="sectionHeading" style={styles.sectionHeading}>Supported Document Types</h2>
+            <p className="sectionSub" style={styles.sectionSub}>Verify a wide range of Indian government documents</p>
           </div>
-          <button style={styles.viewAllBtn} onClick={onNavigateVerify}>
+          <button className="viewAllBtn" style={styles.viewAllBtn} onClick={onNavigateVerify}>
             <span>View All</span>
             <ArrowRight size={15} />
           </button>
         </div>
 
-        <div style={styles.supportedGrid}>
+        <div className="supportedGrid" style={styles.supportedGrid}>
           {/* Aadhaar Card */}
           <div
             className="glass-card glass-card-interactive"
@@ -667,8 +667,8 @@ export default function Home({ onNavigateVerify }) {
               <Fingerprint size={24} color="#DC2626" />
             </div>
             <div>
-              <div style={styles.docTypeTitle}>Aadhaar Card</div>
-              <div style={styles.docTypeSub}>Identity Verification</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>Aadhaar Card</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>Identity Verification</div>
             </div>
           </div>
 
@@ -682,8 +682,8 @@ export default function Home({ onNavigateVerify }) {
               <CreditCard size={24} color="#8B5CF6" />
             </div>
             <div>
-              <div style={styles.docTypeTitle}>PAN Card</div>
-              <div style={styles.docTypeSub}>Financial Identity</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>PAN Card</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>Financial Identity</div>
             </div>
           </div>
 
@@ -697,8 +697,8 @@ export default function Home({ onNavigateVerify }) {
               <Car size={24} color="#2563EB" />
             </div>
             <div>
-              <div style={styles.docTypeTitle}>Driving Licence</div>
-              <div style={styles.docTypeSub}>Transport Identity</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>Driving Licence</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>Transport Identity</div>
             </div>
           </div>
 
@@ -712,8 +712,8 @@ export default function Home({ onNavigateVerify }) {
               <User size={24} color="#A855F7" />
             </div>
             <div>
-              <div style={styles.docTypeTitle}>Voter ID</div>
-              <div style={styles.docTypeSub}>Electoral Identity</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>Voter ID</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>Electoral Identity</div>
             </div>
           </div>
 
@@ -727,8 +727,8 @@ export default function Home({ onNavigateVerify }) {
               <Globe size={24} color="#F97316" />
             </div>
             <div>
-              <div style={styles.docTypeTitle}>Passport</div>
-              <div style={styles.docTypeSub}>International Travel</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>Passport</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>International Travel</div>
             </div>
           </div>
 
@@ -742,72 +742,72 @@ export default function Home({ onNavigateVerify }) {
               <FileCheck2 size={24} color="#16A34A" />
             </div>
             <div>
-              <div style={styles.docTypeTitle}>Degree Certificate</div>
-              <div style={styles.docTypeSub}>Educational Verification</div>
+              <div className="docTypeTitle" style={styles.docTypeTitle}>Degree Certificate</div>
+              <div className="docTypeSub" style={styles.docTypeSub}>Educational Verification</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ================= STATS & TRUST BAR ================= */}
-      <section style={styles.statsBar} className="glass-card">
-        <div style={styles.statItem}>
-          <div style={styles.statCircleIcon}>
+      <section className="statsBar glass-card" style={styles.statsBar}>
+        <div className="statItem" style={styles.statItem}>
+          <div className="statCircleIcon" style={styles.statCircleIcon}>
             <FileText size={18} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.statNumber}>1M+</div>
-            <div style={styles.statLabel}>Documents Verified</div>
+            <div className="statNumber" style={styles.statNumber}>1M+</div>
+            <div className="statLabel" style={styles.statLabel}>Documents Verified</div>
           </div>
         </div>
 
-        <div style={styles.statDivider} />
+        <div className="statDivider" style={styles.statDivider} />
 
-        <div style={styles.statItem}>
-          <div style={styles.statCircleIcon}>
+        <div className="statItem" style={styles.statItem}>
+          <div className="statCircleIcon" style={styles.statCircleIcon}>
             <ShieldCheck size={18} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.statNumber}>99.8%</div>
-            <div style={styles.statLabel}>Accuracy Rate</div>
+            <div className="statNumber" style={styles.statNumber}>99.8%</div>
+            <div className="statLabel" style={styles.statLabel}>Accuracy Rate</div>
           </div>
         </div>
 
-        <div style={styles.statDivider} />
+        <div className="statDivider" style={styles.statDivider} />
 
-        <div style={styles.statItem}>
-          <div style={styles.statCircleIcon}>
+        <div className="statItem" style={styles.statItem}>
+          <div className="statCircleIcon" style={styles.statCircleIcon}>
             <Zap size={18} color="#2563EB" />
           </div>
           <div>
-            <div style={styles.statNumber}>2.4s</div>
-            <div style={styles.statLabel}>Avg. Verification Time</div>
+            <div className="statNumber" style={styles.statNumber}>2.4s</div>
+            <div className="statLabel" style={styles.statLabel}>Avg. Verification Time</div>
           </div>
         </div>
 
-        <div style={styles.statDivider} />
+        <div className="statDivider" style={styles.statDivider} />
 
-        <div style={styles.statItem}>
+        <div className="statItem" style={styles.statItem}>
           <div style={{ ...styles.statCircleIcon, background: "#ECFDF5" }}>
             <ShieldCheck size={18} color="#16A34A" />
           </div>
           <div>
-            <div style={styles.statNumber}>100%</div>
-            <div style={styles.statLabel}>Data Secure</div>
+            <div className="statNumber" style={styles.statNumber}>100%</div>
+            <div className="statLabel" style={styles.statLabel}>Data Secure</div>
           </div>
         </div>
 
-        <div style={styles.statDivider} />
+        <div className="statDivider" style={styles.statDivider} />
 
         {/* Indian Flag Ribbon Graphic */}
-        <div style={styles.trustRight}>
-          <div style={styles.tricolorWave}>
+        <div className="trustRight" style={styles.trustRight}>
+          <div className="tricolorWave" style={styles.tricolorWave}>
             <div style={{ height: "4px", background: "#FF9933", borderRadius: "2px 2px 0 0" }} />
             <div style={{ height: "4px", background: "#FFFFFF" }} />
             <div style={{ height: "4px", background: "#138808", borderRadius: "0 0 2px 2px" }} />
           </div>
-          <div style={styles.trustText}>
-            Building a Safer<br />Digital India
+          <div className="trustText" style={styles.trustText}>
+            Building a Safer Digital India
           </div>
         </div>
       </section>
@@ -1343,17 +1343,17 @@ export default function Home({ onNavigateVerify }) {
         </div>
       </section>
       {showDemoModal && (
-        <div style={styles.modalOverlay} onClick={() => setShowDemoModal(false)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalHeader}>
+        <div className="modalOverlay" style={styles.modalOverlay} onClick={() => setShowDemoModal(false)}>
+          <div className="modalContent" style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className="modalHeader" style={styles.modalHeader}>
               <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0F172A" }}>
                 DocAuth India Demo Walkthrough
               </h3>
-              <button style={styles.closeBtn} onClick={() => setShowDemoModal(false)}>
+              <button className="closeBtn" style={styles.closeBtn} onClick={() => setShowDemoModal(false)}>
                 <X size={20} color="#64748B" />
               </button>
             </div>
-            <div style={styles.modalBody}>
+            <div className="modalBody" style={styles.modalBody}>
               <p style={{ color: "#64748B", lineHeight: 1.6, marginBottom: "16px" }}>
                 DocAuth India executes a 7-stage automated pipeline:
               </p>
@@ -2116,7 +2116,7 @@ const styles = {
     fontSize: "0.8rem",
     fontWeight: 600,
     color: "#0F172A",
-    lineHeight: 1.3
+    lineHeight: 1.3,
   },
 
   /* QUICK-CHECK HERO TEASER */

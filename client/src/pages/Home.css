@@ -1,0 +1,595 @@
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 36px 28px 60px 28px;
+}
+
+.heroSection {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.govBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  margin-bottom: 24px;
+}
+
+.flagIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.68rem;
+}
+
+.govBadgeText {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.heroTitle {
+  font-size: 2.85rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #0F172A;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+}
+
+.heroSub {
+  font-size: 1.02rem;
+  color: #64748B;
+  line-height: 1.62;
+  margin-bottom: 32px;
+  max-width: 540px;
+}
+
+.heroCtaGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btnVerify {
+  padding: 12px 24px;
+  font-size: 0.95rem;
+}
+
+.btnDemo {
+  padding: 12px 22px;
+  font-size: 0.95rem;
+}
+
+.heroRight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heroVisualBackdrop {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glowCircle {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(219, 234, 254, 0.6) 0%, rgba(239, 246, 255, 0.3) 50%, transparent 70%);
+  filter: blur(20px);
+  z-index: 0;
+}
+
+.sparkleDot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #60A5FA;
+  box-shadow: 0 0 8px #60A5FA;
+  z-index: 1;
+}
+
+.cardsContainer {
+  position: relative;
+  width: 340px;
+  height: 260px;
+  z-index: 2;
+}
+
+.cardPan {
+  position: absolute;
+  left: -20px;
+  top: 20px;
+  width: 200px;
+  height: 135px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12);
+  transform: rotate(-10deg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+.panHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panTitle {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #2563EB;
+  letter-spacing: 0.05em;
+}
+
+.panBody {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.panAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #DBEAFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panFooterLines {
+  display: flex;
+  gap: 8px;
+}
+
+.cardLine {
+  height: 4px;
+  border-radius: 2px;
+  background: #93C5FD;
+}
+
+.cardDl {
+  position: absolute;
+  right: -20px;
+  top: 20px;
+  width: 200px;
+  height: 135px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12);
+  transform: rotate(10deg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+.dlHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dlTitle {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #2563EB;
+  letter-spacing: 0.05em;
+}
+
+.dlBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cardCenter {
+  position: absolute;
+  left: 50%;
+  top: 0px;
+  transform: translateX(-50%);
+  width: 190px;
+  height: 240px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.04);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+}
+
+.emblemWrapper {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.ashokaEmblem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emblemCrown {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.emblemBase {
+  font-size: 0.45rem;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+
+.docMainBar {
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: #93C5FD;
+  margin-bottom: 12px;
+}
+
+.docLinesGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.docLine {
+  height: 5px;
+  border-radius: 3px;
+  background: #E2E8F0;
+}
+
+.verifiedBadge {
+  position: absolute;
+  bottom: -12px;
+  right: -12px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
+}
+
+.cardAadhaar {
+  border-radius: 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.04);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.aadhaarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.aadhaarTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1E3A8A;
+  letter-spacing: 0.05em;
+}
+
+.aadhaarSubtitle {
+  font-size: 9px;
+  font-weight: 700;
+  color: #2563EB;
+  letter-spacing: 0.05em;
+}
+
+.aadhaarMainBar {
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: #93C5FD;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.aadhaarBody {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.aadhaarAvatar {
+  width: 42px;
+  height: 46px;
+  border-radius: 6px;
+  background: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #DBEAFE;
+}
+
+.aadhaarLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aadhaarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.featuresBanner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 20px 28px;
+  gap: 24px;
+  margin-bottom: 52px;
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.featureIconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0px;
+}
+
+.featureTitle {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.featureSub {
+  font-size: 0.78rem;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.supportedSection {
+  margin-bottom: 48px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.sectionHeading {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+}
+
+.sectionSub {
+  font-size: 0.9rem;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+.viewAllBtn {
+  background: transparent;
+  border: none;
+  color: #2563EB;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.supportedGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.docTypeCard {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+
+.docIconSquare {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.docTypeTitle {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.docTypeSub {
+  font-size: 0.76rem;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.statsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statCircleIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statNumber {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: 0.74rem;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 32px;
+  background: #E2E8F0;
+}
+
+.trustRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tricolorWave {
+  width: 32px;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
+}
+
+.trustText {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0F172A;
+  line-height: 1.3;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: #FFFFFF;
+  border-radius: 16px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15);
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+}
+
+.modalHeader {
+  padding: 18px 24px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.modalBody {
+  padding: 24px;
+}
+

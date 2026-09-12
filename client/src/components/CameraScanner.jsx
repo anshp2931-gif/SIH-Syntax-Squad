@@ -119,31 +119,31 @@ export default function CameraScanner({ onCapture, onClose }) {
   };
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modalCard} className="glass-card">
+    <div className="overlay" style={styles.overlay}>
+      <div className="modalCard glass-card" style={styles.modalCard}>
         {/* Header */}
-        <div style={styles.header}>
+        <div className="modalHeader" style={styles.header}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <Camera size={22} color="#2563eb" />
             <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#0f172a" }}>
               Live Document Camera Scanner
             </span>
           </div>
-          <button style={styles.iconBtn} onClick={onClose}>
+          <button className="iconBtn" style={styles.iconBtn} onClick={onClose}>
             <X size={20} color="#64748b" />
           </button>
         </div>
 
         {/* Camera View Area */}
-        <div style={styles.cameraBox}>
+        <div className="cameraBox" style={styles.cameraBox}>
           {error ? (
-            <div style={styles.errorBox}>
+            <div className="errorBox" style={styles.errorBox}>
               <AlertCircle size={32} color="#dc2626" />
               <div style={{ color: "#dc2626", fontWeight: 600, marginTop: "8px" }}>{error}</div>
             </div>
           ) : (
             <>
-              <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
+              <video ref={videoRef} autoPlay playsInline muted className="video" style={styles.video} />
               <canvas ref={canvasRef} style={{ display: "none" }} />
 
               {/* ID Card Target Frame Overlay */}
@@ -156,10 +156,10 @@ export default function CameraScanner({ onCapture, onClose }) {
                     : "0 0 0 9999px rgba(15, 23, 42, 0.4)"
                 }}
               >
-                <div style={styles.frameCornerTL} />
-                <div style={styles.frameCornerTR} />
-                <div style={styles.frameCornerBL} />
-                <div style={styles.frameCornerBR} />
+                <div className="frameCornerTL" style={styles.frameCornerTL} />
+                <div className="frameCornerTR" style={styles.frameCornerTR} />
+                <div className="frameCornerBL" style={styles.frameCornerBL} />
+                <div className="frameCornerBR" style={styles.frameCornerBR} />
 
                 {/* Clarity Feedback Pill */}
                 <div
@@ -186,12 +186,12 @@ export default function CameraScanner({ onCapture, onClose }) {
         </div>
 
         {/* Meter & Controls */}
-        <div style={styles.controlBar}>
-          <div style={styles.meterBox}>
+        <div className="controlBar" style={styles.controlBar}>
+          <div className="meterBox" style={styles.meterBox}>
             <span style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600 }}>
               Clarity Index: {sharpness} / 20
             </span>
-            <div style={styles.meterTrack}>
+            <div className="meterTrack" style={styles.meterTrack}>
               <div
                 style={{
                   ...styles.meterFill,

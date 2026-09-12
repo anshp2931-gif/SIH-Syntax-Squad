@@ -11,6 +11,13 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [manualNumber, setManualNumber] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  const documentTypes = [
+    { id: "AUTO", label: "✨ Auto-Detect" },
+    { id: "PAN", label: "💳 PAN Card" },
+    { id: "DRIVING_LICENSE", label: "🪪 Driving Licence" }
+  ];
 
   useEffect(() => {
     fetchSampleDocumentsApi()
@@ -52,33 +59,96 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
 
   return (
     <div className="glass-card" style={styles.card}>
-      <h2 style={styles.title}>Upload Indian Identity Document</h2>
-      <p style={styles.subtitle}>
+      <h2 className="title" style={styles.title}>Upload Indian Identity Document</h2>
+      <p className="subtitle" style={styles.subtitle}>
         Supports standard PAN Card, Driving Licence, Aadhaar preview, & PDFs.
       </p>
 
       {/* Target Document Selector */}
-      <div style={styles.typeSelectorGroup}>
+      <div className="typeSelectorGroup" style={styles.typeSelectorGroup}>
         <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#64748B" }}>
           Target Document Type:
         </span>
-        <div style={styles.typeButtons}>
-          {[
-            { id: "AUTO", label: "✨ Auto-Detect" },
-            { id: "PAN", label: "💳 PAN Card" },
-            { id: "DRIVING_LICENSE", label: "🪪 Driving Licence" }
-          ].map((type) => (
-            <button
-              key={type.id}
-              style={{
-                ...styles.typeBtn,
-                ...(forcedType === type.id ? styles.typeBtnActive : {})
-              }}
-              onClick={() => setForcedType(type.id)}
-            >
-              {type.label}
-            </button>
-          ))}
+        <div 
+          className="customDropdownContainer"
+          style={{ position: "relative", marginTop: "4px" }}
+          onMouseLeave={() => setIsDropdownOpen(false)}
+        >
+          <div 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              background: "#F8FAFC",
+              border: `1px solid ${isDropdownOpen ? '#2563EB' : '#E2E8F0'}`,
+              boxShadow: isDropdownOpen ? "0 0 0 3px rgba(37,99,235,0.15)" : "none",
+              borderRadius: "8px",
+              color: "#0F172A",
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              transition: "all 0.2s ease"
+            }}
+          >
+            <span style={{ pointerEvents: "none" }}>
+              {documentTypes.find(t => t.id === forcedType)?.label}
+            </span>
+            <ChevronDown 
+              size={20} 
+              color="#64748B" 
+              style={{ transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }}
+            />
+          </div>
+
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <div style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              marginTop: "6px",
+              background: "#FFFFFF",
+              border: "1px solid #E2E8F0",
+              borderRadius: "8px",
+              boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1)",
+              zIndex: 50,
+              overflow: "hidden"
+            }}>
+              {documentTypes.map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => {
+                    setForcedType(t.id);
+                    setIsDropdownOpen(false);
+                  }}
+                  onMouseEnter={(e) => {
+                    if (forcedType !== t.id) e.currentTarget.style.background = "#F1F5F9";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = forcedType === t.id ? "#EFF6FF" : "transparent";
+                  }}
+                  style={{
+                    padding: "12px 16px",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    color: forcedType === t.id ? "#2563EB" : "#334155",
+                    background: forcedType === t.id ? "#EFF6FF" : "transparent",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    borderLeft: forcedType === t.id ? "3px solid #2563EB" : "3px solid transparent"
+                  }}
+                >
+                  {t.label}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -105,9 +175,9 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
         />
 
         {previewUrl ? (
-          <div style={styles.previewContainer}>
-            <img src={previewUrl} alt="Document Preview" style={styles.previewImage} />
-            <div style={styles.fileDetails}>
+          <div className="previewContainer" style={styles.previewContainer}>
+            <img src={previewUrl} alt="Document Preview" className="previewImage" style={styles.previewImage} />
+            <div className="fileDetails" style={styles.fileDetails}>
               <div style={{ fontWeight: 600, color: "#0F172A" }}>{selectedFile.name}</div>
               <div style={{ fontSize: "0.78rem", color: "#64748B" }}>
                 {(selectedFile.size / 1024).toFixed(1)} KB
@@ -115,8 +185,8 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
             </div>
           </div>
         ) : (
-          <label htmlFor="doc-upload-input" style={styles.dropZoneLabel}>
-            <div style={styles.uploadIconCircle}>
+          <label htmlFor="doc-upload-input" className="dropZoneLabel" style={styles.dropZoneLabel}>
+            <div className="uploadIconCircle" style={styles.uploadIconCircle}>
               <UploadCloud size={30} color="#2563EB" />
             </div>
             <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#0F172A" }}>
@@ -170,7 +240,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
       )}
 
       {/* Verify Button */}
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+      <div className="verifyBtnWrapper" style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
         <button
           className="btn-primary"
           onClick={handleTriggerUpload}
@@ -186,22 +256,22 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
 
       {/* Synthetic Demo Samples */}
       {samples.length > 0 && (
-        <div style={styles.sampleSection}>
-          <div style={styles.sampleHeader}>
+        <div className="sampleSection" style={styles.sampleSection}>
+          <div className="sampleHeader" style={styles.sampleHeader}>
             <Sparkles size={16} color="#2563EB" />
             <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#2563EB" }}>
               Fast Test — Try Synthetic Demo Samples:
             </span>
           </div>
 
-          <div style={styles.sampleGrid}>
+          <div className="sampleGrid" style={styles.sampleGrid}>
             {samples.map((sample) => (
               <div
                 key={sample.id}
-                style={styles.sampleCard}
+                className="sampleCard" style={styles.sampleCard}
                 onClick={() => onSelectSample(sample)}
               >
-                <div style={styles.sampleBadge}>{sample.documentType}</div>
+                <div className="sampleBadge" style={styles.sampleBadge}>{sample.documentType}</div>
                 <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "#0F172A", marginTop: "4px" }}>
                   {sample.title}
                 </div>

@@ -48,8 +48,8 @@ export default function App() {
         </Routes>
       </main>
 
-      <footer style={styles.footer}>
-        <div style={styles.footerContainer}>
+      <footer className="footer" style={styles.footer}>
+        <div className="footerContainer" style={styles.footerContainer}>
           <div style={{ color: "#334155", fontWeight: 600 }}>
             <strong>DocAuth India</strong> — Enterprise Indian Document Authenticity Platform
           </div>
