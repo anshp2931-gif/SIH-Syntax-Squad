@@ -1,0 +1,90 @@
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #E2E8F0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.logoWrapper { display: flex; align-items: center; justify-content: center; }
+.logoShield { width: 40px; height: 40px; border-radius: 10px; background: #2563EB; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+.brandName { font-size: 1.25rem; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; line-height: 1.1; }
+.brandSub { font-size: 0.74rem; color: #64748B; font-weight: 500; margin-top: 2px; }
+
+.nav { display: flex; align-items: center; gap: 8px; }
+.navBtn { background: transparent; border: none; color: #64748B; font-size: 0.92rem; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; position: relative; transition: all 0.15s ease; }
+.navBtnActive { color: #2563EB; }
+.activeIndicator { position: absolute; bottom: -12px; left: 16px; right: 16px; height: 3px; border-radius: 3px 3px 0 0; background: #2563EB; }
+
+.rightSection { display: flex; align-items: center; gap: 16px; }
+.statusBadge { display: flex; align-items: center; gap: 6px; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 5px 12px; border-radius: 9999px; }
+.statusDot { width: 7px; height: 7px; border-radius: 50%; background: #16A34A; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+.userProfile { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px; border-radius: 9999px; }
+.userAvatar { width: 36px; height: 36px; border-radius: 50%; background: #2563EB; color: #FFFFFF; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2); }
+
+.hamburger-btn, .mobile-nav-header, .mobile-nav-backdrop { display: none; }
+
+@media screen and (max-width: 900px) {
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100vh;
+    background: #FFFFFF;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 24px;
+    box-shadow: -4px 0 24px rgba(15, 23, 42, 0.1);
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    gap: 16px;
+  }
+
+  .nav.mobile-nav-open { right: 0; }
+  .navBtn { width: 100%; justify-content: flex-start; padding: 12px 16px; }
+
+  .mobile-nav-header {
+    display: flex; justify-content: space-between; width: 100%; align-items: center;
+    margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0;
+  }
+
+  .mobile-nav-close { background: transparent; border: none; cursor: pointer; }
+  .hamburger-btn { display: flex; background: transparent; border: none; cursor: pointer; margin-left: 12px; }
+
+  .mobile-nav-backdrop {
+    display: block;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.4); z-index: 999; backdrop-filter: blur(4px);
+  }
+
+  .activeIndicator {
+    bottom: 0; left: 0; width: 4px; height: 100%;
+    border-radius: 0 4px 4px 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .brandSub, .statusText, .chevron-down-icon { display: none; }
+  .nav-container { padding: 12px 16px; }
+}

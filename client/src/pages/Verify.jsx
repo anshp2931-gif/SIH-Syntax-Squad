@@ -52,8 +52,8 @@ export default function Verify() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.grid}>
+    <div className="container" style={styles.container}>
+      <div className="grid" style={styles.grid}>
         {/* Left Column: Upload Form */}
         <div>
           <UploadBox
@@ -67,7 +67,7 @@ export default function Verify() {
         <div>
           {loading && (
             <div className="glass-card" style={styles.loadingBox}>
-              <div style={styles.spinnerWrapper}>
+              <div className="spinnerWrapper" style={styles.spinnerWrapper}>
                 <Cpu size={44} color="#2563eb" className="pulse-animation" />
               </div>
               <h3 style={{ fontSize: "1.2rem", marginTop: "16px", color: "#0f172a" }}>
@@ -76,7 +76,7 @@ export default function Verify() {
               <p style={{ color: "#2563eb", fontWeight: 600, marginTop: "8px", fontSize: "0.92rem" }}>
                 {currentStep}
               </p>
-              <div style={styles.progressBar}>
+              <div className="progressBar" style={styles.progressBar}>
                 <div className="pulse-animation" style={styles.progressFill} />
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function Verify() {
 
           {!loading && !error && !result && (
             <div className="glass-card" style={styles.emptyState}>
-              <div style={styles.emptyIconCircle}>
+              <div className="emptyIconCircle" style={styles.emptyIconCircle}>
                 <Cpu size={36} color="#2563eb" />
               </div>
               <h3 style={{ marginTop: "16px", color: "#1e293b" }}>No Active Verification</h3>

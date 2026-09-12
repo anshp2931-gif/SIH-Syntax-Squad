@@ -42,10 +42,10 @@ export default function VerificationCard({ result }) {
   return (
     <div className="glass-card" style={styles.card}>
       {/* Header */}
-      <div style={styles.cardHeader}>
+      <div className="cardHeader" style={styles.cardHeader}>
         <div>
-          <div style={styles.verIdLabel}>VERIFICATION REPORT</div>
-          <div style={styles.verIdValue}>{verificationId}</div>
+          <div className="verIdLabel" style={styles.verIdLabel}>VERIFICATION REPORT</div>
+          <div className="verIdValue" style={styles.verIdValue}>{verificationId}</div>
         </div>
         <div>
           <ResultBadge status={status} riskScore={riskScore} />
@@ -53,17 +53,17 @@ export default function VerificationCard({ result }) {
       </div>
 
       {/* Primary Summary Grid */}
-      <div style={styles.summaryGrid}>
+      <div className="summaryGrid" style={styles.summaryGrid}>
         {/* Risk Score Gauge */}
-        <div style={styles.scoreGaugeBox}>
+        <div className="scoreGaugeBox" style={styles.scoreGaugeBox}>
           <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
             COMPUTE RISK SCORE
           </div>
-          <div style={styles.gaugeNumber}>
+          <div className="gaugeNumber" style={styles.gaugeNumber}>
             {riskScore}
             <span style={{ fontSize: "1rem", color: "#64748B" }}>/100</span>
           </div>
-          <div style={styles.gaugeTrack}>
+          <div className="gaugeTrack" style={styles.gaugeTrack}>
             <div
               style={{
                 ...styles.gaugeFill,
@@ -77,7 +77,7 @@ export default function VerificationCard({ result }) {
               }}
             />
           </div>
-          <div style={styles.gaugeCaption}>
+          <div className="gaugeCaption" style={styles.gaugeCaption}>
             {riskScore <= 15
               ? "Low Risk — Document Authenticated"
               : riskScore <= 40
@@ -87,7 +87,7 @@ export default function VerificationCard({ result }) {
         </div>
 
         {/* Document Classification */}
-        <div style={styles.infoBox}>
+        <div className="infoBox" style={styles.infoBox}>
           <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
             DOCUMENT TYPE
           </div>
@@ -105,7 +105,7 @@ export default function VerificationCard({ result }) {
       </div>
 
       {/* Tabs for detailed breakdown */}
-      <div style={styles.tabBar}>
+      <div className="tabBar" style={styles.tabBar}>
         {[
           { id: "overview", label: "Checks Checklist", icon: ShieldCheck },
           { id: "extracted", label: "Extracted Data", icon: FileText },
@@ -131,8 +131,8 @@ export default function VerificationCard({ result }) {
 
       {/* TAB CONTENT: 7-Checklist */}
       {activeTab === "overview" && (
-        <div style={styles.checklistSection}>
-          <div style={styles.checkGrid}>
+        <div className="checklistSection" style={styles.checklistSection}>
+          <div className="checkGrid" style={styles.checkGrid}>
             {checksList.map((chk) => (
               <div
                 key={chk.key}
@@ -164,7 +164,7 @@ export default function VerificationCard({ result }) {
           </div>
 
           {penalties && penalties.length > 0 && (
-            <div style={styles.penaltyNotice}>
+            <div className="penaltyNotice" style={styles.penaltyNotice}>
               <div style={{ fontWeight: 700, color: "#D97706", marginBottom: "6px" }}>
                 Risk Deduction Audit:
               </div>
@@ -182,15 +182,15 @@ export default function VerificationCard({ result }) {
 
       {/* TAB CONTENT: Extracted Data */}
       {activeTab === "extracted" && (
-        <div style={styles.tabContent}>
-          <table style={styles.dataTable}>
+        <div className="tabContent" style={styles.tabContent}>
+          <table className="dataTable" style={styles.dataTable}>
             <tbody>
               {Object.entries(extractedData).map(([key, val]) => (
-                <tr key={key} style={styles.tableRow}>
-                  <td style={styles.tableKey}>
+                <tr key={key} className="tableRow" style={styles.tableRow}>
+                  <td className="tableKey" style={styles.tableKey}>
                     {key.replace(/([A-Z])/g, " $1").toUpperCase()}
                   </td>
-                  <td style={styles.tableVal} className="code-font">
+                  <td className="tableVal code-font" style={styles.tableVal}>
                     {typeof val === "object" ? JSON.stringify(val) : String(val)}
                   </td>
                 </tr>
@@ -202,28 +202,28 @@ export default function VerificationCard({ result }) {
 
       {/* TAB CONTENT: Tamper Details */}
       {activeTab === "tampering" && (
-        <div style={styles.tabContent}>
-          <div style={styles.tamperAuditGrid}>
-            <div style={styles.auditBox}>
-              <div style={styles.auditLabel}>Aspect Ratio Match</div>
+        <div className="tabContent" style={styles.tabContent}>
+          <div className="tamperAuditGrid" style={styles.tamperAuditGrid}>
+            <div className="auditBox" style={styles.auditBox}>
+              <div className="auditLabel" style={styles.auditLabel}>Aspect Ratio Match</div>
               <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.aspectRatioCheck ? "#16A34A" : "#DC2626" }}>
                 {tamperDetails?.indicators?.aspectRatioCheck ? "Standard Physical Card Ratio" : "Non-Standard Proportions"}
               </div>
             </div>
-            <div style={styles.auditBox}>
-              <div style={styles.auditLabel}>Compression Grid (ELA)</div>
+            <div className="auditBox" style={styles.auditBox}>
+              <div className="auditLabel" style={styles.auditLabel}>Compression Grid (ELA)</div>
               <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.compressionConsistency ? "#16A34A" : "#DC2626" }}>
                 {tamperDetails?.indicators?.compressionConsistency ? "Uniform Noise Map" : "Potential Boundary Edit"}
               </div>
             </div>
-            <div style={styles.auditBox}>
-              <div style={styles.auditLabel}>Image Dimensions</div>
+            <div className="auditBox" style={styles.auditBox}>
+              <div className="auditLabel" style={styles.auditLabel}>Image Dimensions</div>
               <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
                 {tamperDetails?.details?.dimensions || "Standard Resolution"}
               </div>
             </div>
-            <div style={styles.auditBox}>
-              <div style={styles.auditLabel}>Edge Variance Score</div>
+            <div className="auditBox" style={styles.auditBox}>
+              <div className="auditLabel" style={styles.auditLabel}>Edge Variance Score</div>
               <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
                 {tamperDetails?.details?.avgEdgeVariance || "12.4"}
               </div>
@@ -234,8 +234,8 @@ export default function VerificationCard({ result }) {
 
       {/* TAB CONTENT: Issuer Details */}
       {activeTab === "issuer" && (
-        <div style={styles.tabContent}>
-          <div style={styles.issuerBox}>
+        <div className="tabContent" style={styles.tabContent}>
+          <div className="issuerBox" style={styles.issuerBox}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontWeight: 700, color: "#2563EB" }}>
                 {issuerDetails?.issuer || "Authoritative Gateway"}
@@ -254,7 +254,7 @@ export default function VerificationCard({ result }) {
       )}
 
       {/* Footer Action */}
-      <div style={styles.footer}>
+      <div className="footer" style={styles.footer}>
         <button className="btn-secondary" onClick={downloadJsonReport}>
           <Download size={16} />
           Export JSON Certificate
