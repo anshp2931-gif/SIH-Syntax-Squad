@@ -29,6 +29,7 @@ export default function Verify() {
 
   // Active files & parameters to enable one-click switch
   const [currentFile, setCurrentFile] = useState(null);
+  const [documentImageUrl, setDocumentImageUrl] = useState(null);
 
   const [manualNumber, setManualNumber] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("AUTO");
@@ -62,7 +63,7 @@ export default function Verify() {
         return;
       }
 
-      if (res.status === "UNSUPPORTED") {
+      if (res.status === "UNSUPPORTED" && !res.tamperDetails) {
         setUnsupportedState(res);
         return;
       }
@@ -93,6 +94,16 @@ export default function Verify() {
 
   const handleFileUpload = (file, forcedType, manualNum) => {
     setCurrentFile(file);
+    if (file instanceof Blob) {
+      try {
+        const url = URL.createObjectURL(file);
+        setDocumentImageUrl(url);
+      } catch (e) {
+        console.warn("Could not create object URL:", e);
+      }
+    } else if (typeof file === "string") {
+      setDocumentImageUrl(file);
+    }
     setManualNumber(manualNum || "");
     runPipelineWithSteps(() => verifyDocumentApi(file, forcedType, manualNum));
   };
@@ -113,6 +124,10 @@ export default function Verify() {
 
   // Upload Another Document handler
   const handleUploadAnother = () => {
+    if (documentImageUrl && documentImageUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(documentImageUrl);
+    }
+    setDocumentImageUrl(null);
     clearDetectionStates();
     setResult(null);
     setError(null);
@@ -124,6 +139,13 @@ export default function Verify() {
   const handleChooseSupported = () => {
     setUnsupportedState(null);
     setSelectedCategory("AUTO");
+  };
+
+  // Run Forensic Audit anyway on unsupported or unrecognized document
+  const handleForceForensicAudit = () => {
+    if (!currentFile) return;
+    clearDetectionStates();
+    runPipelineWithSteps(() => verifyDocumentApi(currentFile, "AUTO", manualNumber));
   };
 
   // Manual Category Selection on Low Confidence
@@ -293,6 +315,14 @@ export default function Verify() {
               <div style={styles.mismatchActions}>
                 <button
                   className="btn-primary"
+                  onClick={handleForceForensicAudit}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#DC2626", borderColor: "#B91C1C", color: "#FFFFFF" }}
+                >
+                  <Flame size={16} />
+                  Run Forensic ELA Heatmap Audit
+                </button>
+                <button
+                  className="btn-secondary"
                   onClick={handleChooseSupported}
                   style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
                 >
@@ -407,7 +437,7 @@ export default function Verify() {
             </div>
           )}
 
-          {!loading && result && <VerificationCard result={result} />}
+          {!loading && result && <VerificationCard result={result} documentImage={documentImageUrl} />}
         </div>
       </div>
     </div>
