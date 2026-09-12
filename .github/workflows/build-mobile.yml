@@ -33,6 +33,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: 📱 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 📦 Install Android SDK 36 + Build Tools
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          yes | sdkmanager --licenses || true
+
       - name: 📦 Install client dependencies
         working-directory: client
         run: npm install
@@ -44,17 +52,15 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
-      - name: 📱 Add Android platform (fresh in CI)
+      - name: 📱 Add Android platform fresh
         working-directory: client
         run: |
-          # Remove existing android folder to ensure clean state
           rm -rf android
           npx cap add android
 
       - name: 🔐 Patch AndroidManifest.xml with permissions
-        working-directory: client/android/app/src/main
         run: |
-          cat > AndroidManifest.xml << 'EOF'
+          cat > client/android/app/src/main/AndroidManifest.xml << 'MANIFEST_EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <application
@@ -93,19 +99,18 @@ jobs:
               <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
               <uses-feature android:name="android.hardware.camera" android:required="false" />
           </manifest>
-          EOF
+          MANIFEST_EOF
 
-      - name: 🔧 Setup Android SDK path and accept licenses
+      - name: 🔧 Create local.properties with SDK path
         working-directory: client/android
         run: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          cat local.properties
           chmod +x gradlew
 
       - name: 🏗️ Build Android Debug APK
         working-directory: client/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
@@ -130,7 +135,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 🍎 Select Xcode version
+      - name: 🍎 Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: 📦 Install client dependencies
@@ -144,7 +149,7 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
-      - name: 📱 Add iOS platform (fresh in CI)
+      - name: 📱 Add iOS platform fresh
         working-directory: client
         run: |
           rm -rf ios
@@ -153,24 +158,17 @@ jobs:
       - name: 🔐 Patch Info.plist with permissions
         working-directory: client/ios/App/App
         run: |
-          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'DocAuth India requires camera access to scan identity documents.'" Info.plist || \
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'DocAuth India requires camera access to scan identity documents.'" Info.plist 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'DocAuth India requires camera access to scan identity documents.'" Info.plist
 
-          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'DocAuth India requires photo library access to upload documents.'" Info.plist || \
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'DocAuth India requires photo library access to upload documents.'" Info.plist 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'DocAuth India requires photo library access to upload documents.'" Info.plist
 
-          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" Info.plist || true
-          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" Info.plist || \
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" Info.plist 2>/dev/null || \
           /usr/libexec/PlistBuddy -c "Set :NSAppTransportSecurity:NSAllowsArbitraryLoads true" Info.plist
 
-      - name: 🔍 Show Xcode info and project structure
-        working-directory: client/ios/App
-        run: |
-          xcodebuild -version
-          ls -la
-          xcodebuild -list -project App.xcodeproj
-
-      - name: 📦 Resolve Swift Package Manager dependencies
+      - name: 📦 Resolve Swift Package dependencies
         working-directory: client/ios/App
         run: |
           xcodebuild \
