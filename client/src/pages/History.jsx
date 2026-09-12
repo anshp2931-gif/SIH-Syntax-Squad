@@ -39,8 +39,8 @@ export default function History() {
     <div style={styles.container}>
       <div style={styles.header}>
         <div>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 800 }}>Verification Audit Log</h1>
-          <p style={{ fontSize: "0.9rem", color: "#9ca3af", marginTop: "4px" }}>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>Verification Audit Log</h1>
+          <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "4px" }}>
             Historical audit records stored in MongoDB / Verification Store
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function History() {
       {/* Filter Controls */}
       <div className="glass-card" style={styles.filterBar}>
         <div style={styles.searchBox}>
-          <Search size={18} color="#9ca3af" />
+          <Search size={18} color="#94a3b8" />
           <input
             type="text"
             placeholder="Search by Verification ID, Document, File..."
@@ -65,7 +65,7 @@ export default function History() {
         </div>
 
         <div style={styles.filterGroup}>
-          <Filter size={16} color="#9ca3af" />
+          <Filter size={16} color="#64748b" />
           {["ALL", "VERIFIED", "UNVERIFIED", "SUSPICIOUS"].map((st) => (
             <button
               key={st}
@@ -84,11 +84,11 @@ export default function History() {
       {/* Data Table */}
       <div className="glass-card" style={{ padding: "0", overflow: "hidden" }}>
         {loading ? (
-          <div style={{ padding: "40px", textAlign: "center", color: "#9ca3af" }}>
+          <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
             Loading audit records...
           </div>
         ) : filteredRecords.length === 0 ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "#6b7280" }}>
+          <div style={{ padding: "60px", textAlign: "center", color: "#94a3b8" }}>
             No matching verification audit records found.
           </div>
         ) : (
@@ -107,7 +107,7 @@ export default function History() {
               {filteredRecords.map((rec) => (
                 <tr key={rec.verificationId} style={styles.tr}>
                   <td style={styles.td} className="code-font">
-                    <strong>{rec.verificationId}</strong>
+                    <strong style={{ color: "#2563eb" }}>{rec.verificationId}</strong>
                   </td>
                   <td style={styles.td}>
                     {rec.documentType === "PAN"
@@ -120,7 +120,7 @@ export default function History() {
                     <ResultBadge status={rec.status} />
                   </td>
                   <td style={styles.td}>
-                    <span style={{ fontWeight: 700 }}>{rec.riskScore}</span> / 100
+                    <span style={{ fontWeight: 700, color: "#0f172a" }}>{rec.riskScore}</span> / 100
                   </td>
                   <td style={styles.td}>
                     {new Date(rec.createdAt).toLocaleString()}
@@ -159,9 +159,9 @@ export default function History() {
 
 const styles = {
   container: {
-    maxWidth: "1280px",
+    maxWidth: "1320px",
     margin: "0 auto",
-    padding: "40px 24px"
+    padding: "36px 28px 60px 28px"
   },
   header: {
     display: "flex",
@@ -182,8 +182,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-    background: "rgba(17, 24, 39, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
+    background: "#f8fafc",
+    border: "1px solid #cbd5e1",
     padding: "8px 16px",
     borderRadius: "8px",
     flex: 1,
@@ -192,7 +192,7 @@ const styles = {
   searchInput: {
     background: "transparent",
     border: "none",
-    color: "#fff",
+    color: "#0f172a",
     outline: "none",
     width: "100%",
     fontSize: "0.88rem"
@@ -203,9 +203,9 @@ const styles = {
     gap: "8px"
   },
   filterChip: {
-    background: "rgba(255, 255, 255, 0.04)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-    color: "#9ca3af",
+    background: "#f1f5f9",
+    border: "1px solid #e2e8f0",
+    color: "#64748b",
     fontSize: "0.78rem",
     fontWeight: 600,
     padding: "6px 12px",
@@ -213,33 +213,34 @@ const styles = {
     cursor: "pointer"
   },
   filterChipActive: {
-    background: "rgba(99, 102, 241, 0.2)",
-    color: "#818cf8",
-    borderColor: "rgba(99, 102, 241, 0.4)"
+    background: "#eff6ff",
+    color: "#2563eb",
+    borderColor: "#bfdbfe"
   },
   table: {
     width: "100%",
     borderCollapse: "collapse"
   },
   thRow: {
-    background: "rgba(17, 24, 39, 0.8)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)"
+    background: "#f8fafc",
+    borderBottom: "1px solid #e2e8f0"
   },
   th: {
     padding: "14px 20px",
     textAlign: "left",
     fontSize: "0.75rem",
     fontWeight: 700,
-    color: "#9ca3af",
+    color: "#64748b",
     letterSpacing: "0.05em"
   },
   tr: {
-    borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+    borderBottom: "1px solid #f1f5f9",
     transition: "background 0.2s ease"
   },
   td: {
     padding: "14px 20px",
-    fontSize: "0.88rem"
+    fontSize: "0.88rem",
+    color: "#334155"
   },
   modalOverlay: {
     position: "fixed",
@@ -247,8 +248,8 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: "rgba(0, 0, 0, 0.75)",
-    backdropFilter: "blur(8px)",
+    background: "rgba(15, 23, 42, 0.4)",
+    backdropFilter: "blur(6px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -266,9 +267,9 @@ const styles = {
     position: "absolute",
     top: "16px",
     right: "16px",
-    background: "rgba(255, 255, 255, 0.1)",
-    border: "none",
-    color: "#fff",
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    color: "#64748b",
     borderRadius: "50%",
     width: "36px",
     height: "36px",
@@ -276,6 +277,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    zIndex: 10
+    zIndex: 10,
+    boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
   }
 };
