@@ -99,6 +99,7 @@ export default function History() {
               <tr className="thRow" style={styles.thRow}>
                 <th className="th" style={styles.th}>{t('history.table.id')}</th>
                 <th className="th" style={styles.th}>{t('history.table.doc')}</th>
+                <th className="th" style={styles.th}>DETECTED TYPE</th>
                 <th className="th" style={styles.th}>{t('history.table.status')}</th>
                 <th className="th" style={styles.th}>{t('history.table.risk')}</th>
                 <th className="th" style={styles.th}>{t('history.table.time')}</th>
@@ -106,41 +107,66 @@ export default function History() {
               </tr>
             </thead>
             <tbody>
-              {filteredRecords.map((rec) => (
-                <tr key={rec.verificationId} className="tr" style={styles.tr}>
-                  <td className="td code-font" style={styles.td}>
-                    <strong style={{ color: "#2563eb" }}>{rec.verificationId}</strong>
-                  </td>
-                  <td className="td" style={styles.td}>
-                    {rec.documentType === "PAN"
-                      ? t('uploadBox.pan') // re-use from upload
-                      : rec.documentType === "DRIVING_LICENSE"
-                      ? t('uploadBox.dl') // re-use from upload
-                      : rec.documentType}
-                  </td>
-                  <td className="td" style={styles.td}>
-                    <ResultBadge status={rec.status} originalityScore={rec.originalityScore !== undefined ? rec.originalityScore : Math.max(0, 100 - rec.riskScore)} />
-                  </td>
-                  <td className="td" style={styles.td}>
-                    <span style={{ fontWeight: 700, color: "#0f172a" }}>
-                      {rec.originalityScore !== undefined ? rec.originalityScore : Math.max(0, 100 - rec.riskScore)}
-                    </span> / 100
-                  </td>
-                  <td className="td" style={styles.td}>
-                    {new Date(rec.createdAt).toLocaleString()}
-                  </td>
-                  <td className="td" style={styles.td}>
-                    <button
-                      className="btn-secondary"
-                      style={{ padding: "4px 10px", fontSize: "0.78rem" }}
-                      onClick={() => setSelectedRecord(rec)}
-                    >
-                      <Eye size={14} />
-                      {t('history.inspectBtn')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filteredRecords.map((rec) => {
+                const docNames = {
+                  PAN: "PAN Card",
+                  AADHAAR: "Aadhaar Card",
+                  DRIVING_LICENSE: "Driving Licence",
+                  PASSPORT: "Passport",
+                  VISA: "Indian Visa",
+                  PERMIT: "Permit",
+                  VOTER_ID: "Voter ID",
+                  VEHICLE_RC: "Vehicle RC",
+                  GSTIN: "GSTIN",
+                  RATION_CARD: "Ration Card",
+                  DEGREE_CERTIFICATE: "Degree Cert",
+                  BIRTH_CERTIFICATE: "Birth Cert"
+                };
+                const displayType = docNames[rec.documentType] || rec.documentType;
+                const displayDetected = docNames[rec.detectedType || rec.documentType] || rec.detectedType || rec.documentType;
+
+                return (
+                  <tr key={rec.verificationId} className="tr" style={styles.tr}>
+                    <td className="td code-font" style={styles.td}>
+                      <strong style={{ color: "#2563eb" }}>{rec.verificationId}</strong>
+                    </td>
+                    <td className="td" style={styles.td}>
+                      {displayType}
+                    </td>
+                    <td className="td" style={styles.td}>
+                      <span style={{ fontWeight: 600, color: "#1e40af" }}>
+                        {displayDetected}
+                      </span>
+                      {rec.detectionConfidence ? (
+                        <span style={{ fontSize: "0.75rem", color: "#16a34a", marginLeft: "6px", fontWeight: 700 }}>
+                          ({rec.detectionConfidence}%)
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="td" style={styles.td}>
+                      <ResultBadge status={rec.status} originalityScore={rec.originalityScore !== undefined ? rec.originalityScore : Math.max(0, 100 - rec.riskScore)} />
+                    </td>
+                    <td className="td" style={styles.td}>
+                      <span style={{ fontWeight: 700, color: "#0f172a" }}>
+                        {rec.originalityScore !== undefined ? rec.originalityScore : Math.max(0, 100 - rec.riskScore)}
+                      </span> / 100
+                    </td>
+                    <td className="td" style={styles.td}>
+                      {new Date(rec.createdAt).toLocaleString()}
+                    </td>
+                    <td className="td" style={styles.td}>
+                      <button
+                        className="btn-secondary"
+                        style={{ padding: "4px 10px", fontSize: "0.78rem" }}
+                        onClick={() => setSelectedRecord(rec)}
+                      >
+                        <Eye size={14} />
+                        {t('history.inspectBtn')}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

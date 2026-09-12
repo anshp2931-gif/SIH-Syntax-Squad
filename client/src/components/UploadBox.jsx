@@ -16,18 +16,27 @@ import {
   Wheat,
   GraduationCap,
   FileBadge,
-  Lightbulb
+  Lightbulb,
+  Truck
 } from "lucide-react";
 import { fetchSampleDocumentsApi } from "../services/api";
 import CameraScanner from "./CameraScanner";
 import { useLanguage } from "../hooks/useLanguage";
 import ScannerOptionModal from "./ScannerOptionModal";
 
-export default function UploadBox({ onUpload, onSelectSample, loading }) {
+export default function UploadBox({
+  onUpload,
+  onSelectSample,
+  loading,
+  selectedCategory,
+  onCategoryChange,
+  onFileSelect,
+  resetSignal
+}) {
   const { t } = useLanguage();
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [forcedType, setForcedType] = useState("AUTO");
+  const [forcedType, setForcedType] = useState(selectedCategory || "AUTO");
   const [samples, setSamples] = useState([]);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
@@ -43,12 +52,28 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
     { id: "AADHAAR", label: "Aadhaar Card (UIDAI)", icon: Fingerprint },
     { id: "VOTER_ID", label: "Voter ID Card (EPIC)", icon: UserCheck },
     { id: "PASSPORT", label: "Indian Passport", icon: Globe },
+    { id: "VISA", label: "Indian Visa / e-Visa", icon: Globe },
+    { id: "PERMIT", label: "Commercial / Transport Permit", icon: Truck },
     { id: "VEHICLE_RC", label: "Vehicle Registration Certificate (RC)", icon: Car },
     { id: "GSTIN", label: "GSTIN Certificate", icon: Building },
     { id: "RATION_CARD", label: "Ration Card (NFSA / PDS)", icon: Wheat },
     { id: "DEGREE_CERTIFICATE", label: "Degree Certificate (UGC / NAD)", icon: GraduationCap },
     { id: "BIRTH_CERTIFICATE", label: "Birth Certificate (CRS)", icon: FileBadge }
   ];
+
+  // Sync forcedType with parent state if provided
+  useEffect(() => {
+    if (selectedCategory !== undefined && selectedCategory !== forcedType) {
+      setForcedType(selectedCategory);
+    }
+  }, [selectedCategory]);
+
+  // Handle external reset signal
+  useEffect(() => {
+    if (resetSignal) {
+      handleClearFile();
+    }
+  }, [resetSignal]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -82,6 +107,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
     setManualNumber("");
     const fileInput = document.getElementById("doc-upload-input");
     if (fileInput) fileInput.value = "";
+    if (onFileSelect) onFileSelect(null);
   };
 
   const handleFileDrop = (e) => {
@@ -91,6 +117,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
       const file = e.dataTransfer.files[0];
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
+      if (onFileSelect) onFileSelect(file);
     }
   };
 
@@ -99,6 +126,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
       const file = e.target.files[0];
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
+      if (onFileSelect) onFileSelect(file);
     }
   };
 
@@ -111,6 +139,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
     setSelectedFile(capturedFile);
     setPreviewUrl(URL.createObjectURL(capturedFile));
     setShowCamera(false);
+    if (onFileSelect) onFileSelect(capturedFile);
     onUpload(capturedFile, forcedType === "AUTO" ? null : forcedType, manualNumber);
   };
 
@@ -188,6 +217,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
                     key={t.id}
                     onClick={() => {
                       setForcedType(t.id);
+                      if (onCategoryChange) onCategoryChange(t.id);
                       setIsDropdownOpen(false);
                     }}
                     onMouseEnter={(e) => {

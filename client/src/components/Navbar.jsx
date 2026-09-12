@@ -32,6 +32,7 @@ export default function Navbar({ currentUser, onLogout }) {
     if (location.pathname === "/") return "home";
     if (location.pathname.startsWith("/verify")) return "verify";
     if (location.pathname.startsWith("/history")) return "history";
+    if (location.pathname.startsWith("/overview")) return "overview";
     return "";
   };
   const activeTab = getActiveTab();
@@ -41,12 +42,7 @@ export default function Navbar({ currentUser, onLogout }) {
     if (tab === "home") navigate("/");
     else if (tab === "verify") navigate("/verify");
     else if (tab === "history") navigate("/history");
-    else if (tab === "overview") {
-      navigate("/");
-      setTimeout(() => {
-        window.scrollTo({ top: 600, behavior: "smooth" });
-      }, 100);
-    }
+    else if (tab === "overview") navigate("/overview");
   };
 
   useEffect(() => {
