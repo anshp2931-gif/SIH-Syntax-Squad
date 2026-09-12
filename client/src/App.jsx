@@ -1,22 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import History from "./pages/History";
+import Login from "./pages/Login";
 
 export default function App() {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState({
+    name: "Vishwa Patel",
+    email: "vishwa@docauth.in",
+    role: "Enterprise Admin"
+  });
+
+  const handleLoginSuccess = (userData) => {
+    setCurrentUser(userData);
+    navigate("/");
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    navigate("/login");
+  };
 
   return (
     <div className="app-container">
-      <Navbar />
+      <Navbar 
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
 
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Home onNavigateVerify={() => navigate("/verify")} />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/history" element={<History />} />
+          <Route 
+            path="/login" 
+            element={
+              <Login 
+                onLoginSuccess={handleLoginSuccess}
+                onNavigateHome={() => navigate("/")}
+              />
+            } 
+          />
         </Routes>
       </main>
 

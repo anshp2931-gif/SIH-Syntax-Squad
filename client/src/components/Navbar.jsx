@@ -10,18 +10,11 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { checkHealthApi } from "../services/api";
 
-export default function Navbar() {
+export default function Navbar({ currentUser, onLogout }) {
   const [health, setHealth] = useState(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const getActiveTab = () => {
-    if (location.pathname === "/verify") return "verify";
-    if (location.pathname === "/history") return "history";
-    return "home";
-  };
-  
-  const activeTab = getActiveTab();
 
   useEffect(() => {
     checkHealthApi().then(setHealth);
@@ -31,7 +24,19 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, []);
 
+  const getActiveTab = () => {
+    if (location.pathname === "/verify") return "verify";
+    if (location.pathname === "/history") return "history";
+    if (location.pathname === "/login") return "login";
+    return "home";
+  };
+
+  const activeTab = getActiveTab();
   const isOnline = health?.status === "HEALTHY" || health !== null;
+
+  if (location.pathname === "/login") {
+    return null; // Login page renders its own custom brand header bar
+  }
 
   return (
     <header style={styles.header}>
@@ -102,7 +107,7 @@ export default function Navbar() {
           </button>
         </nav>
 
-        {/* Right Section: Status Badge & User Avatar */}
+        {/* Right Section: Status Badge & User Auth Profile */}
         <div style={styles.rightSection}>
           <div style={styles.statusBadge}>
             <span style={styles.statusDot} />
@@ -111,10 +116,49 @@ export default function Navbar() {
             </span>
           </div>
 
-          <div style={styles.userProfile}>
-            <div style={styles.userAvatar}>VP</div>
-            <ChevronDown size={15} color="#64748B" />
-          </div>
+          {currentUser ? (
+            <div style={styles.userProfileWrapper}>
+              <div 
+                style={styles.userProfile}
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+              >
+                <div style={styles.userAvatar}>
+                  {currentUser.name ? currentUser.name.substring(0, 2).toUpperCase() : "VP"}
+                </div>
+                <ChevronDown size={15} color="#64748B" />
+              </div>
+
+              {showUserDropdown && (
+                <div style={styles.userDropdownMenu}>
+                  <div style={styles.dropdownHeader}>
+                    <div style={{ fontWeight: 700, color: "#0F172A", fontSize: "0.9rem" }}>
+                      {currentUser.name || "Vishwa Patel"}
+                    </div>
+                    <div style={{ color: "#64748B", fontSize: "0.78rem" }}>
+                      {currentUser.email || "vishwa@example.com"}
+                    </div>
+                  </div>
+                  <div style={styles.dropdownDivider} />
+                  <button
+                    style={styles.dropdownItem}
+                    onClick={() => {
+                      setShowUserDropdown(false);
+                      if (onLogout) onLogout();
+                    }}
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              style={styles.signInHeaderBtn}
+              onClick={() => navigate("/login")}
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
     </header>
@@ -247,5 +291,51 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     boxShadow: "0 2px 6px rgba(37, 99, 235, 0.2)"
+  },
+  userProfileWrapper: {
+    position: "relative"
+  },
+  userDropdownMenu: {
+    position: "absolute",
+    right: 0,
+    top: "48px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    borderRadius: "12px",
+    padding: "12px",
+    width: "200px",
+    boxShadow: "0 10px 25px rgba(15, 23, 42, 0.1)",
+    zIndex: 100
+  },
+  dropdownHeader: {
+    paddingBottom: "8px"
+  },
+  dropdownDivider: {
+    height: "1px",
+    background: "#E2E8F0",
+    margin: "6px 0"
+  },
+  dropdownItem: {
+    width: "100%",
+    textAlign: "left",
+    background: "transparent",
+    border: "none",
+    color: "#DC2626",
+    fontWeight: 600,
+    fontSize: "0.88rem",
+    padding: "8px 6px",
+    borderRadius: "6px",
+    cursor: "pointer"
+  },
+  signInHeaderBtn: {
+    background: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+    color: "#FFFFFF",
+    fontWeight: 700,
+    fontSize: "0.88rem",
+    padding: "8px 18px",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
+    boxShadow: "0 2px 8px rgba(37, 99, 235, 0.25)"
   }
 };
