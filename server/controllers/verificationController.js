@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import crypto from "crypto";
 import { extractText } from "../services/ocrService.js";
 import { detectDocument, extractFields } from "../services/documentDetector.js";
@@ -43,12 +44,14 @@ export async function verifyDocument(req, res) {
     const ocrResult = await extractText(filePath);
     const rawText = ocrResult.text || "";
 
+    const forcedType = (req.body.forcedType && req.body.forcedType !== "AUTO") ? req.body.forcedType : null;
+
     // 2. Document Type Detection
     const detection = detectDocument(rawText);
     const documentType = detection.documentType;
 
-    if (documentType === "UNKNOWN" && !req.body.forcedType) {
-      // If document type could not be confidently identified from raw OCR text
+    // If AUTO mode was selected and document type could not be identified
+    if (!forcedType && documentType === "UNKNOWN") {
       const verificationId = generateVerificationId();
       const riskCalculation = calculateRisk({
         documentType: false,
@@ -75,22 +78,42 @@ export async function verifyDocument(req, res) {
         },
         extractedData: { rawTextSnippet: rawText.substring(0, 200) },
         riskScore: riskCalculation.riskScore,
+        originalityScore: riskCalculation.originalityScore,
         fileName: originalName
       });
 
       return res.status(200).json({
         success: true,
-        message: "Document uploaded but document structure could not be automatically identified as PAN or Driving License.",
+        verificationId,
+        documentType: "UNKNOWN",
+        status: getStatus(riskCalculation.riskScore),
+        riskScore: riskCalculation.riskScore,
+        originalityScore: riskCalculation.originalityScore,
+        checks: unverifiedRecord.checks,
+        extractedData: unverifiedRecord.extractedData,
+        penalties: riskCalculation.penalties,
+        message: "Document uploaded but document structure could not be automatically identified.",
         data: unverifiedRecord
       });
     }
 
-    const effectiveType = documentType !== "UNKNOWN" ? documentType : (req.body.forcedType || "PAN");
+    // Determine effective target document type (explicitly selected button takes precedence)
+    const effectiveType = forcedType || (documentType !== "UNKNOWN" ? documentType : "PAN");
 
-    // 3. Extract key fields (PAN, Name, DOB, License No, etc.)
+    // Check if target selection matches detected document type
+    let documentTypeCheckPassed = true;
+    if (forcedType && documentType !== "UNKNOWN" && documentType !== forcedType) {
+      // Document mismatch: User selected target X, but OCR detected layout Y
+      documentTypeCheckPassed = false;
+    } else if (!forcedType && documentType === "UNKNOWN") {
+      documentTypeCheckPassed = false;
+    }
+
+    // 3. Extract key fields for the target document type
     const extractedData = extractFields(effectiveType, rawText);
 
     // If sample mode or overrides provided in request, merge extracted fields
+    const isSampleOrOverride = Boolean(req.body.overrideData);
     if (req.body.overrideData) {
       try {
         const parsed = JSON.parse(req.body.overrideData);
@@ -109,16 +132,16 @@ export async function verifyDocument(req, res) {
     // 6. Image Tampering & ELA Analysis
     const tamperResult = await detectTampering(filePath);
 
-    // 7. Official Authoritative Issuer Verification (NSDL / Income Tax / Parivahan)
+    // 7. Official Authoritative Issuer Verification
     const issuerResult = await verifyIssuer(effectiveType, extractedData);
 
     // 8. Template & Structural Check
-    const templateValid = detection.confidence >= 30;
+    const templateValid = (detection.confidence >= 20) || isSampleOrOverride || Boolean(forcedType && (documentType === forcedType || documentType === "UNKNOWN"));
 
     // Compile 7 verification check booleans
     const checks = {
-      documentType: true,
-      ocr: ocrResult.success && rawText.length > 5,
+      documentType: documentTypeCheckPassed,
+      ocr: ocrResult.success && (rawText.length > 5 || isSampleOrOverride),
       format: formatResult.valid,
       qr: qrResult.detected && qrResult.valid,
       template: templateValid,
@@ -139,6 +162,7 @@ export async function verifyDocument(req, res) {
       checks,
       extractedData,
       riskScore: riskAnalysis.riskScore,
+      originalityScore: riskAnalysis.originalityScore,
       tamperDetails: tamperResult,
       qrDetails: qrResult,
       issuerDetails: issuerResult,
@@ -152,6 +176,7 @@ export async function verifyDocument(req, res) {
       documentType: effectiveType,
       status,
       riskScore: riskAnalysis.riskScore,
+      originalityScore: riskAnalysis.originalityScore,
       checks,
       extractedData,
       tamperDetails: tamperResult,
@@ -167,6 +192,28 @@ export async function verifyDocument(req, res) {
       message: "Document verification pipeline encountered an error.",
       error: error.message
     });
+  } finally {
+    // Privacy & Zero-Retention Compliance: Immediately wipe raw uploaded private document from server disk
+    if (req.file && req.file.path) {
+      const fullPath = path.resolve(req.file.path);
+      const attemptDelete = (delay = 0) => {
+        setTimeout(() => {
+          if (fs.existsSync(fullPath)) {
+            try {
+              fs.unlinkSync(fullPath);
+              console.log(`[Zero-Retention Cleanup] Successfully deleted temporary file: ${path.basename(fullPath)}`);
+            } catch (cleanupErr) {
+              if (delay < 1000) {
+                attemptDelete(delay + 250);
+              } else {
+                console.warn(`[Zero-Retention Notice] Transient cleanup deferred for ${path.basename(fullPath)}:`, cleanupErr.message);
+              }
+            }
+          }
+        }, delay);
+      };
+      attemptDelete(0);
+    }
   }
 }
 

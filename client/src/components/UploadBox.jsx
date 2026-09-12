@@ -281,7 +281,7 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
             <div className="uploadIconCircle" style={styles.uploadIconCircle}>
               <UploadCloud size={30} color="#2563EB" />
             </div>
-            <div style={{ fontSize: "1rem", fontWeight: 600, color: "#0F172A" }}>
+            <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#0F172A" }}>
               Drag & drop document image here, or{" "}
               <span style={{ color: "#2563EB", textDecoration: "underline" }}>browse</span>
             </div>
@@ -304,20 +304,10 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
           value={manualNumber}
           onChange={(e) => setManualNumber(e.target.value)}
           className="code-font input-field"
-          style={{
-            width: "100%",
-            background: "#F8FAFC",
-            border: "1px solid #E2E8F0",
-            borderRadius: "8px",
-            padding: "10px 14px",
-            color: "#0F172A",
-            fontSize: "0.9rem",
-            outline: "none"
-          }}
         />
       </div>
 
-      {/* Live Camera Scanner Button */}
+      {/* Ghost button styled camera scanner action */}
       <div style={{ marginTop: "16px" }}>
         <button
           className="btn-ghost"
@@ -329,8 +319,8 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
           }}
           onClick={() => setShowCamera(true)}
         >
-          <Camera size={18} />
-          Open Live Camera Scanner (Auto-Capture When Clear)
+          <Camera size={18} color="#2563EB" />
+          <span>Open Live Camera Scanner (Auto-Capture When Clear)</span>
         </button>
       </div>
 
@@ -349,10 +339,6 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
           onClick={handleTriggerUpload}
           disabled={!selectedFile || loading}
           style={{
-            width: "100%",
-            justifyContent: "center",
-            padding: "14px",
-            fontSize: "1rem",
             opacity: !selectedFile || loading ? 0.5 : 1,
             cursor: !selectedFile || loading ? "not-allowed" : "pointer"
           }}
@@ -375,19 +361,15 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
             {samples.map((sample) => (
               <div
                 key={sample.id}
-                className="sampleCard"
-                style={styles.sampleCard}
-                onClick={() => {
-                  handleClearFile();
-                  onSelectSample(sample);
-                }}
+                className="sampleCard" style={styles.sampleCard}
+                onClick={() => onSelectSample(sample)}
               >
                 <div className="sampleBadge" style={styles.sampleBadge}>{sample.documentType}</div>
                 <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "#0F172A", marginTop: "4px" }}>
                   {sample.title}
                 </div>
                 <div style={{ fontSize: "0.78rem", color: "#64748B", marginTop: "2px" }}>
-                  Click to verify sample
+                  Click to verify sample instantly
                 </div>
               </div>
             ))}
@@ -399,18 +381,37 @@ export default function UploadBox({ onUpload, onSelectSample, loading }) {
 }
 
 const styles = {
-  card: { padding: "28px" },
-  title: { fontSize: "1.35rem", marginBottom: "6px" },
-  subtitle: { fontSize: "0.88rem", color: "#64748B", marginBottom: "20px" },
-  typeSelectorGroup: { display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" },
-  typeButtons: { display: "flex", gap: "6px", flexWrap: "wrap" },
+  card: {
+    padding: "28px"
+  },
+  title: {
+    fontSize: "1.35rem",
+    marginBottom: "6px",
+    color: "#0F172A"
+  },
+  subtitle: {
+    fontSize: "0.88rem",
+    color: "#64748B",
+    marginBottom: "20px"
+  },
+  typeSelectorGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    marginBottom: "16px"
+  },
+  typeButtons: {
+    display: "flex",
+    gap: "8px",
+    flexWrap: "wrap"
+  },
   typeBtn: {
-    background: "#F8FAFC",
+    background: "#F1F5F9",
     border: "1px solid #E2E8F0",
     color: "#64748B",
-    fontSize: "0.82rem",
+    fontSize: "0.85rem",
     fontWeight: 600,
-    padding: "6px 12px",
+    padding: "8px 14px",
     borderRadius: "8px",
     cursor: "pointer",
     transition: "all 0.2s ease"
@@ -421,17 +422,28 @@ const styles = {
     color: "#2563EB"
   },
   dropZone: {
-    border: "2px dashed #CBD5E1",
+    border: "2px dashed #E2E8F0",
     borderRadius: "14px",
-    padding: "32px 20px",
+    padding: "36px 20px",
     textAlign: "center",
     cursor: "pointer",
     background: "#F8FAFC",
     transition: "all 0.2s ease"
   },
-  dropZoneActive: { borderColor: "#2563EB", background: "#EFF6FF" },
-  dropZoneSelected: { borderColor: "#10B981", background: "#ECFDF5" },
-  dropZoneLabel: { cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center" },
+  dropZoneActive: {
+    borderColor: "#2563EB",
+    background: "#EFF6FF"
+  },
+  dropZoneSelected: {
+    borderColor: "#16A34A",
+    background: "#ECFDF5"
+  },
+  dropZoneLabel: {
+    cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
+  },
   uploadIconCircle: {
     width: "56px",
     height: "56px",
@@ -440,30 +452,55 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "10px"
+    marginBottom: "12px"
   },
-  previewContainer: { display: "flex", alignItems: "center", gap: "16px", justifyContent: "center" },
-  previewImage: { maxHeight: "100px", maxWidth: "180px", borderRadius: "8px", border: "1px solid #E2E8F0", objectFit: "contain" },
-  fileDetails: { textAlign: "left" },
-  sampleSection: { marginTop: "24px", paddingTop: "20px", borderTop: "1px solid #E2E8F0" },
-  sampleHeader: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" },
-  sampleGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px" },
+  previewContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    justifyContent: "center"
+  },
+  previewImage: {
+    maxHeight: "100px",
+    maxWidth: "180px",
+    borderRadius: "8px",
+    border: "1px solid #E2E8F0",
+    objectFit: "contain"
+  },
+  fileDetails: {
+    textAlign: "left"
+  },
+  sampleSection: {
+    marginTop: "24px",
+    paddingTop: "20px",
+    borderTop: "1px solid #E2E8F0"
+  },
+  sampleHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "12px"
+  },
+  sampleGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "12px"
+  },
   sampleCard: {
     background: "#F8FAFC",
     border: "1px solid #E2E8F0",
     borderRadius: "10px",
-    padding: "12px 14px",
+    padding: "12px 16px",
     cursor: "pointer",
     transition: "all 0.2s ease"
   },
   sampleBadge: {
     background: "#EFF6FF",
     color: "#2563EB",
-    fontSize: "0.7rem",
+    fontSize: "0.72rem",
     fontWeight: 700,
-    padding: "2px 6px",
+    padding: "2px 8px",
     borderRadius: "4px",
     display: "inline-block"
   }
 };
-

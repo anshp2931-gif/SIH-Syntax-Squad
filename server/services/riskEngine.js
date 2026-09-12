@@ -49,9 +49,11 @@ export function calculateRisk(checks = {}) {
 
   // Cap score between 0 and 100
   const finalScore = Math.min(100, Math.max(0, score));
+  const originalityScore = Math.max(0, 100 - finalScore);
 
   return {
     riskScore: finalScore,
+    originalityScore,
     penalties
   };
 }

@@ -28,6 +28,22 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+export function purgeUploadsDirectory() {
+  const dir = path.resolve("uploads");
+  if (fs.existsSync(dir)) {
+    const files = fs.readdirSync(dir);
+    for (const f of files) {
+      if (f !== ".gitkeep") {
+        try {
+          fs.unlinkSync(path.join(dir, f));
+        } catch (e) {
+          // ignore transient lock
+        }
+      }
+    }
+  }
+}
+
 export const upload = multer({
   storage,
   limits: {

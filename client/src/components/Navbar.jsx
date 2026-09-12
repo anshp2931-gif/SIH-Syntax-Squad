@@ -14,6 +14,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { checkHealthApi } from "../services/api";
 
 export default function Navbar({ currentUser, onLogout }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [health, setHealth] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -25,16 +27,20 @@ export default function Navbar({ currentUser, onLogout }) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => setMobileMenuOpen(false), [activeTab]);
+  useEffect(() => setMobileMenuOpen(false), [location.pathname]);
 
   if (location.pathname === "/login") {
     return null; // Login page renders its own custom brand header bar
   }
 
+  const isHome = location.pathname === "/";
+  const isVerify = location.pathname === "/verify";
+  const isHistory = location.pathname === "/history";
+
   return (
     <header className="header">
       <div className="nav-container">
-        <div className="brand" onClick={() => setActiveTab("home")}>
+        <div className="brand" onClick={() => navigate("/")}>
           <div className="logoWrapper">
             <div className="logoShield">
               <ShieldCheck size={26} color="#FFFFFF" strokeWidth={2.5} />
@@ -57,39 +63,39 @@ export default function Navbar({ currentUser, onLogout }) {
           </div>
           
           <button
-            className={`navBtn ${activeTab === "home" ? "navBtnActive" : ""}`}
-            onClick={() => setActiveTab("home")}
+            className={`navBtn ${isHome ? "navBtnActive" : ""}`}
+            onClick={() => navigate("/")}
           >
-            <HomeIcon size={17} color={activeTab === "home" ? "#2563EB" : "#64748B"} />
+            <HomeIcon size={17} color={isHome ? "#2563EB" : "#64748B"} />
             <span>Home</span>
-            {activeTab === "home" && <div className="activeIndicator" />}
+            {isHome && <div className="activeIndicator" />}
           </button>
 
           <button
-            className={`navBtn ${activeTab === "verify" ? "navBtnActive" : ""}`}
-            onClick={() => setActiveTab("verify")}
+            className={`navBtn ${isVerify ? "navBtnActive" : ""}`}
+            onClick={() => navigate("/verify")}
           >
-            <FileText size={17} color={activeTab === "verify" ? "#2563EB" : "#64748B"} />
+            <FileText size={17} color={isVerify ? "#2563EB" : "#64748B"} />
             <span>Verify Document</span>
-            {activeTab === "verify" && <div className="activeIndicator" />}
+            {isVerify && <div className="activeIndicator" />}
           </button>
 
           <button
-            className={`navBtn ${activeTab === "history" ? "navBtnActive" : ""}`}
-            onClick={() => setActiveTab("history")}
+            className={`navBtn ${isHistory ? "navBtnActive" : ""}`}
+            onClick={() => navigate("/history")}
           >
-            <HistoryIcon size={17} color={activeTab === "history" ? "#2563EB" : "#64748B"} />
+            <HistoryIcon size={17} color={isHistory ? "#2563EB" : "#64748B"} />
             <span>Audit Log</span>
-            {activeTab === "history" && <div className="activeIndicator" />}
+            {isHistory && <div className="activeIndicator" />}
           </button>
 
           <button
-            className={`navBtn ${activeTab === "overview" ? "navBtnActive" : ""}`}
-            onClick={() => setActiveTab("overview")}
+            className={`navBtn ${isHome ? "navBtnActive" : ""}`}
+            onClick={() => navigate("/")}
           >
-            <LayoutGrid size={17} color={activeTab === "overview" ? "#2563EB" : "#64748B"} />
+            <LayoutGrid size={17} color={isHome ? "#2563EB" : "#64748B"} />
             <span>Overview</span>
-            {activeTab === "overview" && <div className="activeIndicator" />}
+            {isHome && <div className="activeIndicator" />}
           </button>
         </nav>
 

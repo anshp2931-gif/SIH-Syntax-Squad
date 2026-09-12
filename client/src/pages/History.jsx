@@ -98,7 +98,7 @@ export default function History() {
                 <th className="th" style={styles.th}>VERIFICATION ID</th>
                 <th className="th" style={styles.th}>DOCUMENT</th>
                 <th className="th" style={styles.th}>STATUS</th>
-                <th className="th" style={styles.th}>RISK SCORE</th>
+                <th className="th" style={styles.th}>ORIGINALITY SCORE</th>
                 <th className="th" style={styles.th}>TIMESTAMP</th>
                 <th className="th" style={styles.th}>ACTION</th>
               </tr>
@@ -117,10 +117,12 @@ export default function History() {
                       : rec.documentType}
                   </td>
                   <td className="td" style={styles.td}>
-                    <ResultBadge status={rec.status} />
+                    <ResultBadge status={rec.status} originalityScore={rec.originalityScore !== undefined ? rec.originalityScore : Math.max(0, 100 - rec.riskScore)} />
                   </td>
                   <td className="td" style={styles.td}>
-                    <span style={{ fontWeight: 700, color: "#0f172a" }}>{rec.riskScore}</span> / 100
+                    <span style={{ fontWeight: 700, color: "#0f172a" }}>
+                      {rec.originalityScore !== undefined ? rec.originalityScore : Math.max(0, 100 - rec.riskScore)}
+                    </span> / 100
                   </td>
                   <td className="td" style={styles.td}>
                     {new Date(rec.createdAt).toLocaleString()}

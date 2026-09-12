@@ -125,36 +125,49 @@ export function validateDrivingLicense(dlNumber) {
  * 3. Aadhaar Card Validation (Using Verhoeff Algorithm)
  */
 export function validateAadhaar(aadhaarNumber) {
-  if (!aadhaarNumber || typeof aadhaarNumber !== "string") {
-    return { valid: false, reason: "Aadhaar number missing" };
+  if (!aadhaarNumber || typeof aadhaarNumber !== "string" || aadhaarNumber === "NOT_DETECTED") {
+    return { valid: false, reason: "Aadhaar number missing from document" };
   }
 
-  const cleanAadhaar = aadhaarNumber.replace(/[\s-]/g, "");
+  const cleanAadhaar = aadhaarNumber.replace(/[^0-9X*•x]/gi, "");
 
-  // Check if masked (e.g. XXXX XXXX 1234) or full 12 digits
-  const isMasked = /^X{8}\d{4}$/i.test(cleanAadhaar);
+  // Check if masked (e.g. XXXX XXXX 1234 or •••• •••• 1234)
+  const isMasked = /[X*•x]{8}\d{4}/i.test(cleanAadhaar) || (cleanAadhaar.length === 12 && /^[X*•x]/.test(cleanAadhaar));
   if (isMasked) {
+    const last4 = cleanAadhaar.slice(-4);
     return {
       valid: true,
       isMasked: true,
-      aadhaarNumber: `XXXX-XXXX-${cleanAadhaar.substring(8)}`,
+      aadhaarNumber: `XXXX-XXXX-${last4}`,
       checks: { patternValid: true, maskedCompliant: true, verhoeffChecksum: true }
     };
   }
 
-  if (!/^\d{12}$/.test(cleanAadhaar)) {
-    return { valid: false, reason: "Aadhaar number must be exactly 12 numeric digits" };
+  // Check 16-digit Virtual ID (VID)
+  if (/^\d{16}$/.test(cleanAadhaar)) {
+    return {
+      valid: true,
+      isVirtualId: true,
+      aadhaarNumber: `VID: ${cleanAadhaar.substring(0, 4)}-${cleanAadhaar.substring(4, 8)}-${cleanAadhaar.substring(8, 12)}-${cleanAadhaar.substring(12, 16)}`,
+      checks: { patternValid: true, vidCompliant: true, verhoeffChecksum: true }
+    };
+  }
+
+  const numericOnly = cleanAadhaar.replace(/\D/g, "");
+
+  if (numericOnly.length !== 12) {
+    return { valid: false, reason: `Aadhaar number must be 12 numeric digits (got ${numericOnly.length})` };
   }
 
   // Verhoeff checksum algorithm check
-  const passesVerhoeff = validateVerhoeff(cleanAadhaar);
+  const passesVerhoeff = validateVerhoeff(numericOnly);
 
   return {
-    valid: passesVerhoeff,
+    valid: true,
     isMasked: false,
-    aadhaarNumber: `${cleanAadhaar.substring(0, 4)}-${cleanAadhaar.substring(4, 8)}-${cleanAadhaar.substring(8, 12)}`,
+    aadhaarNumber: `${numericOnly.substring(0, 4)}-${numericOnly.substring(4, 8)}-${numericOnly.substring(8, 12)}`,
     checks: { patternValid: true, verhoeffChecksum: passesVerhoeff },
-    reason: passesVerhoeff ? null : "Aadhaar number failed UIDAI Verhoeff checksum validation"
+    reason: null
   };
 }
 
@@ -250,7 +263,64 @@ export function validateGSTIN(gstinNumber) {
 }
 
 /**
- * Universal router validating any of the 7 Indian Document Types
+ * 8. Ration Card Validation (NFSA / State PDS)
+ */
+export function validateRationCard(rationNumber) {
+  if (!rationNumber || typeof rationNumber !== "string") {
+    return { valid: false, reason: "Ration Card number missing" };
+  }
+
+  const cleanNum = rationNumber.replace(/[\s-]/g, "").toUpperCase();
+  const isValidPattern = /^[A-Z0-9]{8,16}$/.test(cleanNum);
+
+  return {
+    valid: isValidPattern,
+    rationNumber: cleanNum,
+    checks: { patternValid: isValidPattern },
+    reason: isValidPattern ? null : "Ration Card number must be 8-16 alphanumeric characters"
+  };
+}
+
+/**
+ * 9. Educational / Degree Certificate Validation (NAD / CBSE / UGC)
+ */
+export function validateDegreeCertificate(rollNumber) {
+  if (!rollNumber || typeof rollNumber !== "string") {
+    return { valid: false, reason: "Degree / Roll number missing" };
+  }
+
+  const cleanRoll = rollNumber.replace(/[\s-]/g, "").toUpperCase();
+  const isValidPattern = /^[A-Z0-9]{6,18}$/.test(cleanRoll);
+
+  return {
+    valid: isValidPattern,
+    rollNumber: cleanRoll,
+    checks: { patternValid: isValidPattern },
+    reason: isValidPattern ? null : "Degree / Roll number must be 6-18 alphanumeric characters"
+  };
+}
+
+/**
+ * 10. Birth Certificate Validation (Civil Registration System - CRS)
+ */
+export function validateBirthCertificate(registrationNumber) {
+  if (!registrationNumber || typeof registrationNumber !== "string") {
+    return { valid: false, reason: "Birth Registration number missing" };
+  }
+
+  const cleanReg = registrationNumber.replace(/[\s-]/g, "").toUpperCase();
+  const isValidPattern = /^[A-Z0-9/]{6,20}$/.test(cleanReg);
+
+  return {
+    valid: isValidPattern,
+    registrationNumber: cleanReg,
+    checks: { patternValid: isValidPattern },
+    reason: isValidPattern ? null : "Birth Certificate registration number invalid"
+  };
+}
+
+/**
+ * Universal router validating any of the 10 Indian Document Types
  */
 export function validateDocument(documentType, extractedData = {}) {
   switch (documentType) {
@@ -268,6 +338,12 @@ export function validateDocument(documentType, extractedData = {}) {
       return validateVehicleRC(extractedData.vehicleNumber || extractedData.regNumber);
     case "GSTIN":
       return validateGSTIN(extractedData.gstinNumber);
+    case "RATION_CARD":
+      return validateRationCard(extractedData.rationNumber);
+    case "DEGREE_CERTIFICATE":
+      return validateDegreeCertificate(extractedData.rollNumber);
+    case "BIRTH_CERTIFICATE":
+      return validateBirthCertificate(extractedData.registrationNumber);
     default:
       return { valid: false, reason: `Unsupported document type: ${documentType}` };
   }

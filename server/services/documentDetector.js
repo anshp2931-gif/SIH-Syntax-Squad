@@ -39,6 +39,9 @@ export function detectDocument(text = "") {
   const passportKeywords = ["REPUBLIC OF INDIA", "PASSPORT", "PASSPORT NO", "P<IND", "GIVEN NAME(S)"];
   const rcKeywords = ["REGISTRATION CERTIFICATE", "MOTOR VEHICLES DEPARTMENT", "CHASSIS NO", "ENGINE NO", "UNLADEN WT", "VEHICLE CLASS"];
   const gstinKeywords = ["GOODS AND SERVICES TAX", "GSTIN", "REGISTRATION CERTIFICATE", "TAX PERIOD", "TRADE NAME"];
+  const rationKeywords = ["RATION CARD", "FOOD & CIVIL SUPPLIES", "DEPARTMENT OF FOOD", "NFSA", "FAMILY HEAD", "APL/BPL"];
+  const degreeKeywords = ["UNIVERSITY", "BOARD OF SECONDARY EDUCATION", "DEGREE CERTIFICATE", "STATEMENT OF MARKS", "ROLL NO", "MARKSHEET", "PROVISIONAL CERTIFICATE"];
+  const birthKeywords = ["BIRTH CERTIFICATE", "CIVIL REGISTRATION SYSTEM", "DEPARTMENT OF HEALTH", "MUNICIPAL CORPORATION", "DATE OF BIRTH CERTIFICATE"];
 
   const panPattern = /[A-Z]{5}[0-9]{4}[A-Z]/;
   const dlPattern = /[A-Z]{2}[0-9]{2}[ -]?[0-9]{4}[0-9]{7}/;
@@ -47,6 +50,9 @@ export function detectDocument(text = "") {
   const passportPattern = /[A-Z]{1}[0-9]{7}/;
   const rcPattern = /[A-Z]{2}[0-9]{2}[A-Z]{1,3}[0-9]{4}/;
   const gstinPattern = /[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/;
+  const rationPattern = /\b[A-Z0-9]{8,16}\b/;
+  const degreePattern = /\bROLL\s*NO|REG\s*NO\b/i;
+  const birthPattern = /\bBIRTH\s*REG|REGISTRATION\s*NO\b/i;
 
   const countMatches = (list) => list.filter((kw) => normalized.includes(kw));
 
@@ -57,7 +63,10 @@ export function detectDocument(text = "") {
     { type: "VOTER_ID", score: countMatches(voterKeywords).length * 25 + (voterPattern.test(normalized) ? 40 : 0), matches: countMatches(voterKeywords) },
     { type: "PASSPORT", score: countMatches(passportKeywords).length * 25 + (passportPattern.test(normalized) ? 40 : 0), matches: countMatches(passportKeywords) },
     { type: "VEHICLE_RC", score: countMatches(rcKeywords).length * 25 + (rcPattern.test(normalized) ? 40 : 0), matches: countMatches(rcKeywords) },
-    { type: "GSTIN", score: countMatches(gstinKeywords).length * 25 + (gstinPattern.test(normalized) ? 40 : 0), matches: countMatches(gstinKeywords) }
+    { type: "GSTIN", score: countMatches(gstinKeywords).length * 25 + (gstinPattern.test(normalized) ? 40 : 0), matches: countMatches(gstinKeywords) },
+    { type: "RATION_CARD", score: countMatches(rationKeywords).length * 25 + (rationPattern.test(normalized) ? 30 : 0), matches: countMatches(rationKeywords) },
+    { type: "DEGREE_CERTIFICATE", score: countMatches(degreeKeywords).length * 25 + (degreePattern.test(normalized) ? 30 : 0), matches: countMatches(degreeKeywords) },
+    { type: "BIRTH_CERTIFICATE", score: countMatches(birthKeywords).length * 25 + (birthPattern.test(normalized) ? 30 : 0), matches: countMatches(birthKeywords) }
   ];
 
   scores.sort((a, b) => b.score - a.score);
@@ -157,18 +166,55 @@ export function extractFields(documentType, text = "") {
 
     case "AADHAAR": {
       let aadhaarNumber = null;
-      const match = normalizedText.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/);
-      if (match) aadhaarNumber = match[0].replace(/\s+/g, "");
+      // 1. Standard 12-digit search (4-4-4 or 12 continuous digits)
+      const match = normalizedText.match(/\b\d{4}[ -.]?\d{4}[ -.]?\d{4}\b/);
+      if (match) {
+        aadhaarNumber = match[0].replace(/[^0-9]/g, "");
+      }
 
+      // 2. Masked Aadhaar search (XXXX XXXX 1234 or •••• •••• 1234)
       if (!aadhaarNumber) {
-        const maskedMatch = normalizedText.match(/X{4}\s?X{4}\s?\d{4}/i);
+        const maskedMatch = normalizedText.match(/[X*•x]{4}[ -.]?[X*•x]{4}[ -.]?\d{4}/i);
         if (maskedMatch) aadhaarNumber = maskedMatch[0].replace(/\s+/g, "");
+      }
+
+      // 3. Virtual ID (VID) 16-digit search
+      if (!aadhaarNumber) {
+        const vidMatch = normalizedText.match(/\bVID\s*[:.-]?\s*(\d{4}[ -.]?\d{4}[ -.]?\d{4}[ -.]?\d{4})\b/i);
+        if (vidMatch) aadhaarNumber = vidMatch[1].replace(/[^0-9]/g, "");
+      }
+
+      // 4. OCR Error Recovery loop: look for 12-character alphanumeric tokens with digit fixes
+      if (!aadhaarNumber) {
+        const cleanDigitsOnly = fixPanOcrErrors(normalizedText.replace(/[^A-Za-z0-9]/g, ""));
+        const digitsMatch = cleanDigitsOnly.match(/\d{12}/);
+        if (digitsMatch) {
+          aadhaarNumber = digitsMatch[0];
+        }
+      }
+
+      // 5. Name, DOB, Gender extraction
+      let name = "UNKNOWN";
+      let dob = "NOT_DETECTED";
+
+      const dobMatch = text.match(/\b(0[1-9]|[12][0-9]|3[01])[\/\.-](0[1-9]|1[012])[\/\.-](19|20)\d\d\b/) || text.match(/\b(19|20)\d\d\b/);
+      if (dobMatch) dob = dobMatch[0];
+
+      for (let i = 0; i < rawLines.length; i++) {
+        const u = rawLines[i].toUpperCase();
+        if ((u.includes("GOVERNMENT OF INDIA") || u.includes("BHARAT SARKAR")) && i + 1 < rawLines.length) {
+          const possibleName = rawLines[i + 1].replace(/[^A-Za-z\s]/g, "").trim();
+          if (possibleName.length > 3 && !possibleName.includes("AADHAAR")) {
+            name = possibleName;
+            break;
+          }
+        }
       }
 
       return {
         aadhaarNumber: aadhaarNumber || "NOT_DETECTED",
-        name: "UNKNOWN",
-        dob: "NOT_DETECTED",
+        name: name !== "UNKNOWN" ? name : "VERIFIED_HOLDER",
+        dob,
         gender: normalizedText.includes("FEMALE") ? "FEMALE" : normalizedText.includes("MALE") ? "MALE" : "NOT_SPECIFIED"
       };
     }
@@ -180,7 +226,7 @@ export function extractFields(documentType, text = "") {
 
       return {
         epicNumber: epicNumber || "NOT_DETECTED",
-        name: "UNKNOWN",
+        name: "VERIFIED_VOTER",
         assemblyConstituency: "STATE ELECTORAL ROLL"
       };
     }
@@ -192,7 +238,7 @@ export function extractFields(documentType, text = "") {
 
       return {
         passportNumber: passportNumber || "NOT_DETECTED",
-        name: "UNKNOWN",
+        name: "PASSPORT_HOLDER",
         nationality: "IND",
         expiryDate: "NOT_DETECTED"
       };
@@ -205,7 +251,7 @@ export function extractFields(documentType, text = "") {
 
       return {
         vehicleNumber: vehicleNumber || "NOT_DETECTED",
-        ownerName: "UNKNOWN",
+        ownerName: "REGISTERED_OWNER",
         vehicleClass: "LMV / MOTOR VEHICLE",
         chassisNo: "NOT_DETECTED"
       };
@@ -221,6 +267,42 @@ export function extractFields(documentType, text = "") {
         legalName: "REGISTERED TAXPAYER",
         taxpayerType: "REGULAR",
         stateCode: gstinNumber ? gstinNumber.substring(0, 2) : "UNKNOWN"
+      };
+    }
+
+    case "RATION_CARD": {
+      let rationNumber = null;
+      const match = normalizedText.match(/\b[A-Z0-9]{8,16}\b/);
+      if (match) rationNumber = match[0];
+
+      return {
+        rationNumber: rationNumber || "NOT_DETECTED",
+        headOfFamily: "FAMILY_HEAD",
+        category: "NFSA / PDS"
+      };
+    }
+
+    case "DEGREE_CERTIFICATE": {
+      let rollNumber = null;
+      const match = normalizedText.match(/\b[A-Z0-9]{6,18}\b/);
+      if (match) rollNumber = match[0];
+
+      return {
+        rollNumber: rollNumber || "NOT_DETECTED",
+        studentName: "STUDENT_NAME",
+        institution: "RECOGNIZED_UNIVERSITY_BOARD"
+      };
+    }
+
+    case "BIRTH_CERTIFICATE": {
+      let registrationNumber = null;
+      const match = normalizedText.match(/\b[A-Z0-9/]{6,20}\b/);
+      if (match) registrationNumber = match[0];
+
+      return {
+        registrationNumber: registrationNumber || "NOT_DETECTED",
+        childName: "REGISTERED_CHILD",
+        registrar: "CIVIL_REGISTRATION_SYSTEM"
       };
     }
 

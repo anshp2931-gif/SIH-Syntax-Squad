@@ -389,7 +389,9 @@ export default function Home({ onNavigateVerify }) {
                 {/* Emblem Seal */}
                 <div className="emblemWrapper" style={styles.emblemWrapper}>
                   <div className="ashokaEmblem" style={styles.ashokaEmblem}>
-                    <div className="emblemCrown" style={styles.emblemCrown}>🏛️</div>
+                    <div className="emblemCrown" style={styles.emblemCrown}>
+                      <Landmark size={22} color="#1E3A8A" />
+                    </div>
                     <div className="emblemBase" style={styles.emblemBase}>सत्यमेव जयते</div>
                   </div>
                 </div>
@@ -1377,32 +1379,56 @@ export default function Home({ onNavigateVerify }) {
                   <span>Launch Live Verification</span>
                   <ArrowRight size={16} />
                 </button>
->>>>>>> 37251d3f641bfd8edfad5f84e05c9e6ff99c7610
               </div>
-              <p style={styles.docDesc}>{doc.desc}</p>
             </div>
-          ))}
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 }
 
 const styles = {
-  container: { maxWidth: "1280px", margin: "0 auto", padding: "40px 24px" },
-  hero: { textAlign: "center", maxWidth: "840px", margin: "0 auto 60px auto" },
-  heroBadge: {
+  container: {
+    maxWidth: "1320px",
+    margin: "0 auto",
+    padding: "36px 28px 60px 28px"
+  },
+
+  /* HERO */
+  heroSection: {
+    display: "grid",
+    gridTemplateColumns: "1.1fr 1fr",
+    alignItems: "center",
+    gap: "48px",
+    marginBottom: "48px"
+  },
+  heroLeft: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start"
+  },
+  govBadge: {
     display: "inline-flex",
     alignItems: "center",
     gap: "8px",
-    background: "rgba(99, 102, 241, 0.12)",
-    border: "1px solid rgba(99, 102, 241, 0.3)",
-    padding: "6px 16px",
+    background: "#FFFFFF",
+    border: "1px solid #E2E8F0",
+    padding: "6px 14px",
     borderRadius: "9999px",
-    color: "#a5b4fc",
-    fontSize: "0.85rem",
+    boxShadow: "0 2px 6px rgba(15, 23, 42, 0.03)",
+    marginBottom: "24px"
+  },
+  flagIcon: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "2px",
+    fontSize: "0.68rem"
+  },
+  govBadgeText: {
+    fontSize: "0.82rem",
     fontWeight: 600,
-    marginBottom: "20px"
+    color: "#64748B"
   },
   heroTitle: {
     fontSize: "2.85rem",
@@ -3259,5 +3285,4 @@ const styles = {
   modalBody: {
     padding: "24px"
   }
->>>>>>> 37251d3f641bfd8edfad5f84e05c9e6ff99c7610
 };

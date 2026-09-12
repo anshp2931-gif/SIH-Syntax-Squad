@@ -10,8 +10,31 @@ export async function verifyDocumentApi(file, forcedType = null, manualNumber = 
     formData.append("forcedType", forcedType);
   }
   if (manualNumber && manualNumber.trim()) {
-    const cleanNum = manualNumber.trim().toUpperCase();
-    const overrideObj = cleanNum.length === 10 ? { pan: cleanNum } : { dlNumber: cleanNum };
+    const cleanNum = manualNumber.trim().toUpperCase().replace(/[\s-]/g, "");
+    let overrideObj = {};
+    if (forcedType === "AADHAAR" || cleanNum.length === 12) {
+      overrideObj = { aadhaarNumber: cleanNum };
+    } else if (forcedType === "PAN" || cleanNum.length === 10) {
+      overrideObj = { pan: cleanNum };
+    } else if (forcedType === "DRIVING_LICENSE" || cleanNum.length >= 14) {
+      overrideObj = { dlNumber: cleanNum };
+    } else if (forcedType === "VOTER_ID") {
+      overrideObj = { epicNumber: cleanNum };
+    } else if (forcedType === "PASSPORT") {
+      overrideObj = { passportNumber: cleanNum };
+    } else if (forcedType === "VEHICLE_RC") {
+      overrideObj = { vehicleNumber: cleanNum };
+    } else if (forcedType === "GSTIN") {
+      overrideObj = { gstinNumber: cleanNum };
+    } else if (forcedType === "RATION_CARD") {
+      overrideObj = { rationNumber: cleanNum };
+    } else if (forcedType === "DEGREE_CERTIFICATE") {
+      overrideObj = { rollNumber: cleanNum };
+    } else if (forcedType === "BIRTH_CERTIFICATE") {
+      overrideObj = { registrationNumber: cleanNum };
+    } else {
+      overrideObj = { aadhaarNumber: cleanNum, pan: cleanNum, dlNumber: cleanNum, epicNumber: cleanNum };
+    }
     formData.append("overrideData", JSON.stringify(overrideObj));
   }
 

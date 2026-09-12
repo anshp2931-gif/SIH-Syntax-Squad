@@ -99,7 +99,7 @@ export default function Verify() {
               </div>
               <h3 style={{ marginTop: "16px", color: "#1e293b" }}>No Active Verification</h3>
               <p style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "6px", maxWidth: "340px", lineHeight: 1.5 }}>
-                Upload a PAN Card or Driving Licence image on the left, or select a synthetic demo sample to view real-time verification analysis.
+                Upload any Indian document (PAN, DL, Aadhaar, Voter ID, Passport, RC, GSTIN, Ration Card, Degree, Birth Cert) on the left, or select a synthetic demo sample to view real-time verification analysis.
               </p>
             </div>
           )}

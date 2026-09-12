@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 import verificationRoutes from "./routes/verificationRoutes.js";
+import { upload, purgeUploadsDirectory } from "./middleware/uploadMiddleware.js";
 import { ensureSampleImagesExist } from "./utils/sampleGenerator.js";
 
 dotenv.config();
@@ -19,13 +20,14 @@ app.use("/uploads", express.static("uploads"));
 app.use("/samples", express.static("samples"));
 
 ensureSampleImagesExist();
+purgeUploadsDirectory();
 
 app.get("/api/health", (req, res) => {
   res.json({
     status: "HEALTHY",
     service: "Indian Document Authenticity & Verification Platform API",
     version: "2.0.0",
-    supportedDocumentTypes: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VEHICLE_RC", "GSTIN"],
+    supportedDocumentTypes: ["PAN", "DRIVING_LICENSE", "AADHAAR", "VOTER_ID", "PASSPORT", "VEHICLE_RC", "GSTIN", "RATION_CARD", "DEGREE_CERTIFICATE", "BIRTH_CERTIFICATE"],
     mongoConnected: mongoose.connection.readyState === 1,
     timestamp: new Date().toISOString()
   });
@@ -97,6 +99,33 @@ app.get("/api/samples", (req, res) => {
         samplePath: path.resolve("samples/sample_gstin.png"),
         previewUrl: `http://localhost:${PORT}/samples/sample_gstin.png`,
         simulatedData: { gstinNumber: "27ABCDE1234F1Z5", legalName: "SYNTAX SQUAD ENTERPRISES", taxpayerType: "REGULAR" }
+      },
+      {
+        id: "sample_ration",
+        documentType: "RATION_CARD",
+        title: "Sample Ration Card",
+        fileName: "sample_ration_card.png",
+        samplePath: path.resolve("samples/sample_ration_card.png"),
+        previewUrl: `http://localhost:${PORT}/samples/sample_ration_card.png`,
+        simulatedData: { rationNumber: "RC1002345678", headOfFamily: "SUNITA DEVI", category: "NFSA / PDS" }
+      },
+      {
+        id: "sample_degree",
+        documentType: "DEGREE_CERTIFICATE",
+        title: "Sample Degree Certificate",
+        fileName: "sample_degree.png",
+        samplePath: path.resolve("samples/sample_degree.png"),
+        previewUrl: `http://localhost:${PORT}/samples/sample_degree.png`,
+        simulatedData: { rollNumber: "180420010045", studentName: "ANISH SHARMA", institution: "INDIAN INSTITUTE OF TECHNOLOGY" }
+      },
+      {
+        id: "sample_birth",
+        documentType: "BIRTH_CERTIFICATE",
+        title: "Sample Birth Certificate",
+        fileName: "sample_birth.png",
+        samplePath: path.resolve("samples/sample_birth.png"),
+        previewUrl: `http://localhost:${PORT}/samples/sample_birth.png`,
+        simulatedData: { registrationNumber: "CRS/2021/04561", childName: "AARAV KUMAR", registrar: "MUNICIPAL CORPORATION" }
       }
     ]
   });
@@ -116,12 +145,12 @@ mongoose
     console.log("Connected successfully to MongoDB instance.");
   })
   .catch((err) => {
-    console.warn("⚠️ Operating with high-performance local fallback store.");
+    console.warn("[WARN] Operating with high-performance local fallback store.");
   });
 
 app.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`🚀 Verification API Server listening on port ${PORT}`);
-  console.log(`🔗 Healthcheck: http://localhost:${PORT}/api/health`);
+  console.log(`[SERVER] Verification API Server listening on port ${PORT}`);
+  console.log(`[HEALTH] Healthcheck: http://localhost:${PORT}/api/health`);
   console.log(`=======================================================`);
 });
