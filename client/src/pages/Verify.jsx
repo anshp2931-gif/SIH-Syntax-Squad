@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import UploadBox from "../components/UploadBox";
 import VerificationCard from "../components/VerificationCard";
-import { verifyDocumentApi, verifySampleApi } from "../services/api";
+import { verifyDocumentApi } from "../services/api";
 import { 
   Cpu, 
   AlertCircle, 
@@ -29,7 +29,7 @@ export default function Verify() {
 
   // Active files & parameters to enable one-click switch
   const [currentFile, setCurrentFile] = useState(null);
-  const [currentSample, setCurrentSample] = useState(null);
+
   const [manualNumber, setManualNumber] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("AUTO");
   const [resetSignal, setResetSignal] = useState(0);
@@ -93,19 +93,11 @@ export default function Verify() {
 
   const handleFileUpload = (file, forcedType, manualNum) => {
     setCurrentFile(file);
-    setCurrentSample(null);
     setManualNumber(manualNum || "");
     runPipelineWithSteps(() => verifyDocumentApi(file, forcedType, manualNum));
   };
 
-  const handleSampleSelect = (sample) => {
-    setCurrentFile(null);
-    setCurrentSample(sample);
-    setSelectedCategory(sample.documentType);
-    runPipelineWithSteps(() =>
-      verifySampleApi(sample.samplePath, sample.documentType, sample.simulatedData)
-    );
-  };
+
 
   // Switch to Detected Document Type with one click & automatically re-run pipeline
   const handleSwitchToDetected = () => {
@@ -116,10 +108,6 @@ export default function Verify() {
 
     if (currentFile) {
       runPipelineWithSteps(() => verifyDocumentApi(currentFile, detectedType, manualNumber));
-    } else if (currentSample) {
-      runPipelineWithSteps(() =>
-        verifySampleApi(currentSample.samplePath, detectedType, currentSample.simulatedData)
-      );
     }
   };
 
@@ -129,7 +117,6 @@ export default function Verify() {
     setResult(null);
     setError(null);
     setCurrentFile(null);
-    setCurrentSample(null);
     setResetSignal((prev) => prev + 1);
   };
 
@@ -145,10 +132,6 @@ export default function Verify() {
     clearDetectionStates();
     if (currentFile) {
       runPipelineWithSteps(() => verifyDocumentApi(currentFile, chosenType, manualNumber));
-    } else if (currentSample) {
-      runPipelineWithSteps(() =>
-        verifySampleApi(currentSample.samplePath, chosenType, currentSample.simulatedData)
-      );
     }
   };
 
@@ -159,7 +142,6 @@ export default function Verify() {
         <div>
           <UploadBox
             onUpload={handleFileUpload}
-            onSelectSample={handleSampleSelect}
             loading={loading}
             selectedCategory={selectedCategory}
             onCategoryChange={(cat) => setSelectedCategory(cat)}

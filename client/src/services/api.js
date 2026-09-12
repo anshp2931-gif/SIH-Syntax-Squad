@@ -78,40 +78,7 @@ export async function verifyDocumentApi(file, forcedType = null, manualNumber = 
   return response.json();
 }
 
-/**
- * Verifies document using built-in synthetic sample path
- */
-export async function verifySampleApi(samplePath, documentType, simulatedData) {
-  const response = await fetch(`${API_BASE_URL}/verification`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      samplePath,
-      forcedType: documentType,
-      overrideData: JSON.stringify(simulatedData)
-    })
-  });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Sample verification failed");
-  }
-
-  return response.json();
-}
-
-/**
- * Fetches available synthetic sample documents for testing
- */
-export async function fetchSampleDocumentsApi() {
-  const response = await fetch(`${API_BASE_URL}/samples`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch sample documents");
-  }
-  return response.json();
-}
 
 /**
  * Fetches verification audit record by unique ID
@@ -176,4 +143,36 @@ export async function uploadMobileDocumentApi(sessionId, file) {
   });
   if (!response.ok) throw new Error("Failed to upload document from mobile device");
   return response.json();
+}
+
+/**
+ * Fetches sample documents from the backend
+ */
+export async function fetchSampleDocumentsApi() {
+  const response = await fetch(`${API_BASE_URL}/samples`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch sample documents");
+  }
+  return response.json();
+}
+
+/**
+ * Downloads a sample document and passes it through the active verification engine
+ */
+export async function verifySampleApi(samplePath, documentType, simulatedData = {}) {
+  const imgResponse = await fetch(samplePath);
+  const blob = await imgResponse.blob();
+  const file = new File([blob], "sample.png", { type: blob.type || "image/png" });
+
+  let primaryNumber = "";
+  if (simulatedData.pan) primaryNumber = simulatedData.pan;
+  else if (simulatedData.aadhaarNumber) primaryNumber = simulatedData.aadhaarNumber;
+  else if (simulatedData.dlNumber) primaryNumber = simulatedData.dlNumber;
+  else if (simulatedData.epicNumber) primaryNumber = simulatedData.epicNumber;
+  else if (simulatedData.passportNumber) primaryNumber = simulatedData.passportNumber;
+  else if (Object.values(simulatedData).length > 0) {
+    primaryNumber = Object.values(simulatedData)[0];
+  }
+
+  return verifyDocumentApi(file, documentType, primaryNumber);
 }

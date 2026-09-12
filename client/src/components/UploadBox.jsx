@@ -19,7 +19,7 @@ import {
   Lightbulb,
   Truck
 } from "lucide-react";
-import { fetchSampleDocumentsApi } from "../services/api";
+
 import CameraScanner from "./CameraScanner";
 import { useLanguage } from "../hooks/useLanguage";
 import ScannerOptionModal from "./ScannerOptionModal";
@@ -37,7 +37,7 @@ export default function UploadBox({
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [forcedType, setForcedType] = useState(selectedCategory || "AUTO");
-  const [samples, setSamples] = useState([]);
+
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
@@ -52,8 +52,6 @@ export default function UploadBox({
     { id: "AADHAAR", label: "Aadhaar Card (UIDAI)", icon: Fingerprint },
     { id: "VOTER_ID", label: "Voter ID Card (EPIC)", icon: UserCheck },
     { id: "PASSPORT", label: "Indian Passport", icon: Globe },
-    { id: "VISA", label: "Indian Visa / e-Visa", icon: Globe },
-    { id: "PERMIT", label: "Commercial / Transport Permit", icon: Truck },
     { id: "VEHICLE_RC", label: "Vehicle Registration Certificate (RC)", icon: Car },
     { id: "GSTIN", label: "GSTIN Certificate", icon: Building },
     { id: "RATION_CARD", label: "Ration Card (NFSA / PDS)", icon: Wheat },
@@ -89,13 +87,7 @@ export default function UploadBox({
     };
   }, [isDropdownOpen]);
 
-  useEffect(() => {
-    fetchSampleDocumentsApi()
-      .then((res) => {
-        if (res?.samples) setSamples(res.samples);
-      })
-      .catch((err) => console.warn("Could not load demo samples:", err));
-  }, []);
+
 
   const handleClearFile = (e) => {
     if (e) e.stopPropagation();
@@ -410,39 +402,10 @@ export default function UploadBox({
           {loading ? t('uploadBox.analyzing') : t('uploadBox.verifyBtn')}
         </button>
       </div>
-
-      {/* Synthetic Demo Samples */}
-      {samples.length > 0 && (
-        <div className="sampleSection" style={styles.sampleSection}>
-          <div className="sampleHeader" style={styles.sampleHeader}>
-            <Sparkles size={16} color="#2563EB" />
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#2563EB" }}>
-              {t('uploadBox.sampleHead')}
-            </span>
-          </div>
-
-          <div className="sampleGrid" style={styles.sampleGrid}>
-            {samples.map((sample) => (
-              <div
-                key={sample.id}
-                className="sampleCard" style={styles.sampleCard}
-                onClick={() => onSelectSample(sample)}
-              >
-                <div className="sampleBadge" style={styles.sampleBadge}>{sample.documentType}</div>
-                <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "#0F172A", marginTop: "4px" }}>
-                  {sample.title}
-                </div>
-                <div style={{ fontSize: "0.78rem", color: "#64748B", marginTop: "2px" }}>
-                  Click to verify sample instantly
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+
 
 const styles = {
   card: {
@@ -533,38 +496,5 @@ const styles = {
   },
   fileDetails: {
     textAlign: "left"
-  },
-  sampleSection: {
-    marginTop: "24px",
-    paddingTop: "20px",
-    borderTop: "1px solid #E2E8F0"
-  },
-  sampleHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    marginBottom: "12px"
-  },
-  sampleGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "12px"
-  },
-  sampleCard: {
-    background: "#F8FAFC",
-    border: "1px solid #E2E8F0",
-    borderRadius: "10px",
-    padding: "12px 16px",
-    cursor: "pointer",
-    transition: "all 0.2s ease"
-  },
-  sampleBadge: {
-    background: "#EFF6FF",
-    color: "#2563EB",
-    fontSize: "0.72rem",
-    fontWeight: 700,
-    padding: "2px 8px",
-    borderRadius: "4px",
-    display: "inline-block"
   }
 };
