@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 /**
  * Detects document type and checks for category mismatch
@@ -148,4 +148,32 @@ export async function checkHealthApi() {
     // API down
   }
   return { status: "OFFLINE", mongoConnected: false };
+}
+
+/**
+ * Mobile Camera Upload Session APIs
+ */
+export async function createMobileSessionApi() {
+  const response = await fetch(`${API_BASE_URL}/session/create`, {
+    method: "POST"
+  });
+  if (!response.ok) throw new Error("Failed to create mobile upload session");
+  return response.json();
+}
+
+export async function getMobileSessionStatusApi(sessionId) {
+  const response = await fetch(`${API_BASE_URL}/session/${sessionId}`);
+  if (!response.ok) throw new Error("Failed to get session status");
+  return response.json();
+}
+
+export async function uploadMobileDocumentApi(sessionId, file) {
+  const formData = new FormData();
+  formData.append("document", file);
+  const response = await fetch(`${API_BASE_URL}/session/${sessionId}/upload`, {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) throw new Error("Failed to upload document from mobile device");
+  return response.json();
 }

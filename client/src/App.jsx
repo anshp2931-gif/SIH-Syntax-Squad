@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router-dom";
 import { useUser, useClerk, AuthenticateWithRedirectCallback } from "@clerk/react";
+import { useLanguage } from "./hooks/useLanguage";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Verify from "./pages/Verify";
 import History from "./pages/History";
 import Login from "./pages/Login";
 import Overview from "./pages/Overview";
+import MobileUpload from "./pages/MobileUpload";
 
 export default function App() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const [currentUser, setCurrentUser] = useState(null);
@@ -33,7 +38,8 @@ export default function App() {
 
   const handleLoginSuccess = (userData) => {
     if (userData) setCurrentUser(userData);
-    navigate("/");
+    const destination = location.state?.from?.pathname || "/";
+    navigate(destination, { replace: true });
   };
 
   const handleLogout = async () => {
@@ -48,7 +54,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Navbar 
+      <Navbar
         currentUser={currentUser}
         onLogout={handleLogout}
       />
@@ -56,8 +62,23 @@ export default function App() {
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Home onNavigateVerify={() => navigate("/verify")} />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/history" element={<History />} />
+          <Route 
+            path="/verify" 
+            element={
+              <ProtectedRoute>
+                <Verify />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/history" 
+            element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/mobile-upload" element={<MobileUpload />} />
           <Route 
             path="/overview" 
             element={
@@ -71,7 +92,7 @@ export default function App() {
             path="/login" 
             element={
               isLoaded && isSignedIn ? (
-                <Navigate to="/" replace />
+                <Navigate to={location.state?.from?.pathname || "/"} replace />
               ) : (
                 <Login 
                   onLoginSuccess={handleLoginSuccess}
@@ -91,13 +112,13 @@ export default function App() {
       <footer className="footer" style={styles.footer}>
         <div className="footerContainer" style={styles.footerContainer}>
           <div style={{ color: "#334155", fontWeight: 600 }}>
-            <strong>DocAuth India</strong> — Enterprise Indian Document Authenticity Platform
+            <strong>PramaanSetu India</strong> — {t("footer.title")}
           </div>
           <div style={{ color: "#64748b", fontSize: "0.82rem", marginTop: "6px" }}>
-            PAN Card • Driving Licence • Aadhaar Verification Architecture • DigiLocker Integration Ready
+            {t("footer.subtitle")}
           </div>
           <div style={{ color: "#94a3b8", fontSize: "0.75rem", marginTop: "4px" }}>
-            Compliant with UIDAI, ITD-NSDL, and MoRTH-Parivahan security guidelines.
+            {t("footer.compliance")}
           </div>
         </div>
       </footer>

@@ -220,7 +220,37 @@ export async function verifyDocument(req, res) {
 
     // 2. Smart Document Type Detection
     const detection = detectDocument(rawText);
-    const documentType = detection.documentType;
+    let documentType = detection.documentType;
+
+    // Smart Deterministic Pattern Validation Override & Fallback
+    if (rawText) {
+      const normUpper = rawText.toUpperCase();
+      const isPassport = normUpper.includes("PASSPORT") || normUpper.includes("P<IND") || normUpper.includes("REPUBLIC OF INDIA");
+      const isDegree = normUpper.includes("STATEMENT OF MARKS") || normUpper.includes("MARKSHEET") || normUpper.includes("BOARD OF SECONDARY") || normUpper.includes("HIGHER SECONDARY") || (normUpper.includes("BOARD") && normUpper.includes("EXAMINATION"));
+      const isRation = normUpper.includes("RATION") || normUpper.includes("RASAN") || normUpper.includes("RASHAN") || normUpper.includes("FOOD & CIVIL") || normUpper.includes("NFSA") || normUpper.includes("PDS") || normUpper.includes("KUTUMB");
+
+      if (isPassport) {
+        documentType = "PASSPORT";
+        detection.confidence = 95;
+      } else if (isDegree) {
+        documentType = "DEGREE_CERTIFICATE";
+        detection.confidence = 90;
+      } else if (isRation) {
+        documentType = "RATION_CARD";
+        detection.confidence = 90;
+      } else {
+        const candidates = ["PAN", "AADHAAR", "DRIVING_LICENSE", "VOTER_ID", "VEHICLE_RC", "GSTIN", "RATION_CARD", "BIRTH_CERTIFICATE"];
+        for (const type of candidates) {
+          const fields = extractFields(type, rawText);
+          const val = validateDocument(type, fields);
+          if (val && val.valid) {
+            documentType = type;
+            detection.confidence = 90;
+            break;
+          }
+        }
+      }
+    }
 
     // RULE 5: If detection confidence is low, DO NOT GUESS.
     if (detection.isLowConfidence || (documentType === "UNKNOWN" && detection.confidence < 40)) {
@@ -298,7 +328,7 @@ export async function verifyDocument(req, res) {
     const issuerResult = await verifyIssuer(effectiveType, extractedData);
 
     // 8. Template & Structural Check
-    const templateValid = (detection.confidence >= 20) || isSampleOrOverride || Boolean(forcedType && (documentType === forcedType || documentType === "UNKNOWN"));
+    const templateValid = (detection.confidence >= 15) || formatResult.valid || isSampleOrOverride || Boolean(forcedType);
 
     // Compile 7 verification check booleans
     const checks = {

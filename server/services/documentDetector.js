@@ -7,6 +7,14 @@ export function fixPanOcrErrors(token = "") {
   const clean = token.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   if (clean.length !== 10) return clean;
 
+  // A genuine PAN number should already have at least 3 letters in the first 5 and at least 2 digits in middle 4
+  const alphaInFirst5 = (clean.substring(0, 5).match(/[A-Z]/g) || []).length;
+  const digitsInMiddle4 = (clean.substring(5, 9).match(/[0-9]/g) || []).length;
+
+  if (alphaInFirst5 < 3 || digitsInMiddle4 < 2) {
+    return clean; // Protect Passport MRZ tokens from being turned into fake PANs
+  }
+
   const charToAlpha = { "0": "O", "1": "I", "5": "S", "8": "B", "2": "Z", "6": "G" };
   const charToNum = { "I": "1", "L": "1", "|": "1", "O": "0", "Q": "0", "S": "5", "B": "8", "Z": "2", "G": "6", "T": "7" };
 

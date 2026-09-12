@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://sih-syntax-squad.onrender.com/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://sih-syntax-squad.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/samples/:path*",
+      "destination": "https://sih-syntax-squad.onrender.com/samples/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

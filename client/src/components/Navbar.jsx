@@ -14,14 +14,18 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { checkHealthApi } from "../services/api";
+import { useLanguage } from "../hooks/useLanguage";
 
 export default function Navbar({ currentUser, onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [health, setHealth] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t, language, changeLanguage } = useLanguage();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const langDropdownRef = useRef(null);
 
   // Derive activeTab from current route pathname
   const getActiveTab = () => {
@@ -52,6 +56,7 @@ export default function Navbar({ currentUser, onLogout }) {
   useEffect(() => {
     setMobileMenuOpen(false);
     setProfileDropdownOpen(false);
+    setLangDropdownOpen(false);
   }, [location.pathname]);
 
   // Click outside to close profile dropdown
@@ -59,6 +64,9 @@ export default function Navbar({ currentUser, onLogout }) {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setProfileDropdownOpen(false);
+      }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
+        setLangDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -94,15 +102,15 @@ export default function Navbar({ currentUser, onLogout }) {
           </div>
           <div>
             <div className="brandName">
-              DocAuth <span style={{ color: "#2563EB" }}>India</span>
+              PramaanSetu <span style={{ color: "#2563EB" }}>India</span>
             </div>
-            <div className="brandSub">Secure Documents. Trusted India.</div>
+            <div className="brandSub">{t('navbar.secure')}</div>
           </div>
         </div>
 
         <nav className={`nav ${mobileMenuOpen ? "mobile-nav-open" : "mobile-nav-closed"}`}>
           <div className="mobile-nav-header">
-             <div className="brandName" style={{ fontSize: "1.1rem" }}>Menu</div>
+             <div className="brandName" style={{ fontSize: "1.1rem" }}>{t('navbar.menu')}</div>
              <button className="mobile-nav-close" onClick={() => setMobileMenuOpen(false)}>
                <X size={24} color="#64748B" />
              </button>
@@ -113,7 +121,7 @@ export default function Navbar({ currentUser, onLogout }) {
             onClick={() => handleNav("home")}
           >
             <HomeIcon size={17} color={isHome ? "#2563EB" : "#64748B"} />
-            <span>Home</span>
+            <span>{t('navbar.home')}</span>
             {isHome && <div className="activeIndicator" />}
           </button>
 
@@ -122,7 +130,7 @@ export default function Navbar({ currentUser, onLogout }) {
             onClick={() => handleNav("verify")}
           >
             <FileText size={17} color={isVerify ? "#2563EB" : "#64748B"} />
-            <span>Verify Document</span>
+            <span>{t('navbar.verify')}</span>
             {isVerify && <div className="activeIndicator" />}
           </button>
 
@@ -131,7 +139,7 @@ export default function Navbar({ currentUser, onLogout }) {
             onClick={() => handleNav("history")}
           >
             <HistoryIcon size={17} color={isHistory ? "#2563EB" : "#64748B"} />
-            <span>Audit Log</span>
+            <span>{t('navbar.history')}</span>
             {isHistory && <div className="activeIndicator" />}
           </button>
 
@@ -140,7 +148,7 @@ export default function Navbar({ currentUser, onLogout }) {
             onClick={() => handleNav("overview")}
           >
             <LayoutGrid size={17} color={isOverview ? "#2563EB" : "#64748B"} />
-            <span>Overview</span>
+            <span>{t('navbar.overview')}</span>
             {isOverview && <div className="activeIndicator" />}
           </button>
 
@@ -193,15 +201,102 @@ export default function Navbar({ currentUser, onLogout }) {
         </nav>
 
         <div className="rightSection">
-          <div className="statusBadge">
+          <div className="statusBadge desktop-only">
             <span className="statusDot" />
             <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#16A34A" }} className="statusText">
-              Online
+              {t('navbar.online')}
             </span>
+          </div>
+          <div ref={langDropdownRef} style={{ display: "flex", alignItems: "center", position: "relative", marginRight: "20px" }}>
+            <div 
+              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+              style={{
+                background: "#F1F5F9",
+                border: "1px solid #E2E8F0",
+                borderRadius: "6px",
+                padding: "6px 12px",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                color: "#1E293B",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                userSelect: "none"
+              }}
+            >
+              <span>{language === 'hi' ? 'हिंदी (HI)' : 'English (EN)'}</span>
+              <ChevronDown size={14} color="#64748B" />
+            </div>
+
+            {langDropdownOpen && (
+              <div style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                right: 0,
+                background: "#FFFFFF",
+                border: "1px solid #E2E8F0",
+                borderRadius: "8px",
+                boxShadow: "0 10px 25px rgba(15, 23, 42, 0.1)",
+                overflow: "hidden",
+                zIndex: 100,
+                minWidth: "140px"
+              }}>
+                <div 
+                  onClick={() => { changeLanguage('en'); setLangDropdownOpen(false); }}
+                  style={{
+                    padding: "10px 14px",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                    fontWeight: language === 'en' ? 700 : 500,
+                    color: language === 'en' ? "#2563EB" : "#334155",
+                    background: language === 'en' ? "#EFF6FF" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (language !== 'en') e.currentTarget.style.background = "#F8FAFC";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (language !== 'en') e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  English (EN)
+                  {language === 'en' && <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#2563EB" }} />}
+                </div>
+                <div 
+                  onClick={() => { changeLanguage('hi'); setLangDropdownOpen(false); }}
+                  style={{
+                    padding: "10px 14px",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                    fontWeight: language === 'hi' ? 700 : 500,
+                    color: language === 'hi' ? "#2563EB" : "#334155",
+                    background: language === 'hi' ? "#EFF6FF" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (language !== 'hi') e.currentTarget.style.background = "#F8FAFC";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (language !== 'hi') e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  हिंदी (HI)
+                  {language === 'hi' && <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#2563EB" }} />}
+                </div>
+              </div>
+            )}
           </div>
 
           {currentUser ? (
-            <div className="profileWrapper" ref={dropdownRef} style={{ position: "relative" }}>
+            <div className="profileWrapper desktop-only" ref={dropdownRef} style={{ position: "relative" }}>
               <div 
                 className="userProfile" 
                 onClick={() => setProfileDropdownOpen((prev) => !prev)}
@@ -263,6 +358,7 @@ export default function Navbar({ currentUser, onLogout }) {
             </div>
           ) : (
             <button
+              className="desktop-only"
               onClick={() => navigate("/login")}
               style={{
                 background: "#2563EB",
@@ -279,7 +375,6 @@ export default function Navbar({ currentUser, onLogout }) {
               Sign In
             </button>
           )}
-
           <button className="hamburger-btn" onClick={() => setMobileMenuOpen(true)}>
              <Menu size={24} color="#0F172A" />
           </button>

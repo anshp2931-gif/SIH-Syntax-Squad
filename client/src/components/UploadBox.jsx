@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { fetchSampleDocumentsApi } from "../services/api";
 import CameraScanner from "./CameraScanner";
+import { useLanguage } from "../hooks/useLanguage";
+import ScannerOptionModal from "./ScannerOptionModal";
 
 export default function UploadBox({
   onUpload,
@@ -31,12 +33,14 @@ export default function UploadBox({
   onFileSelect,
   resetSignal
 }) {
+  const { t } = useLanguage();
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [forcedType, setForcedType] = useState(selectedCategory || "AUTO");
   const [samples, setSamples] = useState([]);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [showOptionModal, setShowOptionModal] = useState(false);
   const [manualNumber, setManualNumber] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -144,7 +148,7 @@ export default function UploadBox({
 
   return (
     <div className="glass-card" style={styles.card}>
-      <h2 className="title" style={styles.title}>Upload Indian Identity Document</h2>
+      <h2 className="title" style={styles.title}>{t('uploadBox.title')}</h2>
       <p className="subtitle" style={styles.subtitle}>
         Supports PAN Card, Driving Licence, Aadhaar, Voter ID, Passport, RC, GSTIN, Ration Card, Degree & Birth Certs.
       </p>
@@ -152,7 +156,7 @@ export default function UploadBox({
       {/* Target Document Selector Custom Dropdown */}
       <div className="typeSelectorGroup" style={styles.typeSelectorGroup}>
         <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#64748B" }}>
-          Target Document Type:
+          {t('uploadBox.docType')}
         </span>
         <div 
           ref={dropdownRef}
@@ -327,11 +331,11 @@ export default function UploadBox({
               <UploadCloud size={30} color="#2563EB" />
             </div>
             <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#0F172A" }}>
-              Drag & drop document image here, or{" "}
-              <span style={{ color: "#2563EB", textDecoration: "underline" }}>browse</span>
+              {t('uploadBox.dropLabel')} {" "}
+              <span style={{ color: "#2563EB", textDecoration: "underline" }}>{t('uploadBox.browse')}</span>
             </div>
             <div style={{ fontSize: "0.8rem", color: "#64748B", marginTop: "4px" }}>
-              JPG, PNG, WEBP, or PDF (Max 10MB)
+              {t('uploadBox.dropHint')}
             </div>
           </label>
         )}
@@ -345,7 +349,7 @@ export default function UploadBox({
         </div>
         <input
           type="text"
-          placeholder="Enter document number (e.g. ABCDE1234F or DL1420110012345)"
+          placeholder={t('uploadBox.manualPlaceholder')}
           value={manualNumber}
           onChange={(e) => setManualNumber(e.target.value)}
           className="code-font input-field"
@@ -362,12 +366,27 @@ export default function UploadBox({
             padding: "11px",
             fontWeight: 600
           }}
-          onClick={() => setShowCamera(true)}
+          onClick={() => setShowOptionModal(true)}
         >
           <Camera size={18} color="#2563EB" />
-          <span>Open Live Camera Scanner (Auto-Capture When Clear)</span>
+          <span>{t('uploadBox.cameraBtn')}</span>
         </button>
       </div>
+
+      {/* Scanner Option Modal (QR scan on mobile or current device camera) */}
+      {showOptionModal && (
+        <ScannerOptionModal
+          onClose={() => setShowOptionModal(false)}
+          onSelectDeviceCamera={() => {
+            setShowOptionModal(false);
+            setShowCamera(true);
+          }}
+          onMobileCaptured={(capturedFile) => {
+            setShowOptionModal(false);
+            handleCameraCapture(capturedFile);
+          }}
+        />
+      )}
 
       {/* Camera Modal */}
       {showCamera && (
@@ -388,7 +407,7 @@ export default function UploadBox({
             cursor: !selectedFile || loading ? "not-allowed" : "pointer"
           }}
         >
-          {loading ? "Analyzing Pipeline..." : "Run Multi-Layer Verification"}
+          {loading ? t('uploadBox.analyzing') : t('uploadBox.verifyBtn')}
         </button>
       </div>
 
@@ -398,7 +417,7 @@ export default function UploadBox({
           <div className="sampleHeader" style={styles.sampleHeader}>
             <Sparkles size={16} color="#2563EB" />
             <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#2563EB" }}>
-              Fast Test — Try Synthetic Demo Samples:
+              {t('uploadBox.sampleHead')}
             </span>
           </div>
 

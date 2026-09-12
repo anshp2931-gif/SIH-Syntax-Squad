@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 import verificationRoutes from "./routes/verificationRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js";
 import { upload, purgeUploadsDirectory } from "./middleware/uploadMiddleware.js";
 import { ensureSampleImagesExist } from "./utils/sampleGenerator.js";
 
@@ -12,7 +13,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || "*",
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,6 +38,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/api/samples", (req, res) => {
+  const hostUrl = process.env.SERVER_URL || `${req.protocol}://${req.get("host")}`;
   res.json({
     success: true,
     samples: [
@@ -43,7 +48,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample PAN Card",
         fileName: "sample_pan_card.png",
         samplePath: path.resolve("samples/sample_pan_card.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_pan_card.png`,
+        previewUrl: `${hostUrl}/samples/sample_pan_card.png`,
         simulatedData: { pan: "ABCDE1234F", name: "RAHUL SHARMA", fatherName: "SURESH SHARMA", dob: "12/05/2001" }
       },
       {
@@ -52,7 +57,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Driving Licence",
         fileName: "sample_driving_license.png",
         samplePath: path.resolve("samples/sample_driving_license.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_driving_license.png`,
+        previewUrl: `${hostUrl}/samples/sample_driving_license.png`,
         simulatedData: { dlNumber: "DL1420110012345", name: "VIKRAM SINGH", dob: "20/08/1995", stateCode: "DL", validTill: "19/08/2035" }
       },
       {
@@ -61,7 +66,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Aadhaar Card",
         fileName: "sample_aadhaar_card.png",
         samplePath: path.resolve("samples/sample_aadhaar_card.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_aadhaar_card.png`,
+        previewUrl: `${hostUrl}/samples/sample_aadhaar_card.png`,
         simulatedData: { aadhaarNumber: "999988887778", name: "PRIYA VERMA", dob: "15/03/1998", gender: "FEMALE" }
       },
       {
@@ -70,7 +75,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Voter ID (EPIC)",
         fileName: "sample_voter_id.png",
         samplePath: path.resolve("samples/sample_voter_id.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_voter_id.png`,
+        previewUrl: `${hostUrl}/samples/sample_voter_id.png`,
         simulatedData: { epicNumber: "ABC1234567", name: "AMIT KUMAR", assemblyConstituency: "NEW DELHI AC-40" }
       },
       {
@@ -79,7 +84,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Indian Passport",
         fileName: "sample_passport.png",
         samplePath: path.resolve("samples/sample_passport.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_passport.png`,
+        previewUrl: `${hostUrl}/samples/sample_passport.png`,
         simulatedData: { passportNumber: "Z1234567", name: "ROHAN MEHTA", nationality: "IND", expiryDate: "10/12/2032" }
       },
       {
@@ -88,7 +93,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Vehicle RC",
         fileName: "sample_vehicle_rc.png",
         samplePath: path.resolve("samples/sample_vehicle_rc.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_vehicle_rc.png`,
+        previewUrl: `${hostUrl}/samples/sample_vehicle_rc.png`,
         simulatedData: { vehicleNumber: "DL01AB1234", ownerName: "RAJESH GUPTA", vehicleClass: "LMV / MOTOR CAR" }
       },
       {
@@ -97,7 +102,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample GSTIN Certificate",
         fileName: "sample_gstin.png",
         samplePath: path.resolve("samples/sample_gstin.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_gstin.png`,
+        previewUrl: `${hostUrl}/samples/sample_gstin.png`,
         simulatedData: { gstinNumber: "27ABCDE1234F1Z5", legalName: "SYNTAX SQUAD ENTERPRISES", taxpayerType: "REGULAR" }
       },
       {
@@ -106,7 +111,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Ration Card",
         fileName: "sample_ration_card.png",
         samplePath: path.resolve("samples/sample_ration_card.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_ration_card.png`,
+        previewUrl: `${hostUrl}/samples/sample_ration_card.png`,
         simulatedData: { rationNumber: "RC1002345678", headOfFamily: "SUNITA DEVI", category: "NFSA / PDS" }
       },
       {
@@ -115,7 +120,7 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Degree Certificate",
         fileName: "sample_degree.png",
         samplePath: path.resolve("samples/sample_degree.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_degree.png`,
+        previewUrl: `${hostUrl}/samples/sample_degree.png`,
         simulatedData: { rollNumber: "180420010045", studentName: "ANISH SHARMA", institution: "INDIAN INSTITUTE OF TECHNOLOGY" }
       },
       {
@@ -124,13 +129,14 @@ app.get("/api/samples", (req, res) => {
         title: "Sample Birth Certificate",
         fileName: "sample_birth.png",
         samplePath: path.resolve("samples/sample_birth.png"),
-        previewUrl: `http://localhost:${PORT}/samples/sample_birth.png`,
+        previewUrl: `${hostUrl}/samples/sample_birth.png`,
         simulatedData: { registrationNumber: "CRS/2021/04561", childName: "AARAV KUMAR", registrar: "MUNICIPAL CORPORATION" }
       }
     ]
   });
 });
 
+app.use("/api/session", sessionRoutes);
 app.use("/api/verification", verificationRoutes);
 
 app.use((req, res) => {
