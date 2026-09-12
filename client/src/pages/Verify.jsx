@@ -3,8 +3,10 @@ import UploadBox from "../components/UploadBox";
 import VerificationCard from "../components/VerificationCard";
 import { verifyDocumentApi, verifySampleApi } from "../services/api";
 import { Cpu, CheckCircle2, AlertCircle } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 export default function Verify() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState("");
   const [result, setResult] = useState(null);
@@ -16,25 +18,25 @@ export default function Verify() {
     setResult(null);
 
     try {
-      setCurrentStep("Stage 1/5: Ingesting file & verifying payload structure...");
+      setCurrentStep(t('verify.stages.1'));
       await new Promise((r) => setTimeout(r, 400));
 
-      setCurrentStep("Stage 2/5: Executing Tesseract.js OCR text & field extraction...");
+      setCurrentStep(t('verify.stages.2'));
       await new Promise((r) => setTimeout(r, 500));
 
-      setCurrentStep("Stage 3/5: Scanning QR matrix code & running Tamper ELA Analysis...");
+      setCurrentStep(t('verify.stages.3'));
       await new Promise((r) => setTimeout(r, 500));
 
-      setCurrentStep("Stage 4/5: Cross-referencing Authoritative Issuer Registry...");
+      setCurrentStep(t('verify.stages.4'));
       await new Promise((r) => setTimeout(r, 400));
 
-      setCurrentStep("Stage 5/5: Computing Weighted Risk Score & saving Audit Record...");
+      setCurrentStep(t('verify.stages.5'));
       const res = await taskFn();
 
       setResult(res);
     } catch (err) {
       console.error("Verification error:", err);
-      setError(err.message || "Document verification pipeline failed.");
+      setError(err.message || t('verify.error.default'));
     } finally {
       setLoading(false);
       setCurrentStep("");
@@ -71,7 +73,7 @@ export default function Verify() {
                 <Cpu size={44} color="#2563eb" className="pulse-animation" />
               </div>
               <h3 style={{ fontSize: "1.2rem", marginTop: "16px", color: "#0f172a" }}>
-                Document Verification Pipeline In Progress
+                {t('verify.loading')}
               </h3>
               <p style={{ color: "#2563eb", fontWeight: 600, marginTop: "8px", fontSize: "0.92rem" }}>
                 {currentStep}
@@ -86,7 +88,7 @@ export default function Verify() {
             <div className="glass-card" style={styles.errorBox}>
               <AlertCircle size={28} color="#dc2626" />
               <div>
-                <h4 style={{ color: "#dc2626" }}>Verification Error</h4>
+                <h4 style={{ color: "#dc2626" }}>{t('verify.error.title')}</h4>
                 <p style={{ fontSize: "0.88rem", color: "#64748b", marginTop: "4px" }}>{error}</p>
               </div>
             </div>
@@ -97,9 +99,9 @@ export default function Verify() {
               <div className="emptyIconCircle" style={styles.emptyIconCircle}>
                 <Cpu size={36} color="#2563eb" />
               </div>
-              <h3 style={{ marginTop: "16px", color: "#1e293b" }}>No Active Verification</h3>
+              <h3 style={{ marginTop: "16px", color: "#1e293b" }}>{t('verify.empty.title')}</h3>
               <p style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "6px", maxWidth: "340px", lineHeight: 1.5 }}>
-                Upload any Indian document (PAN, DL, Aadhaar, Voter ID, Passport, RC, GSTIN, Ration Card, Degree, Birth Cert) on the left, or select a synthetic demo sample to view real-time verification analysis.
+                {t('verify.empty.desc')}
               </p>
             </div>
           )}

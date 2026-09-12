@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { CheckCircle2, XCircle, AlertCircle, Download, ShieldCheck, FileText, Cpu, Eye } from "lucide-react";
 import ResultBadge from "./ResultBadge";
+import { useLanguage } from "../hooks/useLanguage";
 
 export default function VerificationCard({ result }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
 
   if (!result) return null;
@@ -31,13 +33,13 @@ export default function VerificationCard({ result }) {
   const scoreColor = getOriginalityColor(displayOriginalityScore);
 
   const checksList = [
-    { key: "documentType", label: "1. Document Type Detection", pass: checks.documentType },
-    { key: "ocr", label: "2. OCR / Data Extraction", pass: checks.ocr },
-    { key: "format", label: "3. Format & Algorithmic Checksum", pass: checks.format },
-    { key: "qr", label: "4. QR Code Security Match", pass: checks.qr },
-    { key: "template", label: "5. Template & Proportions Check", pass: checks.template },
-    { key: "tampering", label: "6. Tampering Analysis (ELA)", pass: checks.tampering },
-    { key: "issuer", label: "7. Official Issuer Verification", pass: checks.issuer }
+    { key: "documentType", label: t('verCard.chk1'), pass: checks.documentType },
+    { key: "ocr", label: t('verCard.chk2'), pass: checks.ocr },
+    { key: "format", label: t('verCard.chk3'), pass: checks.format },
+    { key: "qr", label: t('verCard.chk4'), pass: checks.qr },
+    { key: "template", label: t('verCard.chk5'), pass: checks.template },
+    { key: "tampering", label: t('verCard.chk6'), pass: checks.tampering },
+    { key: "issuer", label: t('verCard.chk7'), pass: checks.issuer }
   ];
 
   const downloadJsonReport = () => {
@@ -55,7 +57,7 @@ export default function VerificationCard({ result }) {
       {/* Header */}
       <div className="cardHeader" style={styles.cardHeader}>
         <div>
-          <div className="verIdLabel" style={styles.verIdLabel}>VERIFICATION REPORT</div>
+          <div className="verIdLabel" style={styles.verIdLabel}>{t('verCard.reportLbl')}</div>
           <div className="verIdValue" style={styles.verIdValue}>{verificationId}</div>
         </div>
         <div>
@@ -97,17 +99,17 @@ export default function VerificationCard({ result }) {
         {/* Document Classification */}
         <div className="infoBox" style={styles.infoBox}>
           <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748B" }}>
-            DOCUMENT TYPE
+            {t('verCard.typeLbl')}
           </div>
           <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
             {documentType === "PAN"
-              ? "Indian PAN Card"
+              ? t('uploadBox.pan') // Reused key
               : documentType === "DRIVING_LICENSE"
-              ? "Indian Driving Licence"
+              ? t('uploadBox.dl') // Reused key
               : documentType}
           </div>
           <div style={{ fontSize: "0.82rem", color: "#64748B", marginTop: "4px" }}>
-            Issuer: {issuerDetails?.issuer || "Govt. of India / Authoritative Portal"}
+            {issuerDetails?.issuer && "Issuer: "}{issuerDetails?.issuer || t('verCard.issuerGovt')}
           </div>
         </div>
       </div>
@@ -115,23 +117,23 @@ export default function VerificationCard({ result }) {
       {/* Tabs for detailed breakdown */}
       <div className="tabBar" style={styles.tabBar}>
         {[
-          { id: "overview", label: "Checks Checklist", icon: ShieldCheck },
-          { id: "extracted", label: "Extracted Data", icon: FileText },
-          { id: "tampering", label: "Tamper ELA Audit", icon: Eye },
-          { id: "issuer", label: "Issuer Registry", icon: Cpu }
-        ].map((t) => {
-          const Icon = t.icon;
+          { id: "overview", label: t('verCard.tabs.checks'), icon: ShieldCheck },
+          { id: "extracted", label: t('verCard.tabs.extracted'), icon: FileText },
+          { id: "tampering", label: t('verCard.tabs.tampering'), icon: Eye },
+          { id: "issuer", label: t('verCard.tabs.issuer'), icon: Cpu }
+        ].map((t_tab) => {
+          const Icon = t_tab.icon;
           return (
             <button
-              key={t.id}
+              key={t_tab.id}
               style={{
                 ...styles.tabBtn,
-                ...(activeTab === t.id ? styles.tabBtnActive : {})
+                ...(activeTab === t_tab.id ? styles.tabBtnActive : {})
               }}
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => setActiveTab(t_tab.id)}
             >
               <Icon size={16} />
-              {t.label}
+              {t_tab.label}
             </button>
           );
         })}
@@ -165,7 +167,7 @@ export default function VerificationCard({ result }) {
                     color: chk.pass ? "#16A34A" : "#DC2626"
                   }}
                 >
-                  {chk.pass ? "PASSED" : "FAILED / WARN"}
+                  {chk.pass ? t('verCard.passed') : t('verCard.failedWarn')}
                 </span>
               </div>
             ))}
@@ -174,7 +176,7 @@ export default function VerificationCard({ result }) {
           {penalties && penalties.length > 0 && (
             <div className="penaltyNotice" style={styles.penaltyNotice}>
               <div style={{ fontWeight: 700, color: "#D97706", marginBottom: "6px" }}>
-                Risk Deduction Audit:
+                {t('verCard.riskDeduct')}
               </div>
               <ul style={{ paddingLeft: "20px", fontSize: "0.85rem", color: "#B45309" }}>
                 {penalties.map((p, idx) => (
@@ -221,25 +223,25 @@ export default function VerificationCard({ result }) {
         <div className="tabContent" style={styles.tabContent}>
           <div className="tamperAuditGrid" style={styles.tamperAuditGrid}>
             <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>Aspect Ratio Match</div>
+              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp1')}</div>
               <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.aspectRatioCheck ? "#16A34A" : "#DC2626" }}>
-                {tamperDetails?.indicators?.aspectRatioCheck ? "Standard Physical Card Ratio" : "Non-Standard Proportions"}
+                {tamperDetails?.indicators?.aspectRatioCheck ? t('verCard.tamp1A') : t('verCard.tamp1B')}
               </div>
             </div>
             <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>Compression Grid (ELA)</div>
+              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp2')}</div>
               <div style={{ fontWeight: 700, color: tamperDetails?.indicators?.compressionConsistency ? "#16A34A" : "#DC2626" }}>
-                {tamperDetails?.indicators?.compressionConsistency ? "Uniform Noise Map" : "Potential Boundary Edit"}
+                {tamperDetails?.indicators?.compressionConsistency ? t('verCard.tamp2A') : t('verCard.tamp2B')}
               </div>
             </div>
             <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>Image Dimensions</div>
+              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp3')}</div>
               <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
-                {tamperDetails?.details?.dimensions || "Standard Resolution"}
+                {tamperDetails?.details?.dimensions || t('verCard.tamp3A')}
               </div>
             </div>
             <div className="auditBox" style={styles.auditBox}>
-              <div className="auditLabel" style={styles.auditLabel}>Edge Variance Score</div>
+              <div className="auditLabel" style={styles.auditLabel}>{t('verCard.tamp4')}</div>
               <div className="code-font" style={{ fontWeight: 700, color: "#0F172A" }}>
                 {tamperDetails?.details?.avgEdgeVariance || "12.4"}
               </div>
@@ -254,16 +256,16 @@ export default function VerificationCard({ result }) {
           <div className="issuerBox" style={styles.issuerBox}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontWeight: 700, color: "#2563EB" }}>
-                {issuerDetails?.issuer || "Authoritative Gateway"}
+                {issuerDetails?.issuer || t('verCard.authGate')}
               </span>
               <span className="badge-verified" style={{ fontSize: "0.75rem" }}>
-                {issuerDetails?.status || "API ACTIVE"}
+                {issuerDetails?.status || t('verCard.apiActive')}
               </span>
             </div>
             <div style={{ marginTop: "12px", fontSize: "0.88rem", color: "#64748B", lineHeight: 1.6 }}>
-              <div><strong>Verification Reference:</strong> {issuerDetails?.apiRef || "N/A"}</div>
-              <div><strong>Timestamp:</strong> {issuerDetails?.verificationTimestamp || new Date().toLocaleString()}</div>
-              <div><strong>Record Match Status:</strong> {issuerDetails?.verified ? "Authoritative Match Confirmed" : "Record Unverified"}</div>
+              <div><strong>{t('verCard.refLabel')}</strong> {issuerDetails?.apiRef || "N/A"}</div>
+              <div><strong>{t('verCard.timeLabel')}</strong> {issuerDetails?.verificationTimestamp || new Date().toLocaleString()}</div>
+              <div><strong>{t('verCard.matchStatus')}</strong> {issuerDetails?.verified ? t('verCard.matchConf') : t('verCard.matchFail')}</div>
             </div>
           </div>
         </div>
@@ -273,7 +275,7 @@ export default function VerificationCard({ result }) {
       <div className="footer" style={styles.footer}>
         <button className="btn-secondary" onClick={downloadJsonReport}>
           <Download size={16} />
-          Export JSON Certificate
+          {t('verCard.exportBtn')}
         </button>
       </div>
     </div>

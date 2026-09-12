@@ -3,8 +3,10 @@ import { getVerificationHistoryApi } from "../services/api";
 import ResultBadge from "../components/ResultBadge";
 import VerificationCard from "../components/VerificationCard";
 import { Search, Filter, RefreshCw, Eye, X } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 export default function History() {
+  const { t } = useLanguage();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -39,15 +41,15 @@ export default function History() {
     <div className="container" style={styles.container}>
       <div className="pageHeader" style={styles.header}>
         <div>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>Verification Audit Log</h1>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>{t('history.title')}</h1>
           <p style={{ fontSize: "0.9rem", color: "#64748b", marginTop: "4px" }}>
-            Historical audit records stored in MongoDB / Verification Store
+            {t('history.subtitle')}
           </p>
         </div>
 
         <button className="btn-secondary" onClick={fetchHistory} disabled={loading}>
           <RefreshCw size={16} className={loading ? "pulse-animation" : ""} />
-          Refresh Log
+          {t('history.refreshBtn')}
         </button>
       </div>
 
@@ -57,7 +59,7 @@ export default function History() {
           <Search size={18} color="#94a3b8" />
           <input
             type="text"
-            placeholder="Search by Verification ID, Document, File..."
+            placeholder={t('history.searchPH')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="searchInput" style={styles.searchInput}
@@ -75,7 +77,7 @@ export default function History() {
               }}
               onClick={() => setStatusFilter(st)}
             >
-              {st}
+              {t(`history.filters.${st}`)}
             </button>
           ))}
         </div>
@@ -85,22 +87,22 @@ export default function History() {
       <div className="glass-card" style={{ padding: "0", overflow: "hidden" }}>
         {loading ? (
           <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
-            Loading audit records...
+            {t('history.loading')}
           </div>
         ) : filteredRecords.length === 0 ? (
           <div style={{ padding: "60px", textAlign: "center", color: "#94a3b8" }}>
-            No matching verification audit records found.
+            {t('history.empty')}
           </div>
         ) : (
           <table className="table" style={styles.table}>
             <thead>
               <tr className="thRow" style={styles.thRow}>
-                <th className="th" style={styles.th}>VERIFICATION ID</th>
-                <th className="th" style={styles.th}>DOCUMENT</th>
-                <th className="th" style={styles.th}>STATUS</th>
-                <th className="th" style={styles.th}>ORIGINALITY SCORE</th>
-                <th className="th" style={styles.th}>TIMESTAMP</th>
-                <th className="th" style={styles.th}>ACTION</th>
+                <th className="th" style={styles.th}>{t('history.table.id')}</th>
+                <th className="th" style={styles.th}>{t('history.table.doc')}</th>
+                <th className="th" style={styles.th}>{t('history.table.status')}</th>
+                <th className="th" style={styles.th}>{t('history.table.risk')}</th>
+                <th className="th" style={styles.th}>{t('history.table.time')}</th>
+                <th className="th" style={styles.th}>{t('history.table.action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -111,9 +113,9 @@ export default function History() {
                   </td>
                   <td className="td" style={styles.td}>
                     {rec.documentType === "PAN"
-                      ? "PAN Card"
+                      ? t('uploadBox.pan') // re-use from upload
                       : rec.documentType === "DRIVING_LICENSE"
-                      ? "Driving Licence"
+                      ? t('uploadBox.dl') // re-use from upload
                       : rec.documentType}
                   </td>
                   <td className="td" style={styles.td}>
@@ -134,7 +136,7 @@ export default function History() {
                       onClick={() => setSelectedRecord(rec)}
                     >
                       <Eye size={14} />
-                      Inspect
+                      {t('history.inspectBtn')}
                     </button>
                   </td>
                 </tr>

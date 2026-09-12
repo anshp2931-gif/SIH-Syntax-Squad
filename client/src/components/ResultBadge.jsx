@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 export default function ResultBadge({ status, riskScore, originalityScore }) {
   const displayScore = originalityScore !== undefined
